@@ -1,0 +1,176 @@
+/* =========================================================
+   Tecsur — plantilla web
+   Derivada de Plantilla-PPT-Tecsur.pptx y de las presentaciones
+   "Optimización Operativa" y "Agilidad Operativa Inmediata".
+   Requiere en <head>:
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quattrocento+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+   ========================================================= */
+
+:root {
+  /* Marca (valores observados en la plantilla) */
+  --tz-azul: #1F4B8A;          /* títulos y texto de marca sobre claro */
+  --tz-verde: #2A6858;         /* eyebrows, logros, acento verde */
+  --tz-amarillo: #F5D12F;      /* acento; NUNCA texto sobre claro */
+  --tz-capsula: #4F71AD;       /* azul medio: etiquetas, nivel 2 */
+  --tz-acento: #7493B8;        /* barra vertical junto al título, flechas */
+  /* Complementario oficial, usado como alerta */
+  --tz-naranja: #F57C00;
+  --tz-naranja-txt: #A14A00;   /* texto naranja legible (5.7:1 sobre su fondo) */
+  --tz-naranja-bg: #FFF4E5;
+  /* Neutros */
+  --tz-fondo: #FCFDFE;
+  --tz-panel: #F3F6FA;
+  --tz-linea: #C9D4E5;
+  --tz-texto: #33475B;
+  --tz-texto-suave: #4A5D73;
+  --tz-texto-inverso: #E3EAF5;
+  /* Overlays de foto */
+  --tz-overlay-azul: rgba(0, 63, 117, 0.78);
+  --tz-overlay-gris: rgba(38, 38, 38, 0.80);
+
+  /* Tipografía */
+  --tz-font: 'Quattrocento Sans', Arial, sans-serif;
+  --tz-fs-display: clamp(2.25rem, 1.4rem + 3.2vw, 4rem);   /* 36 → 64 px */
+  --tz-fs-h2: clamp(1.75rem, 1.3rem + 1.6vw, 3rem);        /* 28 → 48 px */
+  --tz-fs-h3: clamp(1.375rem, 1.2rem + 0.6vw, 2rem);       /* 22 → 32 px */
+  --tz-fs-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.75rem); /* 18 → 28 px */
+  --tz-fs-body: 1.0625rem;                                  /* 17 px */
+  --tz-fs-small: 0.9375rem;                                 /* 15 px */
+
+  /* Espaciado y forma */
+  --tz-gap: clamp(16px, 2vw, 32px);
+  --tz-pad: clamp(20px, 2.4vw, 28px);
+  --tz-max: 1280px;
+  --tz-radius: 0px;            /* la plantilla no usa esquinas redondeadas */
+  --tz-radius-pill: 999px;     /* solo cápsulas */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body.tz {
+  margin: 0;
+  font-family: var(--tz-font);
+  font-size: var(--tz-fs-body);
+  line-height: 1.5;
+  color: var(--tz-texto);
+  background: var(--tz-fondo);
+}
+.tz h1, .tz h2, .tz h3, .tz p { margin: 0; }
+.tz img { max-width: 100%; display: block; }
+
+.tz-container { width: min(100% - 2 * var(--tz-gap), var(--tz-max)); margin-inline: auto; }
+.tz-section { padding-block: clamp(48px, 7vw, 96px); }
+.tz-section--panel { background: var(--tz-panel); }
+.tz-stack { display: flex; flex-direction: column; gap: var(--tz-gap); }
+
+/* ---------- Navegación ---------- */
+.tz-nav { background: var(--tz-fondo); border-bottom: 1px solid var(--tz-linea); }
+.tz-nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 16px; }
+.tz-nav__logo { height: 44px; width: auto; }
+.tz-nav__links { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+.tz-nav__links a { color: var(--tz-azul); font-weight: 700; text-decoration: none; }
+.tz-nav__links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Encabezado de sección (barra de acento + eyebrow + título + mensaje) ---------- */
+.tz-head { border-left: 10px solid var(--tz-acento); padding-left: 24px; display: flex; flex-direction: column; gap: 10px; max-width: 70ch; }
+.tz-eyebrow { font-size: var(--tz-fs-small); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tz-verde); }
+.tz-title { font-size: var(--tz-fs-h2); font-weight: 700; line-height: 1.1; color: var(--tz-azul); }
+.tz-lead { font-size: var(--tz-fs-lead); font-style: italic; line-height: 1.35; color: var(--tz-texto-suave); }
+
+/* ---------- Hero con foto (portada) ---------- */
+.tz-hero { position: relative; isolation: isolate; color: #FCFDFE; overflow: hidden; }
+.tz-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.tz-hero::before { content: ""; position: absolute; inset: 0; background: var(--tz-overlay-azul); z-index: -1; }
+.tz-hero--gris::before { background: var(--tz-overlay-gris); }
+.tz-hero__inner { min-height: min(80vh, 760px); display: flex; flex-direction: column; justify-content: flex-end; gap: 20px; padding-block: 48px; }
+.tz-hero__logo { height: 56px; width: auto; margin-bottom: auto; align-self: flex-start; }
+.tz-hero__eyebrow { font-size: var(--tz-fs-small); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tz-amarillo); }
+.tz-hero__title { font-size: var(--tz-fs-display); font-weight: 700; line-height: 1.08; max-width: 18ch; }
+.tz-hero__rule { border: 0; border-top: 2px solid #FCFDFE; width: min(100%, 640px); margin: 4px 0; }
+.tz-hero__sub { font-size: var(--tz-fs-lead); line-height: 1.35; color: var(--tz-texto-inverso); max-width: 48ch; }
+
+/* Hero partido: foto a la izquierda, contenido claro a la derecha */
+.tz-split { display: grid; grid-template-columns: 1.2fr 1fr; min-height: min(90vh, 860px); }
+.tz-split .tz-hero__inner { min-height: 100%; padding-inline: clamp(24px, 5vw, 96px); }
+.tz-split__side { background: var(--tz-fondo); padding: clamp(24px, 4vw, 72px); display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+@media (max-width: 900px) { .tz-split { grid-template-columns: 1fr; } }
+
+/* ---------- Banda de sección con cápsula (slides 5/6 de la plantilla) ---------- */
+.tz-band { position: relative; isolation: isolate; overflow: hidden; color: #FCFDFE; }
+.tz-band__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.tz-band::before { content: ""; position: absolute; inset: 0; background: var(--tz-overlay-gris); z-index: -1; }
+.tz-band__inner { min-height: 420px; display: flex; align-items: flex-end; padding-bottom: 64px; }
+.tz-capsula { background: var(--tz-capsula); padding: 20px 48px 20px var(--tz-gap); border-radius: 0 var(--tz-radius-pill) var(--tz-radius-pill) 0; margin-left: calc(-1 * var(--tz-gap)); max-width: 640px; }
+.tz-capsula__title { font-size: var(--tz-fs-h3); font-weight: 700; line-height: 1.15; }
+.tz-capsula__sub { font-size: var(--tz-fs-body); color: var(--tz-texto-inverso); }
+
+/* ---------- Rejillas ---------- */
+.tz-grid { display: grid; gap: var(--tz-gap); }
+.tz-grid--2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+.tz-grid--3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.tz-grid--4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+
+/* ---------- Tarjetas ---------- */
+.tz-card { background: var(--tz-panel); border-top: 8px solid var(--tz-azul); padding: var(--tz-pad); display: flex; flex-direction: column; gap: 12px; border-radius: var(--tz-radius); }
+.tz-card--verde { border-top-color: var(--tz-verde); }
+.tz-card--capsula { border-top-color: var(--tz-capsula); }
+.tz-card--amarillo { border-top-color: var(--tz-amarillo); }
+.tz-card--alerta { border-top-color: var(--tz-naranja); background: var(--tz-naranja-bg); }
+.tz-card__top { display: flex; justify-content: space-between; align-items: center; }
+.tz-card__title { font-size: var(--tz-fs-h3); font-weight: 700; line-height: 1.15; color: var(--tz-azul); }
+.tz-card__sub { font-style: italic; color: var(--tz-texto-suave); }
+.tz-card__spacer { flex: 1; }
+.tz-label { font-weight: 700; color: var(--tz-verde); }
+
+/* Bloque de impacto/alerta dentro de una tarjeta */
+.tz-impact { background: var(--tz-naranja-bg); border-left: 6px solid var(--tz-naranja); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+.tz-impact__label { font-weight: 700; color: var(--tz-naranja-txt); }
+
+/* Panel con borde lateral (personas, niveles, paneles de portada) */
+.tz-panel { background: var(--tz-panel); border-left: 8px solid var(--tz-azul); padding: 18px 24px; display: flex; flex-direction: column; gap: 6px; }
+.tz-panel--verde { border-left-color: var(--tz-verde); }
+.tz-panel--capsula { border-left-color: var(--tz-capsula); }
+.tz-panel--alerta { border-left-color: var(--tz-naranja); background: var(--tz-naranja-bg); }
+.tz-panel--punteado { background: var(--tz-fondo); border: 2px dashed #A7A9AC; }
+.tz-panel__name { font-size: 1.375rem; font-weight: 700; color: var(--tz-azul); }
+
+/* ---------- Elementos pequeños ---------- */
+.tz-num { width: 44px; height: 44px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--tz-azul); color: #FCFDFE; font-weight: 700; flex: none; }
+.tz-num--verde { background: var(--tz-verde); }
+.tz-num--capsula { background: var(--tz-capsula); }
+.tz-num--amarillo { background: var(--tz-amarillo); color: var(--tz-azul); }
+.tz-pill { display: inline-block; font-weight: 700; color: #FCFDFE; background: var(--tz-azul); padding: 6px 14px; border-radius: 8px; }
+.tz-pill--capsula { background: var(--tz-capsula); }
+.tz-badge { border: 2px solid var(--tz-linea); border-radius: 12px; padding: 14px 18px; }
+.tz-stat { font-size: clamp(2.5rem, 2rem + 2vw, 4rem); font-weight: 700; line-height: 1; color: var(--tz-verde); }
+.tz-stat--alerta { color: var(--tz-naranja-txt); }
+.tz-check { display: flex; gap: 12px; align-items: flex-start; }
+.tz-check::before { content: "✓"; color: var(--tz-verde); font-weight: 700; }
+
+/* ---------- Tabla ---------- */
+.tz-table-wrap { overflow-x: auto; }
+.tz-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+.tz-table th { background: var(--tz-azul); color: #FCFDFE; text-align: left; font-weight: 700; padding: 14px 18px; }
+.tz-table td { padding: 14px 18px; border-bottom: 1px solid var(--tz-linea); vertical-align: top; }
+.tz-table tbody tr:nth-child(even) { background: var(--tz-panel); }
+.tz-table tr.is-urgente { background: var(--tz-naranja-bg); }
+.tz-table td:first-child { color: var(--tz-azul); font-weight: 700; }
+
+/* ---------- Banner de cierre / proyección ---------- */
+.tz-banner { background: var(--tz-azul); color: var(--tz-texto-inverso); padding: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: center; }
+.tz-banner--verde { background: var(--tz-verde); }
+.tz-banner__k { font-size: var(--tz-fs-small); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tz-amarillo); }
+.tz-banner__t { font-size: var(--tz-fs-h3); font-weight: 700; color: #FCFDFE; }
+.tz-banner__txt { flex: 1 1 420px; font-size: var(--tz-fs-lead); line-height: 1.4; }
+
+/* ---------- Pie ---------- */
+.tz-footer { background: var(--tz-azul); color: var(--tz-texto-inverso); padding-block: 40px; }
+.tz-footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; }
+.tz-footer__logo { height: 40px; width: auto; align-self: center; }
+
+/* ---------- Movimiento ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .tz-reveal { animation: tz-rise 520ms ease-out both; animation-delay: calc(var(--i, 0) * 110ms); }
+  @keyframes tz-rise { from { opacity: 0; transform: translateY(18px); } }
+}

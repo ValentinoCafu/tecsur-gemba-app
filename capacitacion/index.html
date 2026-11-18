@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TECSUR — Portal de Capacitación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quattrocento+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<link rel="stylesheet" href="tecsur.css">
+<style>
+  /* ==========================================================================
+     HAPPY PATH ULTRA-SIMPLE — TECSUR × MCKINSEY
+     Cero texto innecesario. Flujo intuitivo de 1 clic.
+     ========================================================================== */
+  body.tz {
+    background: var(--tz-fondo);
+    color: var(--tz-texto);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header minimalista */
+  .hp-header {
+    background: #FFFFFF;
+    border-bottom: 3px solid var(--tz-azul);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .hp-header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .hp-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .hp-brand__logo { height: 38px; width: auto; }
+  .hp-brand__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--tz-azul);
+    border-left: 2px solid var(--tz-linea);
+    padding-left: 14px;
+  }
+
+  /* Switch Contratista / Tecsur */
+  .hp-switch {
+    display: inline-flex;
+    border: 2px solid var(--tz-azul);
+    background: var(--tz-panel);
+  }
+  .hp-switch__btn {
+    font-family: var(--tz-font);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--tz-azul);
+  }
+  .hp-switch__btn.is-active {
+    background: var(--tz-azul);
+    color: #FFFFFF;
+  }
+  .hp-switch__btn--gov.is-active {
+    background: var(--tz-verde);
+    color: #FFFFFF;
+  }
+  .hp-notif {
+    background: var(--tz-naranja);
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    padding: 2px 7px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+
+  /* Hero súper limpio y corto */
+  .hp-hero {
+    position: relative;
+    isolation: isolate;
+    color: #FFFFFF;
+    overflow: hidden;
+  }
+  .hp-hero__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+  }
+  .hp-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 41, 74, 0.88);
+    z-index: -1;
+  }
+  .hp-hero__inner {
+    padding-block: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .hp-hero__h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .hp-hero__sub {
+    color: var(--tz-amarillo);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+
+  /* 4 Botones Grandes del Happy Path */
+  .hp-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-block: 22px;
+  }
+  @media (max-width: 780px) { .hp-steps { grid-template-columns: 1fr 1fr; } }
+  .hp-step {
+    background: #FFFFFF;
+    border: 2px solid var(--tz-linea);
+    border-top: 6px solid var(--tz-linea);
+    padding: 16px;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--tz-font);
+    transition: all 0.15s;
+  }
+  .hp-step:hover { border-color: var(--tz-azul); }
+  .hp-step.is-active {
+    border-color: var(--tz-azul);
+    border-top-color: var(--tz-azul);
+    background: #F8FAFC;
+  }
+  .hp-step.is-done {
+    border-top-color: var(--tz-verde);
+  }
+  .hp-step__num {
+    display: inline-block;
+    background: var(--tz-azul);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    margin-bottom: 8px;
+  }
+  .hp-step.is-active .hp-step__num {
+    background: var(--tz-amarillo);
+    color: var(--tz-azul);
+  }
+  .hp-step.is-done .hp-step__num {
+    background: var(--tz-verde);
+    color: #FFFFFF;
+  }
+  .hp-step__title {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--tz-azul);
+  }
+  .hp-step__sub {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--tz-texto-suave);
+    margin-top: 2px;
+  }
+
+  /* Tarjetas de trabajo simples */
+  .hp-grid-2 {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 880px) { .hp-grid-2 { grid-template-columns: 1fr; } }
+
+  .hp-card {
+    background: #FFFFFF;
+    border: 1px solid var(--tz-linea);
+    border-top: 6px solid var(--tz-azul);
+    padding: 24px;
+  }
+  .hp-card--verde { border-top-color: var(--tz-verde); }
+  .hp-card--naranja { border-top-color: var(--tz-naranja); }
+
+  .hp-card__title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--tz-azul);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--tz-linea);
+  }
+
+  /* Inputs grandes y claros */
+  .hp-field { margin-bottom: 14px; }
+  .hp-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--tz-azul);
+    margin-bottom: 5px;
+  }
+  .hp-input, .hp-select, .hp-textarea {
+    font-family: var(--tz-font);
+    font-size: 1rem;
+    padding: 11px 13px;
+    border: 2px solid var(--tz-linea);
+    background: #FFFFFF;
+    color: var(--tz-texto);
+    width: 100%;
+  }
+  .hp-input:focus, .hp-select:focus, .hp-textarea:focus {
+    outline: none;
+    border-color: var(--tz-azul);
+  }
+  .hp-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hp-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .hp-row-2, .hp-row-3 { grid-template-columns: 1fr; } }
+
+  .hp-otro-box {
+    background: #FFFDF5;
+    border-left: 6px solid var(--tz-naranja);
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  /* Botones Grandes de 1 Clic */
+  .hp-btn {
+    font-family: var(--tz-font);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 14px 22px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .hp-btn:hover { opacity: 0.92; }
+  .hp-btn--azul { background: var(--tz-azul); color: #FFFFFF; }
+  .hp-btn--verde { background: var(--tz-verde); color: #FFFFFF; }
+  .hp-btn--naranja { background: var(--tz-naranja); color: #FFFFFF; }
+  .hp-btn--amarillo { background: var(--tz-amarillo); color: var(--tz-azul); }
+  .hp-btn--outline { background: #FFFFFF; border: 2px solid var(--tz-azul); color: var(--tz-azul); }
+  .hp-btn--sm { padding: 8px 14px; font-size: 0.85rem; }
+  .hp-btn--full { width: 100%; }
+
+  .hp-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    text-transform: uppercase;
+  }
+  .hp-tag--verde { background: #DCFCE7; color: #14532D; }
+  .hp-tag--azul { background: #E0F2FE; color: #0C4A6E; }
+  .hp-tag--amarillo { background: #FEF9C3; color: #713F12; }
+  .hp-tag--alerta { background: var(--tz-naranja-bg); color: var(--tz-naranja-txt); }
+
+  /* Iframe del Google Sheet */
+  .hp-sheet {
+    width: 100%;
+    height: 430px;
+    border: 2px solid var(--tz-azul);
+    background: #FFFFFF;
+  }
+
+  /* Tablas limpias */
+  .hp-table-wrap { overflow-x: auto; border: 1px solid var(--tz-linea); background: #FFFFFF; }
+  .hp-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .hp-table th {
+    background: var(--tz-azul);
+    color: #FFFFFF;
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+  .hp-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--tz-linea);
+  }
+  .hp-table tbody tr:nth-child(even) { background: var(--tz-panel); }
+
+  .hidden { display: none !important; }
+
+  /* Modal correo */
+  .hp-modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 41, 74, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+  .hp-modal {
+    background: #FFFFFF;
+    border-top: 8px solid var(--tz-verde);
+    max-width: 780px;
+    width: 100%;
+    padding: 24px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .hp-pre {
+    background: var(--tz-panel);
+    border-left: 5px solid var(--tz-azul);
+    padding: 14px;
+    font-family: var(--tz-font);
+    font-size: 0.92rem;
+    white-space: pre-wrap;
+    margin-block: 12px;
+  }
+</style>
+</head>
+<body class="tz">
+
+<!-- CABECERA SIMPLE -->
+<header class="hp-header">
+  <div class="tz-container hp-header__inner">
+    <div class="hp-brand">
+      <img class="hp-brand__logo" src="assets/logo/tecsur-logo-color.png" alt="Tecsur">
+      <span class="hp-brand__title">Capacitación y Acreditación</span>
+    </div>
+
+    <div class="hp-switch">
+      <button type="button" id="btnNavContratista" class="hp-switch__btn is-active" onclick="switchView('contratista')">
+        1. Vista Subcontratista
+      </button>
+      <button type="button" id="btnNavInterno" class="hp-switch__btn hp-switch__btn--gov" onclick="switchView('interno')">
+        2. Consola Capacitación <span id="badgePendientesGov" class="hp-notif hidden">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================================
+     VISTA 1: SUBCONTRATISTA (HAPPY PATH EN 4 PASOS SIMPLES)
+     ============================================================================ -->
+<div id="viewContratista">
+
+  <section class="hp-hero">
+    <img class="hp-hero__bg" src="assets/fotos/portada-tecnicos-horizontal.jpg" alt="Tecsur">
+    <div class="tz-container hp-hero__inner">
+      <div>
+        <h1 class="hp-hero__h1">Portal de Filtro e Inscripción de Cursos</h1>
+        <p class="hp-hero__sub">Siga los pasos en orden: 1. Consultar Filtro &rarr; 2. Inscribir en Cronograma &rarr; 3. Pedir Apertura</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="tz-container" style="padding-bottom: 56px;">
+
+    <!-- 4 BOTONES GRANDES DEL HAPPY PATH -->
+    <nav class="hp-steps">
+      <button type="button" id="stepTab1" class="hp-step is-active" onclick="goStep(1)">
+        <span id="badgeStep1" class="hp-step__num">PASO 1</span>
+        <span class="hp-step__title">Consultar Filtro DNI</span>
+        <span class="hp-step__sub">Saber si están habilitados</span>
+      </button>
+
+      <button type="button" id="stepTab2" class="hp-step" onclick="goStep(2)">
+        <span id="badgeStep2" class="hp-step__num">PASO 2</span>
+        <span class="hp-step__title">Ver Cronograma e Inscribir</span>
+        <span class="hp-step__sub">Si el curso SÍ está programado</span>
+      </button>
+
+      <button type="button" id="stepTab3" class="hp-step" onclick="goStep(3)">
+        <span id="badgeStep3" class="hp-step__num">PASO 3</span>
+        <span class="hp-step__title">Pedir Apertura de Curso</span>
+        <span class="hp-step__sub">Si el curso NO está en el mes</span>
+      </button>
+
+      <button type="button" id="stepTab4" class="hp-step" onclick="goStep(4)">
+        <span id="badgeStep4" class="hp-step__num">PASO 4</span>
+        <span class="hp-step__title">Reajustar Inscritos</span>
+        <span class="hp-step__sub">Avisar bajas (mín. 24h antes)</span>
+      </button>
+    </nav>
+
+    <!-- ========================================================================
+         PASO 1: CONSULTAR FILTRO DNI (SOLO EMPRESA, NOMBRE, CORREO Y DNI)
+         ======================================================================== -->
+    <section id="stepPanel1" class="hp-grid-2">
+      <div class="hp-card">
+        <h2 class="hp-card__title">Paso 1: Enviar DNI para Revisión de Filtro</h2>
+
+        <div class="hp-field">
+          <label class="hp-label" for="f1Empresa">1. Empresa Contratista / Área *</label>
+          <select id="f1Empresa" class="hp-select" onchange="toggleOtro('f1Empresa', 'f1OtroBox')">
+            <option value="20546349781|ENCOSSA SAC">1. ENCOSSA SAC</option>
+            <option value="20424295036|PRODUCSA">2. PRODUCSA</option>
+            <option value="20392466275|KIMSA">3. KIMSA</option>
+            <option value="20601111111|CAMPOS LATAM">4. CAMPOS LATAM</option>
+            <option value="20602222222|ADECCO PERU">5. ADECCO PERU</option>
+            <option value="20603333333|ALIHCOM BUILD SAC">6. ALIHCOM BUILD SAC</option>
+            <option value="20604444444|ALVIMAR">7. ALVIMAR</option>
+            <option value="20605555555|EOS">8. EOS</option>
+            <option value="20606666666|GRUCOIN S.A.C.">9. GRUCOIN S.A.C.</option>
+            <option value="20607777777|GRUPO ACUARIUS">10. GRUPO ACUARIUS</option>
+            <option value="20608888888|GRUPO ENERGIA">11. GRUPO ENERGIA</option>
+            <option value="20609999999|JG3 CONSTRUCCIONES SAC">12. JG3 CONSTRUCCIONES SAC</option>
+            <option value="20601010101|LOS ANDES">13. LOS ANDES</option>
+            <option value="20601212121|NATURAL GAS COMPANY">14. NATURAL GAS COMPANY</option>
+            <option value="20601313131|CARTER RENSA">15. CARTER RENSA</option>
+            <option value="20100000001|TECSUR/MANT TRANSMISIO">16. TECSUR / MANT TRANSMISIÓN</option>
+            <option value="20100000002|TECSUR/PROY TRANSMISIO">17. TECSUR / PROY TRANSMISIÓN</option>
+            <option value="20100000003|TECSUR GO">18. TECSUR GO</option>
+            <option value="OTRO|OTRO">19. OTRO (Escribir nombre manualmente)</option>
+          </select>
+        </div>
+
+        <div id="f1OtroBox" class="hp-otro-box hidden">
+          <div class="hp-row-2">
+            <div>
+              <label class="hp-label">Nombre de su Empresa *</label>
+              <input type="text" id="f1OtroNombre" class="hp-input" placeholder="Escriba el nombre de su empresa">
+            </div>
+            <div>
+              <label class="hp-label">RUC (Opcional)</label>
+              <input type="text" id="f1OtroRuc" class="hp-input" placeholder="RUC" maxlength="11">
+            </div>
+          </div>
+        </div>
+
+        <div class="hp-row-2">
+          <div class="hp-field">
+            <label class="hp-label">2. Su Nombre y Apellido *</label>
+            <input type="text" id="f1Responsable" class="hp-input" value="Laura Astocóndor Vadillo">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">3. Su Correo (Aquí llegará la respuesta) *</label>
+            <input type="email" id="f1Correo" class="hp-input" value="rrhh.peru@encossa.com">
+          </div>
+        </div>
+
+        <div class="hp-field">
+          <div class="hp-label">
+            <span>4. Pegue los DNI a Consultar *</span>
+            <button type="button" class="hp-btn hp-btn--amarillo hp-btn--sm" onclick="cargarMuestraPaso1()">
+              Pegar DNI de Prueba
+            </button>
+          </div>
+          <textarea id="f1Dnis" rows="4" class="hp-textarea" placeholder="Pegue aquí los DNI...">45624908, 70540256, 09894758</textarea>
+        </div>
+
+        <button type="button" id="btnEjecutarPaso1" class="hp-btn hp-btn--azul hp-btn--full" onclick="procesarPaso1Filtro()">
+          Enviar DNI a Capacitación &rarr;
+        </button>
+      </div>
+
+      <!-- RESPUESTA LIMPIA A LA DERECHA -->
+      <div class="hp-card hp-card--verde">
+        <h3 id="f1OutTitle" class="hp-card__title">Estado de su Consulta</h3>
+
+        <div id="f1OutBody">
+          <p style="font-size:1rem;color:var(--tz-texto-suave);">
+            1. Complete sus datos a la izquierda y presione <strong>"Enviar DNI a Capacitación"</strong>.<br><br>
+            2. Capacitación validará su ticket y le enviará a su correo qué trabajadores van directo a <strong>Fotocheck</strong> y quiénes deben llevar cursos.
+          </p>
+        </div>
+
+        <div id="f1NextActions" class="hidden" style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+          <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="enlazarPaso1APaso2()">
+            Continuar al Paso 2: Ver Cronograma e Inscribir &rarr;
+          </button>
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--full" onclick="switchView('interno'); goGovTab(1);">
+            [Ir a Consola Capacitación para Aprobar este Ticket con 1 Clic] &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         PASO 2: VER CRONOGRAMA EN VIVO E INSCRIBIR (O IR A APERTURA SI NO ESTÁ)
+         ======================================================================== -->
+    <section id="stepPanel2" class="hidden">
+
+      <!-- 1. MIRAR EL CRONOGRAMA DE ROBERTO -->
+      <div class="hp-card" style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <h2 class="hp-card__title" style="margin:0;border:none;padding:0;">1. Mire aquí el Cronograma en Tiempo Real de Roberto</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true" target="_blank" rel="noopener" class="hp-btn hp-btn--amarillo hp-btn--sm">
+              Abrir Cronograma en Pantalla Grande &nearr;
+            </a>
+            <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="enlazarPaso1APaso3()">
+              ¿NO está el curso que busca? Clic aquí para Pedir Apertura (Paso 3) &rarr;
+            </button>
+          </div>
+        </div>
+
+        <iframe
+          class="hp-sheet"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&amp;single=true&amp;widget=true&amp;headers=false"
+          title="Cronograma Noviembre 2026">
+        </iframe>
+      </div>
+
+      <!-- 2. SI EL CURSO SÍ ESTÁ EN EL CRONOGRAMA, INSCRIBIR AQUÍ -->
+      <div class="hp-grid-2">
+        <div class="hp-card hp-card--verde">
+          <h3 class="hp-card__title">2. Si el curso SÍ está en el Cronograma, inscríbase aquí:</h3>
+
+          <div class="hp-row-2">
+            <div class="hp-field">
+              <label class="hp-label">1. Empresa *</label>
+              <select id="f2Empresa" class="hp-select" onchange="toggleOtro('f2Empresa', 'f2OtroBox')">
+                <option value="20546349781|ENCOSSA SAC">1. ENCOSSA SAC</option>
+                <option value="20424295036|PRODUCSA">2. PRODUCSA</option>
+                <option value="20392466275|KIMSA">3. KIMSA</option>
+                <option value="20601111111|CAMPOS LATAM">4. CAMPOS LATAM</option>
+                <option value="20602222222|ADECCO PERU">5. ADECCO PERU</option>
+                <option value="20603333333|ALIHCOM BUILD SAC">6. ALIHCOM BUILD SAC</option>
+                <option value="20604444444|ALVIMAR">7. ALVIMAR</option>
+                <option value="20605555555|EOS">8. EOS</option>
+                <option value="20606666666|GRUCOIN S.A.C.">9. GRUCOIN S.A.C.</option>
+                <option value="20607777777|GRUPO ACUARIUS">10. GRUPO ACUARIUS</option>
+                <option value="20608888888|GRUPO ENERGIA">11. GRUPO ENERGIA</option>
+                <option value="20609999999|JG3 CONSTRUCCIONES SAC">12. JG3 CONSTRUCCIONES SAC</option>
+                <option value="20601010101|LOS ANDES">13. LOS ANDES</option>
+                <option value="20601212121|NATURAL GAS COMPANY">14. NATURAL GAS COMPANY</option>
+                <option value="20601313131|CARTER RENSA">15. CARTER RENSA</option>
+                <option value="20100000001|TECSUR/MANT TRANSMISIO">16. TECSUR / MANT TRANSMISIÓN</option>
+                <option value="20100000002|TECSUR/PROY TRANSMISIO">17. TECSUR / PROY TRANSMISIÓN</option>
+                <option value="20100000003|TECSUR GO">18. TECSUR GO</option>
+                <option value="OTRO|OTRO">19. OTRO (Escribir manualmente)</option>
+              </select>
+            </div>
+            <div class="hp-field">
+              <label class="hp-label">2. Curso que vio en el Cronograma *</label>
+              <select id="f2CursoCodigo" class="hp-select">
+                <option value="EASA">1. EASA</option>
+                <option value="EEBT">2. EEBT</option>
+                <option value="ECPMBT">3. ECPMBT</option>
+                <option value="APR_CE">4. APR_CE</option>
+                <option value="BRIGADAS">5. BRIGADAS</option>
+                <option value="ECON">6. ECON</option>
+                <option value="EPRP">7. EPRP</option>
+                <option value="EORABT">8. EORABT</option>
+                <option value="EORAMT">9. EORAMT</option>
+                <option value="EEMT">10. EEMT</option>
+                <option value="ECPMMT">11. ECPMMT</option>
+                <option value="EPET">12. EPET</option>
+                <option value="DRE">13. DRE</option>
+                <option value="ETMC">14. ETMC</option>
+                <option value="AOG">15. AOG</option>
+                <option value="IZ">16. IZ</option>
+                <option value="LECMAX">17. LECMAX</option>
+                <option value="ECOB">18. ECOB</option>
+                <option value="ECOGR">19. ECOGR</option>
+                <option value="ECOBH">20. ECOBH</option>
+                <option value="EOCP">21. EOCP</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="f2OtroBox" class="hp-otro-box hidden">
+            <div class="hp-row-2">
+              <div>
+                <label class="hp-label">Nombre de su Empresa *</label>
+                <input type="text" id="f2OtroNombre" class="hp-input" placeholder="Nombre de su empresa">
+              </div>
+              <div>
+                <label class="hp-label">RUC</label>
+                <input type="text" id="f2OtroRuc" class="hp-input" placeholder="RUC" maxlength="11">
+              </div>
+            </div>
+          </div>
+
+          <div class="hp-row-2">
+            <div class="hp-field">
+              <label class="hp-label">3. Fecha que vio en el Cronograma *</label>
+              <input type="date" id="f2FechaVista" class="hp-input" value="2026-11-24">
+            </div>
+            <div class="hp-field">
+              <label class="hp-label">4. Aula que vio en el Cronograma *</label>
+              <select id="f2AulaVista" class="hp-select">
+                <option value="Aula 1 — Sede Central SJM">Aula 1 — Sede Central SJM</option>
+                <option value="Aula 2 — Sede Central SJM">Aula 2 — Sede Central SJM</option>
+                <option value="Aula 3 — Sede Central SJM">Aula 3 — Sede Central SJM</option>
+                <option value="Aula 4 — Sede Central SJM">Aula 4 — Sede Central SJM</option>
+                <option value="Recinto R-5 (Campo SJM)">Recinto R-5 (Campo SJM)</option>
+                <option value="Virtual">Virtual</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="hp-row-2">
+            <div class="hp-field">
+              <label class="hp-label">5. Su Nombre *</label>
+              <input type="text" id="f2Solicitante" class="hp-input" value="Laura Astocóndor Vadillo">
+            </div>
+            <div class="hp-field">
+              <label class="hp-label">6. Su Correo *</label>
+              <input type="email" id="f2Correo" class="hp-input" value="rrhh.peru@encossa.com">
+            </div>
+          </div>
+
+          <div class="hp-field">
+            <label class="hp-label">7. DNI(s) de los Participantes Aptos *</label>
+            <input type="text" id="f2Dnis" class="hp-input" value="45624908">
+          </div>
+
+          <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="confirmarMatriculaPaso2()">
+            Inscribir Personal en esta Fecha &rarr;
+          </button>
+        </div>
+
+        <!-- BOTÓN GIGANTE SI NO ESTÁ EL CURSO + RESPUESTA DE INSCRIPCIÓN -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="hp-card hp-card--naranja">
+            <h3 class="hp-card__title">¿No encontró el curso o está lleno?</h3>
+            <p style="margin-bottom:14px;">Con un clic pida a Roberto que abra una nueva fecha para su personal:</p>
+            <button type="button" class="hp-btn hp-btn--naranja hp-btn--full" onclick="enlazarPaso1APaso3()">
+              Ir al Paso 3: Solicitar Apertura de Curso &rarr;
+            </button>
+          </div>
+
+          <div class="hp-card">
+            <h3 class="hp-card__title">Constancia de Inscripción</h3>
+            <div id="f2TicketContent">
+              <p style="color:var(--tz-texto-suave);">Aquí aparecerá su código de inscripción al enviar el formulario.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         PASO 3: SOLICITAR APERTURA DE CURSO (EL FORMS DE APERTURA 2026)
+         ======================================================================== -->
+    <section id="stepPanel3" class="hp-grid-2 hidden">
+      <div class="hp-card">
+        <h2 class="hp-card__title">Paso 3: Solicitud de Apertura de Cursos 2026</h2>
+
+        <div class="hp-field">
+          <label class="hp-label">1. Empresa Contratista / Área *</label>
+          <select id="f3Empresa" class="hp-select" onchange="toggleOtro('f3Empresa', 'f3OtroBox')">
+            <option value="ADECCO PERU">1. ADECCO PERU</option>
+            <option value="ALIHCOM BUILD SAC">2. ALIHCOM BUILD SAC</option>
+            <option value="ALVIMAR">3. ALVIMAR</option>
+            <option value="CAMPOS LATAM">4. CAMPOS LATAM</option>
+            <option value="ENCOSSA SAC" selected>5. ENCOSSA SAC</option>
+            <option value="EOS">6. EOS</option>
+            <option value="GRUCOIN S.A.C.">7. GRUCOIN S.A.C.</option>
+            <option value="GRUPO ACUARIUS">8. GRUPO ACUARIUS</option>
+            <option value="GRUPO ENERGIA">9. GRUPO ENERGIA</option>
+            <option value="JG3 CONSTRUCCIONES SAC">10. JG3 CONSTRUCCIONES SAC</option>
+            <option value="KIMSA">11. KIMSA</option>
+            <option value="LOS ANDES">12. LOS ANDES</option>
+            <option value="NATURAL GAS COMPANY">13. NATURAL GAS COMPANY</option>
+            <option value="PRODUCSA">14. PRODUCSA</option>
+            <option value="TECSUR/MANT TRANSMISIO">15. TECSUR/MANT TRANSMISIO</option>
+            <option value="TECSUR/PROY TRANSMISIO">16. TECSUR/PROY TRANSMISIO</option>
+            <option value="CARTER RENSA">17. CARTER RENSA</option>
+            <option value="TECSUR GO">18. TECSUR GO</option>
+            <option value="OTRO">19. OTRO (Escribir manualmente)</option>
+          </select>
+        </div>
+
+        <div id="f3OtroBox" class="hp-otro-box hidden">
+          <div class="hp-row-2">
+            <div>
+              <label class="hp-label">Nombre de su Empresa *</label>
+              <input type="text" id="f3OtroNombre" class="hp-input" placeholder="Nombre de su empresa">
+            </div>
+            <div>
+              <label class="hp-label">RUC</label>
+              <input type="text" id="f3OtroRuc" class="hp-input" placeholder="RUC" maxlength="11">
+            </div>
+          </div>
+        </div>
+
+        <div class="hp-row-2">
+          <div class="hp-field">
+            <label class="hp-label">2. Su Nombre Completo *</label>
+            <input type="text" id="f3Solicitante" class="hp-input" value="Laura Astocóndor Vadillo">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">3. Su Correo *</label>
+            <input type="email" id="f3Correo" class="hp-input" value="rrhh.peru@encossa.com">
+          </div>
+        </div>
+
+        <div class="hp-row-3">
+          <div class="hp-field">
+            <label class="hp-label">4. Curso a Abrir *</label>
+            <select id="f3Curso" class="hp-select">
+              <option value="EASA">1. EASA</option>
+              <option value="EEBT">2. EEBT</option>
+              <option value="ECPMBT">3. ECPMBT</option>
+              <option value="APR_CE">4. APR_CE</option>
+              <option value="BRIGADAS">5. BRIGADAS</option>
+              <option value="ECON">6. ECON</option>
+              <option value="EPRP">7. EPRP</option>
+              <option value="EORABT">8. EORABT</option>
+              <option value="EORAMT">9. EORAMT</option>
+              <option value="EEMT">10. EEMT</option>
+              <option value="ECPMMT">11. ECPMMT</option>
+              <option value="EPET">12. EPET</option>
+              <option value="DRE">13. DRE</option>
+              <option value="ETMC" selected>14. ETMC</option>
+              <option value="AOG">15. AOG</option>
+              <option value="IZ">16. IZ</option>
+              <option value="LECMAX">17. LECMAX</option>
+              <option value="ECOB">18. ECOB</option>
+              <option value="ECOGR">19. ECOGR</option>
+              <option value="ECOBH">20. ECOBH</option>
+              <option value="EOCP">21. EOCP</option>
+            </select>
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">5. N° Personas *</label>
+            <input type="number" id="f3Cantidad" class="hp-input" value="6" min="1" max="55">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">6. Depto. TECSUR *</label>
+            <select id="f3Depto" class="hp-select">
+              <option value="OBRAS BT">1. OBRAS BT</option>
+              <option value="MANTENIMIENTO BT">2. MANTENIMIENTO BT</option>
+              <option value="OBRAS MT">3. OBRAS MT</option>
+              <option value="MANTENIMIENTO MT">4. MANTENIMIENTO MT</option>
+              <option value="EMERGENCIA Y ALUMBRADO">5. EMERGENCIA Y ALUMBRADO</option>
+              <option value="OTRO">6. OTRO</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hp-row-2">
+          <div class="hp-field">
+            <label class="hp-label">7. Opción 1 de Fecha (08:00 a 18:00) *</label>
+            <input type="datetime-local" id="f3Fecha1" class="hp-input" value="2026-11-26T08:00">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">8. Opción 2 de Fecha (Obligatoria) *</label>
+            <input type="datetime-local" id="f3Fecha2" class="hp-input" value="2026-11-28T08:00">
+          </div>
+        </div>
+
+        <div class="hp-field">
+          <label class="hp-label">9. Comentarios (Opcional)</label>
+          <input type="text" id="f3Comentario" class="hp-input" placeholder="Comentario opcional...">
+        </div>
+
+        <button type="button" class="hp-btn hp-btn--azul hp-btn--full" onclick="registrarAperturaPaso3()">
+          Enviar Solicitud de Apertura a Roberto &rarr;
+        </button>
+      </div>
+
+      <div class="hp-card hp-card--verde">
+        <h3 class="hp-card__title">Confirmación de Solicitud</h3>
+        <div id="f3OutContent">
+          <p style="color:var(--tz-texto-suave);">
+            Indique sus 2 opciones de fecha. Roberto revisará la disponibilidad de aula y trainer y le confirmará por correo qué día se dictará el curso.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         PASO 4: REAJUSTAR CANTIDAD DE INSCRITOS (24 HORAS ANTES)
+         ======================================================================== -->
+    <section id="stepPanel4" class="hp-grid-2 hidden">
+      <div class="hp-card hp-card--naranja">
+        <h2 class="hp-card__title">Paso 4: Avisar Reducción de Inscritos (Mín. 1 Día Antes)</h2>
+
+        <div class="hp-row-2">
+          <div class="hp-field">
+            <label class="hp-label">1. Código de Inscripción *</label>
+            <input type="text" id="f4Ticket" class="hp-input" value="INS-2026-089">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">2. Empresa *</label>
+            <input type="text" id="f4Empresa" class="hp-input" value="ENCOSSA SAC">
+          </div>
+        </div>
+
+        <div class="hp-row-3">
+          <div class="hp-field">
+            <label class="hp-label">3. Curso *</label>
+            <input type="text" id="f4Curso" class="hp-input" value="EORABT (25/11/2026)">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">4. Inscritos Antes</label>
+            <input type="number" id="f4Orig" class="hp-input" value="10">
+          </div>
+          <div class="hp-field">
+            <label class="hp-label">5. Nueva Cantidad Real *</label>
+            <input type="number" id="f4Nueva" class="hp-input" value="6" min="1" max="55">
+          </div>
+        </div>
+
+        <div class="hp-field">
+          <label class="hp-label">6. Su Correo *</label>
+          <input type="email" id="f4Correo" class="hp-input" value="rrhh.peru@encossa.com">
+        </div>
+
+        <div class="hp-field">
+          <label class="hp-label">7. Motivo y DNI que se retiran *</label>
+          <textarea id="f4Motivo" rows="2" class="hp-textarea">4 técnicos no asistirán. Solicitamos reajustar de 10 a 6 cupos con 24h de anticipación.</textarea>
+        </div>
+
+        <button type="button" class="hp-btn hp-btn--naranja hp-btn--full" onclick="registrarReajustePaso4()">
+          Enviar Solicitud de Reajuste &rarr;
+        </button>
+      </div>
+
+      <div class="hp-card">
+        <h3 class="hp-card__title">Regla de Facturación</h3>
+        <div id="f4OutContent">
+          <p style="color:var(--tz-texto-suave);">
+            &bull; Debe avisar con al menos <strong>1 día de anticipación</strong>.<br><br>
+            &bull; Capacitación evaluará si el cambio afecta el curso. Si no hay problema se reajusta; de lo contrario, se cobra por los inscritos originales porque ocuparon vacantes de otras personas.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================================================
+     VISTA 2: CONSOLA INTERNA DE CAPACITACIÓN (GUILLE, DEREK, ROBERTO, PABLO)
+     ============================================================================ -->
+<div id="viewInterno" class="hidden">
+
+  <section class="hp-hero">
+    <img class="hp-hero__bg" src="assets/fotos/torres-atardecer.jpg" alt="Tecsur">
+    <div class="tz-container hp-hero__inner">
+      <div>
+        <h1 class="hp-hero__h1">Consola Interna — Capacitación TECSUR</h1>
+        <p class="hp-hero__sub">Conectada a las 51 tablas de Access (51,998 trabajadores) &bull; Aprobación en 1 Clic</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="tz-container" style="padding-bottom: 56px;">
+
+    <nav class="hp-steps">
+      <button type="button" id="govTab1" class="hp-step is-active" onclick="goGovTab(1)">
+        <span class="hp-step__num">MÓDULO A</span>
+        <span class="hp-step__title">Tickets de Filtro (SÍ / NO)</span>
+        <span class="hp-step__sub">Guille &amp; Derek</span>
+      </button>
+      <button type="button" id="govTab2" class="hp-step" onclick="goGovTab(2)">
+        <span class="hp-step__num">MÓDULO B</span>
+        <span class="hp-step__title">Demanda de Apertura</span>
+        <span class="hp-step__sub">Roberto (Quórum y Aforos)</span>
+      </button>
+      <button type="button" id="govTab3" class="hp-step" onclick="goGovTab(3)">
+        <span class="hp-step__num">MÓDULO C</span>
+        <span class="hp-step__title">Reajustes de Cupo</span>
+        <span class="hp-step__sub">Aprobar o Cobrar Total</span>
+      </button>
+      <button type="button" id="govTab4" class="hp-step" onclick="goGovTab(4)">
+        <span class="hp-step__num">MÓDULO D</span>
+        <span class="hp-step__title">KPIs de Pablo</span>
+        <span class="hp-step__sub">Asistencia y Notas Access</span>
+      </button>
+    </nav>
+
+    <!-- MÓDULO A: APROBAR TICKETS SÍ / NO -->
+    <section id="govPanel1">
+      <div class="hp-card hp-card--verde" style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <h2 class="hp-card__title" style="margin:0;border:none;padding:0;">Tickets de Filtro Recibidos — Aprobar Envío de Data (SÍ / NO)</h2>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="inpWebhookPA" class="hp-input" placeholder="URL Webhook Power Automate..." style="width:240px;padding:6px 10px;font-size:0.85rem;">
+            <button type="button" class="hp-btn hp-btn--azul hp-btn--sm" onclick="guardarWebhook()">Guardar</button>
+          </div>
+        </div>
+        <div class="hp-table-wrap">
+          <table class="hp-table">
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Contratista</th>
+                <th>Solicitante / Correo</th>
+                <th>Data Extraída de Access (Puesto, Estado y Cursos)</th>
+                <th>Estado</th>
+                <th>Aprobar con 1 Clic</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyGovColaFiltros"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Buscador Directo en Access -->
+      <div class="hp-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Buscador Directo en Access (Consulta Interna Rápida)</h3>
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="exportarGovCSV()">Descargar Excel CSV</button>
+        </div>
+        <div class="hp-row-3" style="align-items:end;margin-bottom:14px;">
+          <div>
+            <label class="hp-label">Empresa</label>
+            <select id="govEmpresa" class="hp-select">
+              <option value="20546349781|ENCOSSA SAC">ENCOSSA SAC</option>
+              <option value="20424295036|PRODUCSA">PRODUCSA</option>
+              <option value="20392466275|KIMSA">KIMSA</option>
+              <option value="20601111111|CAMPOS LATAM">CAMPOS LATAM</option>
+            </select>
+          </div>
+          <div style="grid-column: span 2; display:flex; gap:8px;">
+            <input type="text" id="govDnis" class="hp-input" value="45624908, 70540256, 09894758, 06964902">
+            <button type="button" class="hp-btn hp-btn--azul" onclick="auditarAccessDirecto()">Consultar Access</button>
+          </div>
+        </div>
+        <div class="hp-table-wrap">
+          <table class="hp-table">
+            <thead>
+              <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Puesto y Empresa en Access</th>
+                <th>Estado</th>
+                <th>Motivo</th>
+                <th>Cursos Vigentes (Tabla CURSOS)</th>
+                <th>Ruta / Excepción</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyGovDirecto"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÓDULO B: DEMANDA DE APERTURA DE ROBERTO -->
+    <section id="govPanel2" class="hidden">
+      <div class="hp-card" style="margin-bottom:20px;">
+        <h3 class="hp-card__title">Capacidad Máxima de Aulas SJM y Campo R-5</h3>
+        <div class="hp-row-3">
+          <div class="tz-panel"><p class="tz-panel__name" style="font-size:1rem;">Aula 1 (45) &amp; Aula 2 (50)</p><p style="font-size:0.86rem;">Sede Central San Juan de Miraflores</p></div>
+          <div class="tz-panel tz-panel--capsula"><p class="tz-panel__name" style="font-size:1rem;">Aula 3 (55) &amp; Aula 4 (55)</p><p style="font-size:0.86rem;">Sede Central San Juan de Miraflores</p></div>
+          <div class="tz-panel tz-panel--alerta"><p class="tz-panel__name" style="font-size:1rem;">R-5: Aula (20) &amp; Campo (40)</p><p style="font-size:0.86rem;">Máximo 2 cursos en simultáneo en R-5</p></div>
+        </div>
+      </div>
+
+      <div class="hp-card">
+        <h3 class="hp-card__title">Solicitudes de Apertura Acumuladas por Curso (Para Roberto)</h3>
+        <div class="hp-table-wrap">
+          <table class="hp-table">
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Total Personas</th>
+                <th>Mínimo</th>
+                <th>Empresas que Solicitan</th>
+                <th>Estado</th>
+                <th>Avisar Fecha a Contratistas</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyGovDemanda"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÓDULO C: APROBACIÓN DE REAJUSTES -->
+    <section id="govPanel3" class="hidden">
+      <div class="hp-card">
+        <h2 class="hp-card__title">Solicitudes de Reajuste de Cupos (Avisos con 24h de Anticipación)</h2>
+        <div class="hp-table-wrap">
+          <table class="hp-table">
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Empresa</th>
+                <th>Curso</th>
+                <th>Inscritos Antes</th>
+                <th>Nuevo Cupo</th>
+                <th>Motivo</th>
+                <th>Estado</th>
+                <th>Decisión de Capacitación</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyGovReajustes"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÓDULO D: KPIS DE PABLO -->
+    <section id="govPanel4" class="hidden">
+      <div class="hp-grid-2">
+        <div class="hp-card">
+          <h3 class="hp-card__title">Notas por Módulo en Access (5,864 Evaluaciones)</h3>
+          <p style="margin-bottom:10px;">1. Conocimiento Teórico (25%): <strong>13.3 / 20</strong></p>
+          <p style="margin-bottom:10px;">2. Habilidad en Campo (25%): <strong>13.4 / 20</strong></p>
+          <p style="margin-bottom:10px;color:var(--tz-naranja-txt);">3. Aplicación Práctica en Maniobra (30%): <strong>13.1 / 20 (Donde más se caen)</strong></p>
+          <p style="margin-bottom:10px;">4. Uso de EPP en R-5 (10%): <strong>13.7 / 20</strong></p>
+          <p>5. Orden y Limpieza (10%): <strong>13.8 / 20</strong></p>
+        </div>
+
+        <div class="hp-card hp-card--verde">
+          <h3 class="hp-card__title">Control por Subcontratista (Convocados vs. Asistentes)</h3>
+          <div class="hp-table-wrap">
+            <table class="hp-table">
+              <thead>
+                <tr>
+                  <th>Contratista</th>
+                  <th>Programados</th>
+                  <th>Asistieron</th>
+                  <th>Acabaron</th>
+                  <th>Aprobados</th>
+                  <th>Faltas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>PRODUCSA</strong></td><td>24</td><td>22</td><td>22</td><td>19</td><td><span class="hp-tag hp-tag--verde">8%</span></td></tr>
+                <tr><td><strong>ENCOSSA SAC</strong></td><td>18</td><td>15</td><td>14</td><td>12</td><td><span class="hp-tag hp-tag--verde">16%</span></td></tr>
+                <tr><td><strong>CAMPOS LATAM</strong></td><td>35</td><td>14</td><td>12</td><td>9</td><td><span class="hp-tag hp-tag--alerta">60% Faltas</span></td></tr>
+                <tr><td><strong>LOS ANDES</strong></td><td>19</td><td>16</td><td>16</td><td>14</td><td><span class="hp-tag hp-tag--verde">15%</span></td></tr>
+                <tr><td><strong>KIMSA</strong></td><td>15</td><td>8</td><td>7</td><td>5</td><td><span class="hp-tag hp-tag--alerta">47% Faltas</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODAL DE ENVÍO DE CORREO EN 1 CLIC -->
+<div id="modalDespacho" class="hp-modal-bg hidden">
+  <div class="hp-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Enviar Respuesta Oficial al Correo de la Subcontratista</h3>
+      <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="cerrarModal()">✕ Cerrar</button>
+    </div>
+    <div id="modalPreText" class="hp-pre"></div>
+    <div id="modalStatusMsg" class="tz-panel tz-panel--verde hidden" style="margin-bottom:12px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+      <button type="button" class="hp-btn hp-btn--verde" onclick="enviarViaPowerAutomate()">
+        ✓ Enviar Correo Ahora (Power Automate)
+      </button>
+      <button type="button" class="hp-btn hp-btn--azul" onclick="abrirClienteOutlook()">
+        Abrir en mi Outlook
+      </button>
+      <button type="button" class="hp-btn hp-btn--outline" onclick="copiarYDespachar()">
+        Copiar Texto
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer class="tz-footer">
+  <div class="tz-container tz-footer__inner">
+    <img class="tz-footer__logo" src="assets/logo/tecsur-logo-blanco.png" alt="Tecsur">
+    <p>Área de Capacitación TECSUR</p>
+  </div>
+</footer>
+
+<script>
+  const API_BASE = 'http://127.0.0.1:8050';
+  const ACCESS_SNAPSHOT = {"observados": {"09894758": "Incumplimiento de normativa interna de seguridad / conducta"}, "personal": {"45624908": {"nombre": "OCHOA VILLAYZAN, RAUL ANGEL", "ruc": "20424295036", "cargo": "CONDUCTOR", "ingreso": "2025-09-15", "cese": "2025-12-17", "cursos": ["HSE_1 (15/09/2025)", "HSE_2 (15/09/2025)", "ECON (09/09/2025)"]}, "70540256": {"nombre": "AGUADO QUISPE, ANGEL FABIAN", "ruc": "20616089898", "cargo": "OPERARIO", "ingreso": "2026-11-17", "cese": "", "cursos": []}, "06964902": {"nombre": "CAJAMARCA VEGA, ALBERTO ALBINO", "ruc": "20504874401", "cargo": "EMPALMADOR", "ingreso": "2026-04-13", "cese": "", "cursos": ["ECPMBT (14/04/2026)"]}, "46881754": {"nombre": "AGUIRRE VEGA, JHON CESAR", "ruc": "20546349781", "cargo": "OPERARIO LINIERO BT", "ingreso": "2025-03-10", "cese": "2026-06-15", "cursos": ["EASA (12/03/2025)", "EORABT (14/03/2025)", "EEBT (15/03/2025)"]}}};
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true";
+
+  let STATE = {
+    power_automate_webhook: "",
+    demanda_consolidada: [
+      { curso: "ECOB", total_personas: 30, quorum_minimo: 12, empresas_detalle: "CAMPOS LATAM (15), GRUPO ENERGIA (15)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+      { curso: "ECON", total_personas: 17, quorum_minimo: 12, empresas_detalle: "LOS ANDES (12), PRODUCSA (5)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+      { curso: "EOCP", total_personas: 15, quorum_minimo: 12, empresas_detalle: "GRUCOIN (15)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+      { curso: "EORABT", total_personas: 14, quorum_minimo: 12, empresas_detalle: "KIMSA (2), ENCOSSA (4), PRODUCSA (6), LOS ANDES (2)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+      { curso: "ETMC", total_personas: 13, quorum_minimo: 12, empresas_detalle: "CAMPOS LATAM (5), CONSTRUCTORA SUR (8)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+      { curso: "DRE", total_personas: 7, quorum_minimo: 12, empresas_detalle: "LOS ANDES (7)", estado_quorum: "EN ESPERA (7/12)" }
+    ],
+    tickets_filtro: [],
+    tickets_reajuste: [
+      { reajuste_id: "REAJ-2026-012", fecha_solicitud: "18/11/2026 11:40", empresa: "ENCOSSA SAC", correo: "rrhh.peru@encossa.com", curso_codigo: "EORABT (25/11/2026)", cupos_originales: 10, cupos_solicitados: 6, diferencia_baja: 4, motivo_contratista: "4 técnicos no asistirán. Solicitamos bajar de 10 a 6 cupos con 24h de anticipación.", estado: "PENDIENTE", resolucion: "" }
+    ],
+    excepciones_ops: {}
+  };
+
+  let ultimoFiltroProcesado = null;
+  let ultimosResultadosGov = [];
+  let modalPayload = null;
+
+  function evaluarDnisEnSnapshot(dnis, rucTarget) {
+    const hoy = new Date("2026-11-18T00:00:00");
+    return dnis.map(raw => {
+      const dni = String(raw).trim();
+      if (ACCESS_SNAPSHOT.observados && ACCESS_SNAPSHOT.observados[dni]) {
+        const obs = ACCESS_SNAPSHOT.observados[dni];
+        return {
+          dni,
+          nombre: (ACCESS_SNAPSHOT.personal[dni]?.nombre) || "OBSERVADO EN SISTEMA",
+          estado_filtro: "RECHAZADO_OBSERVADO",
+          badge_class: "alerta",
+          motivo: `Observado en Access: ${obs}`,
+          motivo_contratista: "No habilitado para ingresar (Observado).",
+          bifurcacion: "BLOQUEADO",
+          cursos_vigentes: [],
+          ultima_empresa: "",
+          ultimo_cargo: "OBSERVADO",
+          fecha_cese: ""
+        };
+      }
+      const p = (ACCESS_SNAPSHOT.personal && ACCESS_SNAPSHOT.personal[dni]) ? ACCESS_SNAPSHOT.personal[dni] : null;
+      if (!p) {
+        return {
+          dni,
+          nombre: "POSTULANTE NUEVO",
+          estado_filtro: "APTO_CAPACITACION",
+          badge_class: "azul",
+          motivo: "Habilitado para llevar cursos.",
+          motivo_contratista: "Habilitado para inscribirse en cursos.",
+          bifurcacion: "INSCRIBIR EN CURSO",
+          cursos_vigentes: [],
+          ultima_empresa: "SIN REGISTRO PREVIO",
+          ultimo_cargo: "NUEVO INGRESO",
+          fecha_cese: ""
+        };
+      }
+
+      const cursos = p.cursos || [];
+      const cargoExtraido = p.cargo || "OPERARIO";
+      if (!p.cese || p.cese === "") {
+        if (p.ruc && rucTarget && p.ruc !== rucTarget) {
+          return {
+            dni,
+            nombre: p.nombre || "TRABAJADOR REGISTRADO",
+            estado_filtro: "BLOQUEADO_ACTIVO",
+            badge_class: "alerta",
+            motivo: `Activo en empresa RUC ${p.ruc} (Puesto: ${cargoExtraido}).`,
+            motivo_contratista: `Figura ACTIVO en otra contratista (RUC ${p.ruc}).`,
+            bifurcacion: "BLOQUEADO (ACTIVO)",
+            cursos_vigentes: [],
+            ultima_empresa: p.ruc,
+            ultimo_cargo: cargoExtraido,
+            fecha_cese: ""
+          };
+        }
+      } else {
+        const fCese = new Date(p.cese + "T00:00:00");
+        const dias = Math.round((hoy - fCese) / (1000 * 60 * 60 * 24));
+        if (dias >= 0 && dias < 60 && !STATE.excepciones_ops[dni]) {
+          return {
+            dni,
+            nombre: p.nombre,
+            estado_filtro: "BLOQUEADO_CESE_60D",
+            badge_class: "amarillo",
+            motivo: `Cesó hace ${dias} días (${p.cese}). Requiere 60 días o Carta Ops.`,
+            motivo_contratista: `Cesó hace menos de 60 días (${p.cese}). Requiere Carta de Operaciones.`,
+            bifurcacion: "CESE < 60 DÍAS",
+            cursos_vigentes: cursos,
+            ultima_empresa: p.ruc,
+            ultimo_cargo: cargoExtraido,
+            fecha_cese: p.cese
+          };
+        }
+      }
+
+      if (cursos.length >= 2) {
+        return {
+          dni,
+          nombre: p.nombre,
+          estado_filtro: "APTO_FOTOCHECK",
+          badge_class: "verde",
+          motivo: `Puesto: ${cargoExtraido} | Tiene ${cursos.length} cursos vigentes.`,
+          motivo_contratista: `Puesto: ${cargoExtraido} | Cursos vigentes al día -> Pasa directo a Fotocheck.`,
+          bifurcacion: "FOTOCHECK DIRECTO",
+          cursos_vigentes: cursos,
+          ultima_empresa: p.ruc,
+          ultimo_cargo: cargoExtraido,
+          fecha_cese: p.cese
+        };
+      }
+      return {
+        dni,
+        nombre: p.nombre,
+        estado_filtro: "APTO_CAPACITACION",
+        badge_class: "azul",
+        motivo: `Puesto: ${cargoExtraido} | Habilitado para llevar cursos.`,
+        motivo_contratista: `Puesto: ${cargoExtraido} | Habilitado para inscribirse en el Cronograma.`,
+        bifurcacion: "INSCRIBIR EN CURSO",
+        cursos_vigentes: cursos,
+        ultima_empresa: p.ruc,
+        ultimo_cargo: cargoExtraido,
+        fecha_cese: p.cese
+      };
+    });
+  }
+
+  async function consultarMotorAccess(dnis, rucTarget) {
+    try {
+      const resp = await fetch(`${API_BASE}/api/evaluar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dnis, ruc_target: rucTarget })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (Array.isArray(data) && data.length > 0) return data;
+      }
+    } catch (e) {}
+    return evaluarDnisEnSnapshot(dnis, rucTarget);
+  }
+
+  function toggleOtro(selectId, boxId) {
+    const val = document.getElementById(selectId).value;
+    document.getElementById(boxId).classList.toggle('hidden', val !== 'OTRO|OTRO' && val !== 'OTRO');
+  }
+
+  function leerEmpresa(selectId, inpNomId, inpRucId) {
+    const val = document.getElementById(selectId).value;
+    if (val === 'OTRO|OTRO' || val === 'OTRO') {
+      const nom = (document.getElementById(inpNomId)?.value || '').trim().toUpperCase();
+      const ruc = (document.getElementById(inpRucId)?.value || '20000000000').trim();
+      return { ruc: ruc || '20000000000', empresa: nom, esOtro: true };
+    }
+    if (val.includes('|')) {
+      const [ruc, empresa] = val.split('|');
+      return { ruc, empresa, esOtro: false };
+    }
+    return { ruc: '20000000000', empresa: val, esOtro: false };
+  }
+
+  function actualizarBadgePendientes() {
+    const pend = STATE.tickets_filtro.filter(t => t.estado === 'PENDIENTE').length;
+    const b = document.getElementById('badgePendientesGov');
+    b.innerText = pend;
+    b.classList.toggle('hidden', pend === 0);
+  }
+
+  function switchView(view) {
+    document.getElementById('viewContratista').classList.toggle('hidden', view !== 'contratista');
+    document.getElementById('viewInterno').classList.toggle('hidden', view !== 'interno');
+    document.getElementById('btnNavContratista').classList.toggle('is-active', view === 'contratista');
+    document.getElementById('btnNavInterno').classList.toggle('is-active', view === 'interno');
+    if (view === 'interno') renderConsolaInterna();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goStep(n) {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('stepPanel' + i).classList.toggle('hidden', i !== n);
+      document.getElementById('stepTab' + i).classList.toggle('is-active', i === n);
+    }
+  }
+
+  function goGovTab(n) {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('govPanel' + i).classList.toggle('hidden', i !== n);
+      document.getElementById('govTab' + i).classList.toggle('is-active', i === n);
+    }
+  }
+
+  function cargarMuestraPaso1() {
+    document.getElementById('f1Dnis').value = "45624908, 70540256, 09894758";
+  }
+
+  // PASO 1: ENVIAR TICKET
+  async function procesarPaso1Filtro() {
+    const emp = leerEmpresa('f1Empresa', 'f1OtroNombre', 'f1OtroRuc');
+    if (emp.esOtro && !emp.empresa) {
+      alert("Escriba el nombre de su empresa.");
+      document.getElementById('f1OtroNombre').focus();
+      return;
+    }
+    const responsable = document.getElementById('f1Responsable').value.trim();
+    const correo = document.getElementById('f1Correo').value.trim();
+    const dnis = (document.getElementById('f1Dnis').value.match(/\d{7,10}/g) || []);
+
+    if (!responsable || !correo || dnis.length === 0) {
+      alert("Complete su nombre, correo y al menos un DNI.");
+      return;
+    }
+
+    const resultados = await consultarMotorAccess(dnis, emp.ruc);
+    const ticketId = `#F-${101 + STATE.tickets_filtro.length}`;
+
+    const nuevoTicket = {
+      ticket_id: ticketId,
+      fecha_hora: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+      ruc: emp.ruc,
+      empresa: emp.empresa,
+      responsable,
+      correo,
+      dnis,
+      resultados,
+      estado: "PENDIENTE"
+    };
+
+    STATE.tickets_filtro.unshift(nuevoTicket);
+    ultimoFiltroProcesado = nuevoTicket;
+    actualizarBadgePendientes();
+
+    try {
+      await fetch(`${API_BASE}/api/solicitud_filtro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruc: emp.ruc, empresa: emp.empresa, responsable, correo, dnis })
+      });
+    } catch (e) {}
+
+    document.getElementById('f1OutTitle').innerText = `✓ Ticket ${ticketId} Enviado`;
+    document.getElementById('f1OutBody').innerHTML = `
+      <div class="tz-panel tz-panel--verde">
+        <p class="tz-panel__name" style="font-size:1.1rem;">¡Listo! Recibimos sus ${dnis.length} DNI(s)</p>
+        <p style="margin-top:6px;">
+          Capacitación aprobará su solicitud con un clic y le enviará toda la información al correo:<br>
+          <strong>${correo}</strong>
+        </p>
+      </div>
+    `;
+
+    document.getElementById('f1NextActions').classList.remove('hidden');
+    document.getElementById('stepTab1').classList.add('is-done');
+    document.getElementById('badgeStep1').innerText = "✓ PASO 1 LISTO";
+  }
+
+  function enlazarPaso1APaso2() {
+    if (ultimoFiltroProcesado) {
+      const sel1 = document.getElementById('f1Empresa').value;
+      document.getElementById('f2Empresa').value = sel1;
+      toggleOtro('f2Empresa', 'f2OtroBox');
+      if (sel1 === 'OTRO|OTRO') {
+        document.getElementById('f2OtroNombre').value = document.getElementById('f1OtroNombre').value;
+        document.getElementById('f2OtroRuc').value = document.getElementById('f1OtroRuc').value;
+      }
+      document.getElementById('f2Solicitante').value = ultimoFiltroProcesado.responsable;
+      document.getElementById('f2Correo').value = ultimoFiltroProcesado.correo;
+      document.getElementById('f2Dnis').value = ultimoFiltroProcesado.dnis.join(', ');
+    }
+    goStep(2);
+  }
+
+  function enlazarPaso1APaso3() {
+    if (ultimoFiltroProcesado) {
+      const sel1 = document.getElementById('f1Empresa').value;
+      if (sel1 === 'OTRO|OTRO') {
+        document.getElementById('f3Empresa').value = 'OTRO';
+        toggleOtro('f3Empresa', 'f3OtroBox');
+        document.getElementById('f3OtroNombre').value = document.getElementById('f1OtroNombre').value;
+        document.getElementById('f3OtroRuc').value = document.getElementById('f1OtroRuc').value;
+      } else {
+        document.getElementById('f3Empresa').value = ultimoFiltroProcesado.empresa;
+      }
+      document.getElementById('f3Solicitante').value = ultimoFiltroProcesado.responsable;
+      document.getElementById('f3Correo').value = ultimoFiltroProcesado.correo;
+      document.getElementById('f3Cantidad').value = ultimoFiltroProcesado.dnis.length;
+    }
+    goStep(3);
+  }
+
+  // PASO 2: INSCRIBIR EN CRONOGRAMA
+  function confirmarMatriculaPaso2() {
+    const cursoCod = document.getElementById('f2CursoCodigo').value;
+    const fechaVista = document.getElementById('f2FechaVista').value;
+    const aulaVista = document.getElementById('f2AulaVista').value;
+    const emp = leerEmpresa('f2Empresa', 'f2OtroNombre', 'f2OtroRuc');
+    if (emp.esOtro && !emp.empresa) {
+      alert("Escriba el nombre de su empresa.");
+      return;
+    }
+    const correo = document.getElementById('f2Correo').value.trim();
+    const dnis = (document.getElementById('f2Dnis').value.match(/\d{7,10}/g) || []);
+    if (dnis.length === 0) {
+      alert("Ingrese al menos un DNI.");
+      return;
+    }
+
+    const ticketId = `INS-${90 + Math.floor(Math.random() * 100)}`;
+    document.getElementById('stepTab2').classList.add('is-done');
+    document.getElementById('badgeStep2').innerText = "✓ PASO 2 LISTO";
+
+    document.getElementById('f2TicketContent').innerHTML = `
+      <div class="tz-panel tz-panel--verde" style="margin-bottom:12px;">
+        <p class="tz-panel__name" style="font-size:1.05rem;">✓ Inscripción Enviada (${ticketId})</p>
+        <p><strong>Curso:</strong> ${cursoCod} | <strong>Fecha:</strong> ${fechaVista}</p>
+        <p><strong>Aula:</strong> ${aulaVista} | <strong>Inscritos:</strong> ${dnis.length}</p>
+      </div>
+      <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm hp-btn--full" onclick="enlazarPaso2APaso4('${ticketId}', '${emp.empresa}', '${cursoCod} (${fechaVista})', ${dnis.length}, '${correo}')">
+        ¿Necesita reducir cupos 24h antes? Ir al Paso 4 &rarr;
+      </button>
+    `;
+  }
+
+  function enlazarPaso2APaso4(tId, emp, cur, cant, corr) {
+    document.getElementById('f4Ticket').value = tId;
+    document.getElementById('f4Empresa').value = emp;
+    document.getElementById('f4Curso').value = cur;
+    document.getElementById('f4Orig').value = cant;
+    document.getElementById('f4Nueva').value = Math.max(1, cant - 1);
+    document.getElementById('f4Correo').value = corr;
+    goStep(4);
+  }
+
+  // PASO 3: SOLICITAR APERTURA
+  function registrarAperturaPaso3() {
+    const emp = leerEmpresa('f3Empresa', 'f3OtroNombre', 'f3OtroRuc');
+    if (emp.esOtro && !emp.empresa) {
+      alert("Escriba el nombre de su empresa.");
+      return;
+    }
+    const correo = document.getElementById('f3Correo').value.trim();
+    const curso = document.getElementById('f3Curso').value;
+    const cantidad = parseInt(document.getElementById('f3Cantidad').value || '1');
+    const opcion1 = document.getElementById('f3Fecha1').value.replace('T', ' ');
+    const opcion2 = document.getElementById('f3Fecha2').value.replace('T', ' ');
+
+    const reqId = `AP-${31 + STATE.demanda_consolidada.length}`;
+    let rowCons = STATE.demanda_consolidada.find(d => d.curso === curso);
+    if (rowCons) {
+      rowCons.total_personas += cantidad;
+      rowCons.empresas_detalle += `, ${emp.empresa} (${cantidad})`;
+      if (rowCons.total_personas >= rowCons.quorum_minimo) rowCons.estado_quorum = "QUÓRUM COMPLETO (ABRIR)";
+    } else {
+      STATE.demanda_consolidada.unshift({
+        curso,
+        total_personas: cantidad,
+        quorum_minimo: 12,
+        empresas_detalle: `${emp.empresa} (${cantidad})`,
+        estado_quorum: cantidad >= 12 ? "QUÓRUM COMPLETO (ABRIR)" : "EN ESPERA"
+      });
+    }
+
+    document.getElementById('stepTab3').classList.add('is-done');
+    document.getElementById('badgeStep3').innerText = "✓ PASO 3 LISTO";
+    document.getElementById('f3OutContent').innerHTML = `
+      <div class="tz-panel tz-panel--verde" style="margin-bottom:12px;">
+        <p class="tz-panel__name" style="font-size:1.05rem;">✓ Pedido de Apertura Enviado (${reqId})</p>
+        <p><strong>Curso:</strong> ${curso} (${cantidad} personas)</p>
+        <p><strong>Fechas Propuestas:</strong> ${opcion1} / ${opcion2}</p>
+        <p style="margin-top:6px;">Roberto le avisará al correo <strong>${correo}</strong> la fecha confirmada.</p>
+      </div>
+    `;
+  }
+
+  // PASO 4: REAJUSTE 24H
+  function registrarReajustePaso4() {
+    const empresa = document.getElementById('f4Empresa').value.trim();
+    const curso_codigo = document.getElementById('f4Curso').value.trim();
+    const cupos_originales = parseInt(document.getElementById('f4Orig').value || '10');
+    const cupos_solicitados = parseInt(document.getElementById('f4Nueva').value || '6');
+    const correo = document.getElementById('f4Correo').value.trim();
+    const motivo_contratista = document.getElementById('f4Motivo').value.trim();
+
+    const rId = `REAJ-${13 + STATE.tickets_reajuste.length}`;
+    STATE.tickets_reajuste.unshift({
+      reajuste_id: rId,
+      fecha_solicitud: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+      empresa,
+      correo,
+      curso_codigo,
+      cupos_originales,
+      cupos_solicitados,
+      diferencia_baja: Math.max(0, cupos_originales - cupos_solicitados),
+      motivo_contratista,
+      estado: "PENDIENTE",
+      resolucion: ""
+    });
+
+    document.getElementById('stepTab4').classList.add('is-done');
+    document.getElementById('badgeStep4').innerText = "✓ PASO 4 LISTO";
+    document.getElementById('f4OutContent').innerHTML = `
+      <div class="tz-panel tz-panel--verde">
+        <p class="tz-panel__name" style="font-size:1.05rem;">✓ Reajuste ${rId} Enviado a Capacitación</p>
+        <p>Pedido: Reducir de <strong>${cupos_originales} a ${cupos_solicitados} cupos</strong>.</p>
+      </div>
+    `;
+  }
+
+  // CONSOLA INTERNA
+  function renderConsolaInterna() {
+    actualizarBadgePendientes();
+    const tbF = document.getElementById('tbodyGovColaFiltros');
+    tbF.innerHTML = '';
+    if (STATE.tickets_filtro.length === 0) {
+      tbF.innerHTML = `<tr><td colspan="6">No hay tickets pendientes. Envíe uno desde "1. Vista Subcontratista".</td></tr>`;
+    } else {
+      STATE.tickets_filtro.forEach((t, i) => {
+        const tr = document.createElement('tr');
+        const detalleDnis = (t.resultados || []).map(r => {
+          return `<div>&bull; <strong>${r.dni}</strong> (${r.nombre}) &mdash; Puesto Access: <strong>${r.ultimo_cargo || 'NUEVO'}</strong> &rarr; <strong>${r.bifurcacion}</strong></div>`;
+        }).join('');
+
+        const botones = t.estado === 'PENDIENTE'
+          ? `<div style="display:flex;gap:6px;">
+               <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="aprobarTicketFiltro(${i})">✓ SÍ: Enviar a su Correo</button>
+               <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="denegarTicketFiltro(${i})">✕ NO</button>
+             </div>`
+          : `<button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="aprobarTicketFiltro(${i})">Ver Correo</button>`;
+
+        tr.innerHTML = `
+          <td><strong>${t.ticket_id}</strong></td>
+          <td><strong>${t.empresa}</strong></td>
+          <td>${t.responsable}<br><strong>${t.correo}</strong></td>
+          <td style="font-size:0.84rem;">${detalleDnis}</td>
+          <td><span class="hp-tag ${t.estado === 'ENVIADO' ? 'hp-tag--verde' : 'hp-tag--amarillo'}">${t.estado}</span></td>
+          <td>${botones}</td>
+        `;
+        tbF.appendChild(tr);
+      });
+    }
+
+    const tbD = document.getElementById('tbodyGovDemanda');
+    tbD.innerHTML = '';
+    STATE.demanda_consolidada.forEach(r => {
+      const ok = r.total_personas >= r.quorum_minimo;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.curso}</strong></td>
+        <td><strong>${r.total_personas} personas</strong></td>
+        <td>${r.quorum_minimo}</td>
+        <td>${r.empresas_detalle}</td>
+        <td><span class="hp-tag ${ok ? 'hp-tag--verde' : 'hp-tag--amarillo'}">${r.estado_quorum}</span></td>
+        <td><button type="button" class="hp-btn hp-btn--azul hp-btn--sm" onclick="notificarAperturaRoberto('${r.curso}')">Avisar Fecha Confirmada</button></td>
+      `;
+      tbD.appendChild(tr);
+    });
+
+    const tbR = document.getElementById('tbodyGovReajustes');
+    tbR.innerHTML = '';
+    STATE.tickets_reajuste.forEach((r, idx) => {
+      const tr = document.createElement('tr');
+      const acc = r.estado === 'PENDIENTE'
+        ? `<div style="display:flex;gap:6px;">
+             <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="decidirReajuste(${idx}, 'APROBADO')">✓ Aprobar (${r.cupos_solicitados})</button>
+             <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="decidirReajuste(${idx}, 'COBRAR_TOTAL')">✕ Cobrar ${r.cupos_originales}</button>
+           </div>`
+        : `<strong>${r.resolucion}</strong>`;
+      tr.innerHTML = `
+        <td><strong>${r.reajuste_id}</strong></td>
+        <td><strong>${r.empresa}</strong></td>
+        <td>${r.curso_codigo}</td>
+        <td>${r.cupos_originales}</td>
+        <td><strong>${r.cupos_solicitados}</strong></td>
+        <td>${r.motivo_contratista}</td>
+        <td><span class="hp-tag ${r.estado === 'APROBADO' ? 'hp-tag--verde' : 'hp-tag--alerta'}">${r.estado}</span></td>
+        <td>${acc}</td>
+      `;
+      tbR.appendChild(tr);
+    });
+  }
+
+  function denegarTicketFiltro(idx) {
+    STATE.tickets_filtro[idx].estado = "DENEGADO";
+    renderConsolaInterna();
+  }
+
+  function aprobarTicketFiltro(idx) {
+    const t = STATE.tickets_filtro[idx];
+    if (!t) return;
+    const asunto = `[TECSUR Capacitación] Resultado de Filtro — ${t.ticket_id} (${t.empresa})`;
+    let cuerpo = `Estimado(a) ${t.responsable} (${t.empresa}):
+
+`;
+    cuerpo += `Resultado de la verificación de sus DNI en el sistema de Capacitación TECSUR:
+
+`;
+
+    t.resultados.forEach(p => {
+      const curStr = (p.cursos_vigentes && p.cursos_vigentes.length > 0) ? ` | Cursos vigentes: ${p.cursos_vigentes.join(', ')}` : '';
+      cuerpo += `• DNI ${p.dni} — ${p.nombre}
+  ${p.motivo_contratista}${curStr}
+
+`;
+    });
+
+    cuerpo += `👉 PARA INSCRIBIR AL PERSONAL HABILITADO:
+`;
+    cuerpo += `1. Mire el Cronograma en Tiempo Real aquí: ${SHEET_URL}
+`;
+    cuerpo += `2. Si el curso está programado, inscríbalo en el Paso 2 del Portal.
+`;
+    cuerpo += `3. Si el curso NO está en el mes, pida su apertura en el Paso 3 del Portal.
+
+`;
+    cuerpo += `Atentamente,
+Área de Capacitación TECSUR`;
+
+    modalPayload = { idx, ticket_id: t.ticket_id, correo: t.correo, asunto, cuerpo };
+    document.getElementById('modalPreText').innerText = `PARA: ${t.correo}
+ASUNTO: ${asunto}
+
+${cuerpo}`;
+    document.getElementById('modalStatusMsg').classList.add('hidden');
+    document.getElementById('modalDespacho').classList.remove('hidden');
+  }
+
+  function notificarAperturaRoberto(curso) {
+    const fecha = prompt(`Fecha confirmada por Roberto para dictar ${curso}:`, "28/11/2026");
+    if (!fecha) return;
+    alert(`Aviso enviado a las contratistas: "El curso ${curso} se dictará el día ${fecha}. Confirmen su lista de participantes."`);
+  }
+
+  async function auditarAccessDirecto() {
+    const empRaw = document.getElementById('govEmpresa').value.split('|');
+    const dnis = (document.getElementById('govDnis').value.match(/\d{7,10}/g) || []);
+    if (dnis.length === 0) return;
+
+    const data = await consultarMotorAccess(dnis, empRaw[0]);
+    ultimosResultadosGov = data;
+    const tb = document.getElementById('tbodyGovDirecto');
+    tb.innerHTML = '';
+
+    data.forEach(item => {
+      const tagCls = item.estado_filtro === 'APTO_FOTOCHECK' ? 'hp-tag--verde'
+        : (item.estado_filtro === 'APTO_CAPACITACION' ? 'hp-tag--azul'
+        : (item.estado_filtro === 'BLOQUEADO_CESE_60D' ? 'hp-tag--amarillo' : 'hp-tag--alerta'));
+      const cursosStr = (item.cursos_vigentes && item.cursos_vigentes.length > 0)
+        ? item.cursos_vigentes.join(' | ')
+        : 'Sin cursos vigentes';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${item.dni}</strong></td>
+        <td><strong>${item.nombre}</strong></td>
+        <td>Puesto: <strong>${item.ultimo_cargo || 'N/A'}</strong><br>RUC: ${item.ultima_empresa || '-'}</td>
+        <td><span class="hp-tag ${tagCls}">${item.bifurcacion}</span></td>
+        <td>${item.motivo}</td>
+        <td>${cursosStr}</td>
+        <td><strong>${item.bifurcacion}</strong></td>
+      `;
+      tb.appendChild(tr);
+    });
+  }
+
+  function decidirReajuste(idx, decision) {
+    const r = STATE.tickets_reajuste[idx];
+    r.estado = decision;
+    r.resolucion = decision === 'APROBADO' ? `Reajustado a ${r.cupos_solicitados} cupos` : `Se cobran los ${r.cupos_originales} inscritos`;
+    renderConsolaInterna();
+  }
+
+  function cerrarModal() {
+    document.getElementById('modalDespacho').classList.add('hidden');
+  }
+
+  function guardarWebhook() {
+    STATE.power_automate_webhook = document.getElementById('inpWebhookPA').value.trim();
+    alert("Webhook guardado.");
+  }
+
+  function enviarViaPowerAutomate() {
+    if (!modalPayload) return;
+    if (STATE.tickets_filtro[modalPayload.idx]) {
+      STATE.tickets_filtro[modalPayload.idx].estado = "ENVIADO";
+    }
+    const msg = document.getElementById('modalStatusMsg');
+    msg.classList.remove('hidden');
+    msg.innerHTML = `<p class="tz-panel__name">✓ Correo enviado a ${modalPayload.correo}</p>`;
+    renderConsolaInterna();
+  }
+
+  function abrirClienteOutlook() {
+    if (!modalPayload) return;
+    window.location.href = `mailto:${encodeURIComponent(modalPayload.correo)}?subject=${encodeURIComponent(modalPayload.asunto)}&body=${encodeURIComponent(modalPayload.cuerpo)}`;
+    enviarViaPowerAutomate();
+  }
+
+  function copiarYDespachar() {
+    if (!modalPayload) return;
+    navigator.clipboard.writeText(modalPayload.cuerpo);
+    enviarViaPowerAutomate();
+  }
+
+  function exportarGovCSV() {
+    if (!ultimosResultadosGov || ultimosResultadosGov.length === 0) return;
+    let csv = "DNI,Nombre,Empresa,Puesto,Estado,Cursos_Vigentes\n";
+    ultimosResultadosGov.forEach(it => {
+      csv += `"${it.dni}","${it.nombre}","${it.ultima_empresa}","${it.ultimo_cargo}","${it.bifurcacion}","${(it.cursos_vigentes || []).join('; ')}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "Filtro_Access_TECSUR.csv";
+    a.click();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    auditarAccessDirecto();
+    const params = new URLSearchParams(window.location.search);
+    const p = parseInt(params.get('paso') || '0');
+    if (p >= 1 && p <= 4) goStep(p);
+    if (params.get('dnis')) document.getElementById('f2Dnis').value = params.get('dnis');
+  });
+</script>
+</body>
+</html>
