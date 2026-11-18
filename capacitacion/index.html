@@ -3,23 +3,130 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TECSUR — Portal de Capacitación</title>
+<title>TECSUR — Portal de Capacitación y Acreditación</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quattrocento+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
 <link rel="stylesheet" href="tecsur.css">
 <style>
   /* ==========================================================================
-     HAPPY PATH ULTRA-SIMPLE — TECSUR × MCKINSEY
-     Cero texto innecesario. Flujo intuitivo de 1 clic.
+     HUB DE LOGIN Y SEPARACIÓN ESTRICTA DE CABINAS — TECSUR × MCKINSEY
      ========================================================================== */
   body.tz {
     background: var(--tz-fondo);
     color: var(--tz-texto);
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Header minimalista */
+  /* ==========================================================================
+     1. HUB DE LOGIN (PANTALLA DE ACCESO)
+     ========================================================================== */
+  .login-hub {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+  .login-hub__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+  }
+  .login-hub::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(10, 30, 58, 0.94) 0%, rgba(31, 75, 138, 0.86) 100%);
+    z-index: -1;
+  }
+  .login-shell {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    max-width: 980px;
+    width: 100%;
+    background: #FFFFFF;
+    border-top: 8px solid var(--tz-amarillo);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  }
+  @media (max-width: 820px) {
+    .login-shell { grid-template-columns: 1fr; }
+  }
+  .login-info {
+    background: var(--tz-azul);
+    color: #FFFFFF;
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .login-info__logo {
+    height: 46px;
+    width: auto;
+    align-self: flex-start;
+  }
+  .login-info__kicker {
+    color: var(--tz-amarillo);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .login-info__title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .login-info__sub {
+    color: #E3EAF5;
+    font-size: 0.96rem;
+    line-height: 1.45;
+  }
+  .login-form-box {
+    padding: 40px 36px;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login-form-box__title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--tz-azul);
+    margin-bottom: 6px;
+  }
+  .login-form-box__sub {
+    font-size: 0.88rem;
+    color: var(--tz-texto-suave);
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--tz-linea);
+  }
+  .login-error {
+    background: var(--tz-naranja-bg);
+    border-left: 5px solid var(--tz-naranja);
+    color: var(--tz-naranja-txt);
+    padding: 10px 12px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* ==========================================================================
+     2. CABECERA Y LAYOUT DE APLICACIÓN AUTENTICADA
+     ========================================================================== */
   .hp-header {
     background: #FFFFFF;
     border-bottom: 3px solid var(--tz-azul);
@@ -40,50 +147,25 @@
     align-items: center;
     gap: 14px;
   }
-  .hp-brand__logo { height: 38px; width: auto; }
+  .hp-brand__logo { height: 36px; width: auto; }
   .hp-brand__title {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--tz-azul);
     border-left: 2px solid var(--tz-linea);
     padding-left: 14px;
   }
-
-  /* Switch Contratista / Tecsur */
-  .hp-switch {
-    display: inline-flex;
-    border: 2px solid var(--tz-azul);
+  .hp-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     background: var(--tz-panel);
-  }
-  .hp-switch__btn {
-    font-family: var(--tz-font);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 8px 18px;
-    border: none;
-    cursor: pointer;
-    background: transparent;
-    color: var(--tz-azul);
-  }
-  .hp-switch__btn.is-active {
-    background: var(--tz-azul);
-    color: #FFFFFF;
-  }
-  .hp-switch__btn--gov.is-active {
-    background: var(--tz-verde);
-    color: #FFFFFF;
-  }
-  .hp-notif {
-    background: var(--tz-naranja);
-    color: #FFFFFF;
-    font-size: 0.75rem;
-    padding: 2px 7px;
-    border-radius: 999px;
-    margin-left: 6px;
+    border: 1px solid var(--tz-linea);
+    padding: 6px 14px;
+    font-size: 0.86rem;
   }
 
-  /* Hero súper limpio y corto */
+  /* Hero súper limpio */
   .hp-hero {
     position: relative;
     isolation: isolate;
@@ -106,7 +188,7 @@
     z-index: -1;
   }
   .hp-hero__inner {
-    padding-block: 26px;
+    padding-block: 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -114,30 +196,35 @@
     gap: 16px;
   }
   .hp-hero__h1 {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
     font-weight: 700;
     margin: 0;
   }
   .hp-hero__sub {
     color: var(--tz-amarillo);
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     margin-top: 4px;
   }
 
-  /* 4 Botones Grandes del Happy Path */
+  /* Botones de Pasos del Happy Path */
   .hp-steps {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    margin-block: 22px;
+    margin-block: 20px;
   }
-  @media (max-width: 780px) { .hp-steps { grid-template-columns: 1fr 1fr; } }
+  .hp-steps--5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  @media (max-width: 860px) {
+    .hp-steps, .hp-steps--5 { grid-template-columns: 1fr 1fr; }
+  }
   .hp-step {
     background: #FFFFFF;
     border: 2px solid var(--tz-linea);
     border-top: 6px solid var(--tz-linea);
-    padding: 16px;
+    padding: 15px;
     cursor: pointer;
     text-align: left;
     font-family: var(--tz-font);
@@ -157,9 +244,9 @@
     background: var(--tz-azul);
     color: #FFFFFF;
     font-weight: 700;
-    font-size: 0.8rem;
-    padding: 3px 10px;
-    margin-bottom: 8px;
+    font-size: 0.76rem;
+    padding: 2px 9px;
+    margin-bottom: 6px;
   }
   .hp-step.is-active .hp-step__num {
     background: var(--tz-amarillo);
@@ -171,18 +258,18 @@
   }
   .hp-step__title {
     display: block;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--tz-azul);
   }
   .hp-step__sub {
     display: block;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--tz-texto-suave);
     margin-top: 2px;
   }
 
-  /* Tarjetas de trabajo simples */
+  /* Tarjetas */
   .hp-grid-2 {
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
@@ -201,7 +288,7 @@
   .hp-card--naranja { border-top-color: var(--tz-naranja); }
 
   .hp-card__title {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--tz-azul);
     margin-bottom: 16px;
@@ -209,21 +296,21 @@
     border-bottom: 1px solid var(--tz-linea);
   }
 
-  /* Inputs grandes y claros */
+  /* Controles */
   .hp-field { margin-bottom: 14px; }
   .hp-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: var(--tz-azul);
     margin-bottom: 5px;
   }
   .hp-input, .hp-select, .hp-textarea {
     font-family: var(--tz-font);
-    font-size: 1rem;
-    padding: 11px 13px;
+    font-size: 0.98rem;
+    padding: 10px 12px;
     border: 2px solid var(--tz-linea);
     background: #FFFFFF;
     color: var(--tz-texto);
@@ -244,12 +331,11 @@
     margin-bottom: 14px;
   }
 
-  /* Botones Grandes de 1 Clic */
   .hp-btn {
     font-family: var(--tz-font);
-    font-size: 1rem;
+    font-size: 0.96rem;
     font-weight: 700;
-    padding: 14px 22px;
+    padding: 13px 20px;
     border: none;
     cursor: pointer;
     display: inline-flex;
@@ -265,14 +351,14 @@
   .hp-btn--naranja { background: var(--tz-naranja); color: #FFFFFF; }
   .hp-btn--amarillo { background: var(--tz-amarillo); color: var(--tz-azul); }
   .hp-btn--outline { background: #FFFFFF; border: 2px solid var(--tz-azul); color: var(--tz-azul); }
-  .hp-btn--sm { padding: 8px 14px; font-size: 0.85rem; }
+  .hp-btn--sm { padding: 7px 13px; font-size: 0.82rem; }
   .hp-btn--full { width: 100%; }
 
   .hp-tag {
     display: inline-block;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 3px 9px;
     text-transform: uppercase;
   }
   .hp-tag--verde { background: #DCFCE7; color: #14532D; }
@@ -280,7 +366,6 @@
   .hp-tag--amarillo { background: #FEF9C3; color: #713F12; }
   .hp-tag--alerta { background: var(--tz-naranja-bg); color: var(--tz-naranja-txt); }
 
-  /* Iframe del Google Sheet */
   .hp-sheet {
     width: 100%;
     height: 430px;
@@ -288,15 +373,14 @@
     background: #FFFFFF;
   }
 
-  /* Tablas limpias */
   .hp-table-wrap { overflow-x: auto; border: 1px solid var(--tz-linea); background: #FFFFFF; }
-  .hp-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .hp-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
   .hp-table th {
     background: var(--tz-azul);
     color: #FFFFFF;
     padding: 11px 14px;
     text-align: left;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     text-transform: uppercase;
   }
   .hp-table td {
@@ -307,7 +391,6 @@
 
   .hidden { display: none !important; }
 
-  /* Modal correo */
   .hp-modal-bg {
     position: fixed;
     inset: 0;
@@ -332,7 +415,7 @@
     border-left: 5px solid var(--tz-azul);
     padding: 14px;
     font-family: var(--tz-font);
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     white-space: pre-wrap;
     margin-block: 12px;
   }
@@ -340,43 +423,115 @@
 </head>
 <body class="tz">
 
-<!-- CABECERA SIMPLE -->
-<header class="hp-header">
+<!-- ============================================================================
+     PANTALLA 0: HUB DE LOGIN (SEPARACIÓN TOTAL SUBCONTRATA VS CABINA ADMIN)
+     ============================================================================ -->
+<div id="viewLoginHub" class="login-hub">
+  <img class="login-hub__bg" src="assets/fotos/portada-tecnicos-horizontal.jpg" alt="Tecsur">
+
+  <div class="login-shell">
+    <!-- Lado Izquierdo Institucional -->
+    <div class="login-info">
+      <img class="login-info__logo" src="assets/logo/tecsur-logo-blanco.png" alt="Tecsur">
+      <div>
+        <p class="login-info__kicker">Personas &amp; Cultura &bull; Capacitación</p>
+        <h1 class="login-info__title">Portal de Habilitación, Filtro e Inscripción</h1>
+        <p class="login-info__sub">Acceso exclusivo con credenciales autorizadas por el Área de Capacitación de TECSUR S.A.</p>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.2);padding-top:14px;font-size:0.8rem;color:#E3EAF5;">
+        Protección de Datos Personales — Ley N° 29733 &bull; Sede San Juan de Miraflores
+      </div>
+    </div>
+
+    <!-- Lado Derecho Formulario de Login -->
+    <div class="login-form-box">
+      <h2 class="login-form-box__title">Iniciar Sesión</h2>
+      <p class="login-form-box__sub">Ingrese el correo y contraseña asignados a su empresa</p>
+
+      <div id="loginErrorBox" class="login-error hidden">
+        Correo o contraseña incorrectos. Verifique sus credenciales con Capacitación TECSUR.
+      </div>
+
+      <div class="hp-field">
+        <label class="hp-label" for="loginCorreo">Correo Corporativo *</label>
+        <input type="email" id="loginCorreo" class="hp-input" placeholder="correo@suempresa.com" onkeydown="if(event.key==='Enter') ejecutarLogin()">
+      </div>
+
+      <div class="hp-field">
+        <label class="hp-label" for="loginPassword">Contraseña *</label>
+        <input type="password" id="loginPassword" class="hp-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') ejecutarLogin()">
+      </div>
+
+      <button type="button" class="hp-btn hp-btn--azul hp-btn--full" style="margin-top:6px;" onclick="ejecutarLogin()">
+        Ingresar al Portal &rarr;
+      </button>
+
+      <!-- Accesos rápidos de prueba para demostración de Valentino -->
+      <div style="margin-top:22px;padding-top:14px;border-top:1px dashed var(--tz-linea);">
+        <p style="font-size:0.76rem;font-weight:700;color:var(--tz-texto-suave);text-transform:uppercase;margin-bottom:8px;">
+          Accesos Rápidos de Prueba (Piloto):
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="rellenarDemoLogin('rrhh.peru@encossa.com', 'encossa2026')">
+            Entrar como Subcontrata (ENCOSSA)
+          </button>
+          <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="rellenarDemoLogin('vllamocca@tecsur.com.pe', 'admin2026')">
+            Entrar a Cabina Admin (TECSUR)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     CABECERA AUTENTICADA (SOLO VISIBLE TRAS INICIAR SESIÓN)
+     ============================================================================ -->
+<header id="appHeader" class="hp-header hidden">
   <div class="tz-container hp-header__inner">
     <div class="hp-brand">
       <img class="hp-brand__logo" src="assets/logo/tecsur-logo-color.png" alt="Tecsur">
-      <span class="hp-brand__title">Capacitación y Acreditación</span>
+      <span id="lblHeaderPortalName" class="hp-brand__title">Portal de Subcontratistas</span>
     </div>
 
-    <div class="hp-switch">
-      <button type="button" id="btnNavContratista" class="hp-switch__btn is-active" onclick="switchView('contratista')">
-        1. Vista Subcontratista
-      </button>
-      <button type="button" id="btnNavInterno" class="hp-switch__btn hp-switch__btn--gov" onclick="switchView('interno')">
-        2. Consola Capacitación <span id="badgePendientesGov" class="hp-notif hidden">0</span>
-      </button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <!-- Este botón de alternar SOLO aparece si el usuario logueado es ADMINISTRADOR de Tecsur -->
+      <div id="adminSwitchBar" class="hidden" style="display:flex;gap:6px;">
+        <button type="button" id="btnAdminVerCabina" class="hp-btn hp-btn--verde hp-btn--sm" onclick="cambiarVistaAdmin('interno')">
+          🛡️ Cabina Administrador <span id="badgePendientesGov" style="background:var(--tz-naranja);padding:1px 6px;border-radius:99px;margin-left:4px;">0</span>
+        </button>
+        <button type="button" id="btnAdminSimularSub" class="hp-btn hp-btn--outline hp-btn--sm" onclick="cambiarVistaAdmin('contratista')">
+          👁️ Ver como Subcontrata
+        </button>
+      </div>
+
+      <div class="hp-user-pill">
+        <span id="lblUsuarioActivo" style="font-weight:700;color:var(--tz-azul);"></span>
+        <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:4px 10px;font-size:0.76rem;" onclick="cerrarSesion()">
+          Cerrar Sesión
+        </button>
+      </div>
     </div>
   </div>
 </header>
 
 <!-- ============================================================================
-     VISTA 1: SUBCONTRATISTA (HAPPY PATH EN 4 PASOS SIMPLES)
+     CABINA 1: VISTA EXCLUSIVA DE LA SUBCONTRATISTA (ELLOS SOLO VEN ESTO)
      ============================================================================ -->
-<div id="viewContratista">
+<div id="viewContratista" class="hidden" style="flex:1;">
 
   <section class="hp-hero">
     <img class="hp-hero__bg" src="assets/fotos/portada-tecnicos-horizontal.jpg" alt="Tecsur">
     <div class="tz-container hp-hero__inner">
       <div>
         <h1 class="hp-hero__h1">Portal de Filtro e Inscripción de Cursos</h1>
-        <p class="hp-hero__sub">Siga los pasos en orden: 1. Consultar Filtro &rarr; 2. Inscribir en Cronograma &rarr; 3. Pedir Apertura</p>
+        <p class="hp-hero__sub">1. Consultar Filtro &rarr; 2. Inscribir en Cronograma &rarr; 3. Pedir Apertura</p>
       </div>
     </div>
   </section>
 
   <main class="tz-container" style="padding-bottom: 56px;">
 
-    <!-- 4 BOTONES GRANDES DEL HAPPY PATH -->
     <nav class="hp-steps">
       <button type="button" id="stepTab1" class="hp-step is-active" onclick="goStep(1)">
         <span id="badgeStep1" class="hp-step__num">PASO 1</span>
@@ -403,9 +558,7 @@
       </button>
     </nav>
 
-    <!-- ========================================================================
-         PASO 1: CONSULTAR FILTRO DNI (SOLO EMPRESA, NOMBRE, CORREO Y DNI)
-         ======================================================================== -->
+    <!-- PASO 1: CONSULTAR FILTRO DNI -->
     <section id="stepPanel1" class="hp-grid-2">
       <div class="hp-card">
         <h2 class="hp-card__title">Paso 1: Enviar DNI para Revisión de Filtro</h2>
@@ -462,11 +615,8 @@
         <div class="hp-field">
           <div class="hp-label">
             <span>4. Pegue los DNI a Consultar *</span>
-            <button type="button" class="hp-btn hp-btn--amarillo hp-btn--sm" onclick="cargarMuestraPaso1()">
-              Pegar DNI de Prueba
-            </button>
           </div>
-          <textarea id="f1Dnis" rows="4" class="hp-textarea" placeholder="Pegue aquí los DNI...">45624908, 70540256, 09894758</textarea>
+          <textarea id="f1Dnis" rows="4" class="hp-textarea" placeholder="Pegue aquí los DNI separados por coma o salto de línea..."></textarea>
         </div>
 
         <button type="button" id="btnEjecutarPaso1" class="hp-btn hp-btn--azul hp-btn--full" onclick="procesarPaso1Filtro()">
@@ -474,14 +624,13 @@
         </button>
       </div>
 
-      <!-- RESPUESTA LIMPIA A LA DERECHA -->
       <div class="hp-card hp-card--verde">
         <h3 id="f1OutTitle" class="hp-card__title">Estado de su Consulta</h3>
 
         <div id="f1OutBody">
           <p style="font-size:1rem;color:var(--tz-texto-suave);">
-            1. Complete sus datos a la izquierda y presione <strong>"Enviar DNI a Capacitación"</strong>.<br><br>
-            2. Capacitación validará su ticket y le enviará a su correo qué trabajadores van directo a <strong>Fotocheck</strong> y quiénes deben llevar cursos.
+            1. Ingrese los DNI a la izquierda y presione <strong>"Enviar DNI a Capacitación"</strong>.<br><br>
+            2. Recibirá en su correo corporativo qué trabajadores pasan directo a <strong>Fotocheck</strong> y quiénes deben inscribirse en cursos.
           </p>
         </div>
 
@@ -489,22 +638,15 @@
           <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="enlazarPaso1APaso2()">
             Continuar al Paso 2: Ver Cronograma e Inscribir &rarr;
           </button>
-          <button type="button" class="hp-btn hp-btn--outline hp-btn--full" onclick="switchView('interno'); goGovTab(1);">
-            [Ir a Consola Capacitación para Aprobar este Ticket con 1 Clic] &rarr;
-          </button>
         </div>
       </div>
     </section>
 
-    <!-- ========================================================================
-         PASO 2: VER CRONOGRAMA EN VIVO E INSCRIBIR (O IR A APERTURA SI NO ESTÁ)
-         ======================================================================== -->
+    <!-- PASO 2: VER CRONOGRAMA EN VIVO E INSCRIBIR -->
     <section id="stepPanel2" class="hidden">
-
-      <!-- 1. MIRAR EL CRONOGRAMA DE ROBERTO -->
       <div class="hp-card" style="margin-bottom:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-          <h2 class="hp-card__title" style="margin:0;border:none;padding:0;">1. Mire aquí el Cronograma en Tiempo Real de Roberto</h2>
+          <h2 class="hp-card__title" style="margin:0;border:none;padding:0;">1. Mire aquí el Cronograma en Tiempo Real</h2>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true" target="_blank" rel="noopener" class="hp-btn hp-btn--amarillo hp-btn--sm">
               Abrir Cronograma en Pantalla Grande &nearr;
@@ -522,7 +664,6 @@
         </iframe>
       </div>
 
-      <!-- 2. SI EL CURSO SÍ ESTÁ EN EL CRONOGRAMA, INSCRIBIR AQUÍ -->
       <div class="hp-grid-2">
         <div class="hp-card hp-card--verde">
           <h3 class="hp-card__title">2. Si el curso SÍ está en el Cronograma, inscríbase aquí:</h3>
@@ -624,7 +765,7 @@
 
           <div class="hp-field">
             <label class="hp-label">7. DNI(s) de los Participantes Aptos *</label>
-            <input type="text" id="f2Dnis" class="hp-input" value="45624908">
+            <input type="text" id="f2Dnis" class="hp-input" placeholder="Pegue los DNI aprobados...">
           </div>
 
           <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="confirmarMatriculaPaso2()">
@@ -632,11 +773,10 @@
           </button>
         </div>
 
-        <!-- BOTÓN GIGANTE SI NO ESTÁ EL CURSO + RESPUESTA DE INSCRIPCIÓN -->
         <div style="display:flex;flex-direction:column;gap:18px;">
           <div class="hp-card hp-card--naranja">
             <h3 class="hp-card__title">¿No encontró el curso o está lleno?</h3>
-            <p style="margin-bottom:14px;">Con un clic pida a Roberto que abra una nueva fecha para su personal:</p>
+            <p style="margin-bottom:14px;">Con un clic solicite la apertura de una nueva fecha para su personal:</p>
             <button type="button" class="hp-btn hp-btn--naranja hp-btn--full" onclick="enlazarPaso1APaso3()">
               Ir al Paso 3: Solicitar Apertura de Curso &rarr;
             </button>
@@ -652,9 +792,7 @@
       </div>
     </section>
 
-    <!-- ========================================================================
-         PASO 3: SOLICITAR APERTURA DE CURSO (EL FORMS DE APERTURA 2026)
-         ======================================================================== -->
+    <!-- PASO 3: SOLICITAR APERTURA DE CURSO -->
     <section id="stepPanel3" class="hp-grid-2 hidden">
       <div class="hp-card">
         <h2 class="hp-card__title">Paso 3: Solicitud de Apertura de Cursos 2026</h2>
@@ -769,7 +907,7 @@
         </div>
 
         <button type="button" class="hp-btn hp-btn--azul hp-btn--full" onclick="registrarAperturaPaso3()">
-          Enviar Solicitud de Apertura a Roberto &rarr;
+          Enviar Solicitud de Apertura &rarr;
         </button>
       </div>
 
@@ -777,15 +915,13 @@
         <h3 class="hp-card__title">Confirmación de Solicitud</h3>
         <div id="f3OutContent">
           <p style="color:var(--tz-texto-suave);">
-            Indique sus 2 opciones de fecha. Roberto revisará la disponibilidad de aula y trainer y le confirmará por correo qué día se dictará el curso.
+            Indique sus 2 opciones de fecha. Coordinación de Capacitación revisará la disponibilidad de aula y expositor y le confirmará por correo qué día se dictará el curso.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- ========================================================================
-         PASO 4: REAJUSTAR CANTIDAD DE INSCRITOS (24 HORAS ANTES)
-         ======================================================================== -->
+    <!-- PASO 4: REAJUSTAR CANTIDAD DE INSCRITOS -->
     <section id="stepPanel4" class="hp-grid-2 hidden">
       <div class="hp-card hp-card--naranja">
         <h2 class="hp-card__title">Paso 4: Avisar Reducción de Inscritos (Mín. 1 Día Antes)</h2>
@@ -846,23 +982,23 @@
 </div>
 
 <!-- ============================================================================
-     VISTA 2: CONSOLA INTERNA DE CAPACITACIÓN (GUILLE, DEREK, ROBERTO, PABLO)
+     CABINA 2: CABINA EXCLUSIVA DE ADMINISTRADOR TECSUR (ELLOS NO PUEDEN ENTRAR AQUÍ)
      ============================================================================ -->
-<div id="viewInterno" class="hidden">
+<div id="viewInterno" class="hidden" style="flex:1;">
 
   <section class="hp-hero">
     <img class="hp-hero__bg" src="assets/fotos/torres-atardecer.jpg" alt="Tecsur">
     <div class="tz-container hp-hero__inner">
       <div>
-        <h1 class="hp-hero__h1">Consola Interna — Capacitación TECSUR</h1>
-        <p class="hp-hero__sub">Conectada a las 51 tablas de Access (51,998 trabajadores) &bull; Aprobación en 1 Clic</p>
+        <h1 class="hp-hero__h1">Cabina de Administrador — Capacitación TECSUR</h1>
+        <p class="hp-hero__sub">Acceso restringido a personal de TECSUR &bull; 51 Tablas de Access Conectadas</p>
       </div>
     </div>
   </section>
 
   <main class="tz-container" style="padding-bottom: 56px;">
 
-    <nav class="hp-steps">
+    <nav class="hp-steps hp-steps--5">
       <button type="button" id="govTab1" class="hp-step is-active" onclick="goGovTab(1)">
         <span class="hp-step__num">MÓDULO A</span>
         <span class="hp-step__title">Tickets de Filtro (SÍ / NO)</span>
@@ -882,6 +1018,11 @@
         <span class="hp-step__num">MÓDULO D</span>
         <span class="hp-step__title">KPIs de Pablo</span>
         <span class="hp-step__sub">Asistencia y Notas Access</span>
+      </button>
+      <button type="button" id="govTab5" class="hp-step" onclick="goGovTab(5)">
+        <span class="hp-step__num">MÓDULO E</span>
+        <span class="hp-step__title">Accesos y Contraseñas</span>
+        <span class="hp-step__sub">Base de Usuarios Login</span>
       </button>
     </nav>
 
@@ -943,7 +1084,7 @@
                 <th>Estado</th>
                 <th>Motivo</th>
                 <th>Cursos Vigentes (Tabla CURSOS)</th>
-                <th>Ruta / Excepción</th>
+                <th>Ruta</th>
               </tr>
             </thead>
             <tbody id="tbodyGovDirecto"></tbody>
@@ -1046,6 +1187,73 @@
       </div>
     </section>
 
+    <!-- MÓDULO E: GESTOR DE CREDENCIALES Y CONTRASEÑAS DE SUBCONTRATISTAS -->
+    <section id="govPanel5" class="hidden">
+      <div class="hp-grid-2">
+        <div class="hp-card">
+          <h3 class="hp-card__title">Base de Datos de Usuarios (Correos y Contraseñas de Login)</h3>
+          <div class="hp-table-wrap">
+            <table class="hp-table">
+              <thead>
+                <tr>
+                  <th>Rol</th>
+                  <th>Empresa</th>
+                  <th>Responsable</th>
+                  <th>Correo de Login</th>
+                  <th>Contraseña</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyUsuariosLogin"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="hp-card hp-card--verde">
+          <h3 class="hp-card__title">Agregar o Actualizar Credencial de Subcontratista</h3>
+
+          <div class="hp-field">
+            <label class="hp-label">1. Tipo de Acceso *</label>
+            <select id="usrRol" class="hp-select">
+              <option value="contratista">Subcontratista (Solo ve Portal Contratista)</option>
+              <option value="admin">Administrador TECSUR (Ve Cabina Interna)</option>
+            </select>
+          </div>
+
+          <div class="hp-row-2">
+            <div class="hp-field">
+              <label class="hp-label">2. Nombre de la Empresa *</label>
+              <input type="text" id="usrEmpresa" class="hp-input" placeholder="Ej. CONSTRUCTORA SUR SAC">
+            </div>
+            <div class="hp-field">
+              <label class="hp-label">3. RUC *</label>
+              <input type="text" id="usrRuc" class="hp-input" placeholder="Ej. 20554433221" maxlength="11">
+            </div>
+          </div>
+
+          <div class="hp-field">
+            <label class="hp-label">4. Nombre del Responsable *</label>
+            <input type="text" id="usrNombre" class="hp-input" placeholder="Nombre del coordinador">
+          </div>
+
+          <div class="hp-row-2">
+            <div class="hp-field">
+              <label class="hp-label">5. Correo de Login *</label>
+              <input type="email" id="usrCorreo" class="hp-input" placeholder="correo@contratista.com">
+            </div>
+            <div class="hp-field">
+              <label class="hp-label">6. Contraseña Asignada *</label>
+              <input type="text" id="usrPassword" class="hp-input" placeholder="Clave de acceso">
+            </div>
+          </div>
+
+          <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="guardarUsuarioLogin()">
+            Guardar Credencial en Base de Datos &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -1072,7 +1280,7 @@
   </div>
 </div>
 
-<footer class="tz-footer">
+<footer id="appFooter" class="tz-footer hidden">
   <div class="tz-container tz-footer__inner">
     <img class="tz-footer__logo" src="assets/logo/tecsur-logo-blanco.png" alt="Tecsur">
     <p>Área de Capacitación TECSUR</p>
@@ -1081,8 +1289,20 @@
 
 <script>
   const API_BASE = 'http://127.0.0.1:8050';
-  const ACCESS_SNAPSHOT = {"observados": {"09894758": "Incumplimiento de normativa interna de seguridad / conducta"}, "personal": {"45624908": {"nombre": "OCHOA VILLAYZAN, RAUL ANGEL", "ruc": "20424295036", "cargo": "CONDUCTOR", "ingreso": "2025-09-15", "cese": "2025-12-17", "cursos": ["HSE_1 (15/09/2025)", "HSE_2 (15/09/2025)", "ECON (09/09/2025)"]}, "70540256": {"nombre": "AGUADO QUISPE, ANGEL FABIAN", "ruc": "20616089898", "cargo": "OPERARIO", "ingreso": "2026-11-17", "cese": "", "cursos": []}, "06964902": {"nombre": "CAJAMARCA VEGA, ALBERTO ALBINO", "ruc": "20504874401", "cargo": "EMPALMADOR", "ingreso": "2026-04-13", "cese": "", "cursos": ["ECPMBT (14/04/2026)"]}, "46881754": {"nombre": "AGUIRRE VEGA, JHON CESAR", "ruc": "20546349781", "cargo": "OPERARIO LINIERO BT", "ingreso": "2025-03-10", "cese": "2026-06-15", "cursos": ["EASA (12/03/2025)", "EORABT (14/03/2025)", "EEBT (15/03/2025)"]}}};
+  const ACCESS_SNAPSHOT = {"observados": {"09894758": "Incumplimiento de normativa interna de seguridad"}, "personal": {"45624908": {"nombre": "OCHOA VILLAYZAN, RAUL ANGEL", "ruc": "20424295036", "cargo": "CONDUCTOR", "ingreso": "2025-09-15", "cese": "2025-12-17", "cursos": ["HSE_1 (15/09/2025)", "HSE_2 (15/09/2025)", "ECON (09/09/2025)"]}, "70540256": {"nombre": "AGUADO QUISPE, ANGEL FABIAN", "ruc": "20616089898", "cargo": "OPERARIO", "ingreso": "2026-11-17", "cese": "", "cursos": []}, "06964902": {"nombre": "CAJAMARCA VEGA, ALBERTO ALBINO", "ruc": "20504874401", "cargo": "EMPALMADOR", "ingreso": "2026-04-13", "cese": "", "cursos": ["ECPMBT (14/04/2026)"]}, "46881754": {"nombre": "AGUIRRE VEGA, JHON CESAR", "ruc": "20546349781", "cargo": "OPERARIO LINIERO BT", "ingreso": "2025-03-10", "cese": "2026-06-15", "cursos": ["EASA (12/03/2025)", "EORABT (14/03/2025)", "EEBT (15/03/2025)"]}}};
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true";
+
+  // Base de datos de usuarios (sincronizada con credenciales_subcontratistas.json y localStorage)
+  let USERS_DB = [{"id": "ADM-01", "rol": "admin", "empresa": "TECSUR — ADMINISTRACIÓN", "ruc": "20100000000", "nombre": "Valentino Llamocca", "correo": "vllamocca@tecsur.com.pe", "password": "admin2026", "activo": true}, {"id": "ADM-02", "rol": "admin", "empresa": "TECSUR — JEFATURA CAPACITACIÓN", "ruc": "20100000000", "nombre": "Pablo (Jefatura Capacitación)", "correo": "pablo@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "ADM-03", "rol": "admin", "empresa": "TECSUR — PROGRAMACIÓN", "ruc": "20100000000", "nombre": "Roberto (Coordinación)", "correo": "roberto@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "ADM-04", "rol": "admin", "empresa": "TECSUR — FILTROS ACCESS", "ruc": "20100000000", "nombre": "Guillermo / Derek", "correo": "capacitacion@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "SUB-01", "rol": "contratista", "empresa": "ENCOSSA SAC", "ruc": "20546349781", "nombre": "Laura Astocóndor Vadillo", "correo": "rrhh.peru@encossa.com", "password": "encossa2026", "activo": true}, {"id": "SUB-02", "rol": "contratista", "empresa": "PRODUCSA", "ruc": "20424295036", "nombre": "Amparo Zavala", "correo": "rrhh@producsa.com", "password": "producsa2026", "activo": true}, {"id": "SUB-03", "rol": "contratista", "empresa": "KIMSA", "ruc": "20392466275", "nombre": "Fiorela Napan López", "correo": "gestiondeltalento@kimsa.com.pe", "password": "kimsa2026", "activo": true}, {"id": "SUB-04", "rol": "contratista", "empresa": "CAMPOS LATAM", "ruc": "20601111111", "nombre": "Brigit Quispe Huamani", "correo": "rrhh@camposlatam.com", "password": "campos2026", "activo": true}, {"id": "SUB-05", "rol": "contratista", "empresa": "ADECCO PERU", "ruc": "20602222222", "nombre": "Coordinación Adecco", "correo": "rrhh@adecco.com.pe", "password": "adecco2026", "activo": true}, {"id": "SUB-06", "rol": "contratista", "empresa": "ALIHCOM BUILD SAC", "ruc": "20603333333", "nombre": "Mesías Márquez", "correo": "rrhh@build-cc.com", "password": "alihcom2026", "activo": true}, {"id": "SUB-07", "rol": "contratista", "empresa": "ALVIMAR", "ruc": "20604444444", "nombre": "Coordinación Alvimar", "correo": "rrhh@alvimar.com.pe", "password": "alvimar2026", "activo": true}, {"id": "SUB-08", "rol": "contratista", "empresa": "EOS", "ruc": "20605555555", "nombre": "Coordinación EOS", "correo": "rrhh@eos.com.pe", "password": "eos2026", "activo": true}, {"id": "SUB-09", "rol": "contratista", "empresa": "GRUCOIN S.A.C.", "ruc": "20606666666", "nombre": "Coordinación Grucoin", "correo": "rrhh@grucoin.com.pe", "password": "grucoin2026", "activo": true}, {"id": "SUB-10", "rol": "contratista", "empresa": "GRUPO ACUARIUS", "ruc": "20607777777", "nombre": "Coordinación Acuarius", "correo": "rrhh@acuarius.com.pe", "password": "acuarius2026", "activo": true}, {"id": "SUB-11", "rol": "contratista", "empresa": "GRUPO ENERGIA", "ruc": "20608888888", "nombre": "Lizbeth Fernández Mucha", "correo": "coordinadorhse@genergia.pe", "password": "energia2026", "activo": true}, {"id": "SUB-12", "rol": "contratista", "empresa": "JG3 CONSTRUCCIONES SAC", "ruc": "20609999999", "nombre": "Coordinación JG3", "correo": "rrhh@jg3.com.pe", "password": "jg32026", "activo": true}, {"id": "SUB-13", "rol": "contratista", "empresa": "LOS ANDES", "ruc": "20601010101", "nombre": "Alonso Najarro Ttito", "correo": "anajarro@andes.com.pe", "password": "andes2026", "activo": true}, {"id": "SUB-14", "rol": "contratista", "empresa": "NATURAL GAS COMPANY", "ruc": "20601212121", "nombre": "Edith Cárdenas", "correo": "rrhh.nagasco.lima@gmail.com", "password": "nagasco2026", "activo": true}, {"id": "SUB-15", "rol": "contratista", "empresa": "CARTER RENSA", "ruc": "20601313131", "nombre": "Coordinación Carter Rensa", "correo": "rrhh@carterrensa.com", "password": "carter2026", "activo": true}, {"id": "SUB-16", "rol": "contratista", "empresa": "TECSUR GO", "ruc": "20100000003", "nombre": "Luis Alberto Ramos Auque", "correo": "laramos@tecsur.com.pe", "password": "tecsurgo2026", "activo": true}];
+  try {
+    const savedUsers = localStorage.getItem('tecsur_users_db');
+    if (savedUsers) {
+      const parsed = JSON.parse(savedUsers);
+      if (Array.isArray(parsed) && parsed.length > 0) USERS_DB = parsed;
+    }
+  } catch (e) {}
+
+  let SESION_ACTUAL = null;
 
   let STATE = {
     power_automate_webhook: "",
@@ -1105,6 +1325,202 @@
   let ultimosResultadosGov = [];
   let modalPayload = null;
 
+  // =========================================================================
+  // 1. LÓGICA DEL HUB DE LOGIN Y SEPARACIÓN ESTRICTA DE ROLES
+  // =========================================================================
+  function rellenarDemoLogin(correo, pass) {
+    document.getElementById('loginCorreo').value = correo;
+    document.getElementById('loginPassword').value = pass;
+    ejecutarLogin();
+  }
+
+  async function ejecutarLogin() {
+    const correo = document.getElementById('loginCorreo').value.trim().toLowerCase();
+    const pass = document.getElementById('loginPassword').value.trim();
+    const errBox = document.getElementById('loginErrorBox');
+
+    // Sincronizar con backend local si está disponible
+    try {
+      const r = await fetch(`${API_BASE}/api/usuarios`);
+      if (r.ok) {
+        const remoteUsers = await r.json();
+        if (Array.isArray(remoteUsers) && remoteUsers.length > 0) USERS_DB = remoteUsers;
+      }
+    } catch (e) {}
+
+    const user = USERS_DB.find(u => u.correo.toLowerCase() === correo && u.password === pass && u.activo !== false);
+    if (!user) {
+      errBox.classList.remove('hidden');
+      return;
+    }
+
+    errBox.classList.add('hidden');
+    SESION_ACTUAL = user;
+    sessionStorage.setItem('tecsur_sesion_activa', JSON.stringify(user));
+    aplicarSesionActiva();
+  }
+
+  function aplicarSesionActiva() {
+    if (!SESION_ACTUAL) return;
+    document.getElementById('viewLoginHub').classList.add('hidden');
+    document.getElementById('appHeader').classList.remove('hidden');
+    document.getElementById('appFooter').classList.remove('hidden');
+    document.getElementById('lblUsuarioActivo').innerText = `${SESION_ACTUAL.empresa} (${SESION_ACTUAL.nombre})`;
+
+    if (SESION_ACTUAL.rol === 'admin') {
+      // ES ADMINISTRADOR TECSUR: Entra a la Cabina de Administrador y ve el interruptor de pruebas
+      document.getElementById('lblHeaderPortalName').innerText = "Cabina de Administrador — TECSUR";
+      document.getElementById('adminSwitchBar').classList.remove('hidden');
+      document.getElementById('viewInterno').classList.remove('hidden');
+      document.getElementById('viewContratista').classList.add('hidden');
+      renderConsolaInterna();
+      renderTablaUsuariosLogin();
+    } else {
+      // ES SUBCONTRATISTA: Entra EXCLUSIVAMENTE al Portal de Subcontratista.
+      // La Cabina de Administrador queda 100% oculta e inaccesible.
+      document.getElementById('lblHeaderPortalName').innerText = `Portal de Empresas Colaboradoras — ${SESION_ACTUAL.empresa}`;
+      document.getElementById('adminSwitchBar').classList.add('hidden');
+      document.getElementById('viewInterno').classList.add('hidden');
+      document.getElementById('viewContratista').classList.remove('hidden');
+
+      // Pre-cargar automáticamente los datos de la subcontratista logueada en todos los pasos
+      precargarDatosSubcontratistaLogueada();
+    }
+  }
+
+  function precargarDatosSubcontratistaLogueada() {
+    if (!SESION_ACTUAL) return;
+    document.getElementById('f1Responsable').value = SESION_ACTUAL.nombre;
+    document.getElementById('f1Correo').value = SESION_ACTUAL.correo;
+    document.getElementById('f2Solicitante').value = SESION_ACTUAL.nombre;
+    document.getElementById('f2Correo').value = SESION_ACTUAL.correo;
+    document.getElementById('f3Solicitante').value = SESION_ACTUAL.nombre;
+    document.getElementById('f3Correo').value = SESION_ACTUAL.correo;
+    document.getElementById('f4Empresa').value = SESION_ACTUAL.empresa;
+    document.getElementById('f4Correo').value = SESION_ACTUAL.correo;
+
+    // Seleccionar su empresa en los desplegables o usar OTRO si es una empresa nueva creada en la BD
+    const sel1 = document.getElementById('f1Empresa');
+    let matched = false;
+    for (let i = 0; i < sel1.options.length; i++) {
+      if (sel1.options[i].value.includes(SESION_ACTUAL.empresa)) {
+        sel1.selectedIndex = i;
+        document.getElementById('f2Empresa').selectedIndex = i;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      sel1.value = 'OTRO|OTRO';
+      toggleOtro('f1Empresa', 'f1OtroBox');
+      document.getElementById('f1OtroNombre').value = SESION_ACTUAL.empresa;
+      document.getElementById('f1OtroRuc').value = SESION_ACTUAL.ruc || '';
+    }
+  }
+
+  function cambiarVistaAdmin(vista) {
+    if (!SESION_ACTUAL || SESION_ACTUAL.rol !== 'admin') return;
+    document.getElementById('viewInterno').classList.toggle('hidden', vista !== 'interno');
+    document.getElementById('viewContratista').classList.toggle('hidden', vista !== 'contratista');
+    if (vista === 'interno') {
+      renderConsolaInterna();
+      renderTablaUsuariosLogin();
+    }
+  }
+
+  function cerrarSesion() {
+    SESION_ACTUAL = null;
+    sessionStorage.removeItem('tecsur_sesion_activa');
+    document.getElementById('appHeader').classList.add('hidden');
+    document.getElementById('appFooter').classList.add('hidden');
+    document.getElementById('viewContratista').classList.add('hidden');
+    document.getElementById('viewInterno').classList.add('hidden');
+    document.getElementById('viewLoginHub').classList.remove('hidden');
+    document.getElementById('loginPassword').value = '';
+  }
+
+  // Gestión de Usuarios en el Módulo E de la Cabina de Administrador
+  function renderTablaUsuariosLogin() {
+    const tb = document.getElementById('tbodyUsuariosLogin');
+    if (!tb) return;
+    tb.innerHTML = '';
+    USERS_DB.forEach((u, idx) => {
+      const tag = u.rol === 'admin' ? '<span class="hp-tag hp-tag--verde">ADMIN TECSUR</span>' : '<span class="hp-tag hp-tag--azul">SUBCONTRATA</span>';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${tag}</td>
+        <td><strong>${u.empresa}</strong><br><span style="font-size:0.75rem;">RUC: ${u.ruc || '-'}</span></td>
+        <td>${u.nombre}</td>
+        <td><strong>${u.correo}</strong></td>
+        <td><code>${u.password}</code></td>
+        <td>
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="editarUsuario(${idx})">Editar Clave</button>
+        </td>
+      `;
+      tb.appendChild(tr);
+    });
+  }
+
+  async function guardarUsuarioLogin() {
+    const rol = document.getElementById('usrRol').value;
+    const empresa = document.getElementById('usrEmpresa').value.trim().toUpperCase();
+    const ruc = document.getElementById('usrRuc').value.trim() || '20000000000';
+    const nombre = document.getElementById('usrNombre').value.trim();
+    const correo = document.getElementById('usrCorreo').value.trim().toLowerCase();
+    const password = document.getElementById('usrPassword').value.trim();
+
+    if (!empresa || !correo || !password) {
+      alert("Complete Empresa, Correo de Login y Contraseña.");
+      return;
+    }
+
+    const existente = USERS_DB.find(u => u.correo.toLowerCase() === correo);
+    if (existente) {
+      existente.rol = rol;
+      existente.empresa = empresa;
+      existente.ruc = ruc;
+      existente.nombre = nombre || existente.nombre;
+      existente.password = password;
+    } else {
+      USERS_DB.push({
+        id: `USR-${USERS_DB.length + 1}`,
+        rol,
+        empresa,
+        ruc,
+        nombre: nombre || empresa,
+        correo,
+        password,
+        activo: true
+      });
+    }
+
+    localStorage.setItem('tecsur_users_db', JSON.stringify(USERS_DB));
+    try {
+      await fetch(`${API_BASE}/api/guardar_usuarios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(USERS_DB)
+      });
+    } catch (e) {}
+
+    renderTablaUsuariosLogin();
+    alert(`Credencial guardada para ${empresa} (${correo}). Ya puede iniciar sesión con esa contraseña.`);
+  }
+
+  function editarUsuario(idx) {
+    const u = USERS_DB[idx];
+    if (!u) return;
+    document.getElementById('usrRol').value = u.rol;
+    document.getElementById('usrEmpresa').value = u.empresa;
+    document.getElementById('usrRuc').value = u.ruc || '';
+    document.getElementById('usrNombre').value = u.nombre || '';
+    document.getElementById('usrCorreo').value = u.correo;
+    document.getElementById('usrPassword').value = u.password;
+  }
+
+  // =========================================================================
+  // 2. MOTOR DE EVALUACIÓN ACCESS Y FLUJO HAPPY PATH
+  // =========================================================================
   function evaluarDnisEnSnapshot(dnis, rucTarget) {
     const hoy = new Date("2026-11-18T00:00:00");
     return dnis.map(raw => {
@@ -1248,17 +1664,7 @@
   function actualizarBadgePendientes() {
     const pend = STATE.tickets_filtro.filter(t => t.estado === 'PENDIENTE').length;
     const b = document.getElementById('badgePendientesGov');
-    b.innerText = pend;
-    b.classList.toggle('hidden', pend === 0);
-  }
-
-  function switchView(view) {
-    document.getElementById('viewContratista').classList.toggle('hidden', view !== 'contratista');
-    document.getElementById('viewInterno').classList.toggle('hidden', view !== 'interno');
-    document.getElementById('btnNavContratista').classList.toggle('is-active', view === 'contratista');
-    document.getElementById('btnNavInterno').classList.toggle('is-active', view === 'interno');
-    if (view === 'interno') renderConsolaInterna();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (b) b.innerText = pend;
   }
 
   function goStep(n) {
@@ -1269,17 +1675,12 @@
   }
 
   function goGovTab(n) {
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 5; i++) {
       document.getElementById('govPanel' + i).classList.toggle('hidden', i !== n);
       document.getElementById('govTab' + i).classList.toggle('is-active', i === n);
     }
   }
 
-  function cargarMuestraPaso1() {
-    document.getElementById('f1Dnis').value = "45624908, 70540256, 09894758";
-  }
-
-  // PASO 1: ENVIAR TICKET
   async function procesarPaso1Filtro() {
     const emp = leerEmpresa('f1Empresa', 'f1OtroNombre', 'f1OtroRuc');
     if (emp.esOtro && !emp.empresa) {
@@ -1328,7 +1729,7 @@
       <div class="tz-panel tz-panel--verde">
         <p class="tz-panel__name" style="font-size:1.1rem;">¡Listo! Recibimos sus ${dnis.length} DNI(s)</p>
         <p style="margin-top:6px;">
-          Capacitación aprobará su solicitud con un clic y le enviará toda la información al correo:<br>
+          Capacitación validará su ticket y le enviará la respuesta oficial al correo:<br>
           <strong>${correo}</strong>
         </p>
       </div>
@@ -1373,7 +1774,6 @@
     goStep(3);
   }
 
-  // PASO 2: INSCRIBIR EN CRONOGRAMA
   function confirmarMatriculaPaso2() {
     const cursoCod = document.getElementById('f2CursoCodigo').value;
     const fechaVista = document.getElementById('f2FechaVista').value;
@@ -1416,7 +1816,6 @@
     goStep(4);
   }
 
-  // PASO 3: SOLICITAR APERTURA
   function registrarAperturaPaso3() {
     const emp = leerEmpresa('f3Empresa', 'f3OtroNombre', 'f3OtroRuc');
     if (emp.esOtro && !emp.empresa) {
@@ -1452,12 +1851,11 @@
         <p class="tz-panel__name" style="font-size:1.05rem;">✓ Pedido de Apertura Enviado (${reqId})</p>
         <p><strong>Curso:</strong> ${curso} (${cantidad} personas)</p>
         <p><strong>Fechas Propuestas:</strong> ${opcion1} / ${opcion2}</p>
-        <p style="margin-top:6px;">Roberto le avisará al correo <strong>${correo}</strong> la fecha confirmada.</p>
+        <p style="margin-top:6px;">Se le notificará al correo <strong>${correo}</strong> la fecha confirmada.</p>
       </div>
     `;
   }
 
-  // PASO 4: REAJUSTE 24H
   function registrarReajustePaso4() {
     const empresa = document.getElementById('f4Empresa').value.trim();
     const curso_codigo = document.getElementById('f4Curso').value.trim();
@@ -1491,13 +1889,12 @@
     `;
   }
 
-  // CONSOLA INTERNA
   function renderConsolaInterna() {
     actualizarBadgePendientes();
     const tbF = document.getElementById('tbodyGovColaFiltros');
     tbF.innerHTML = '';
     if (STATE.tickets_filtro.length === 0) {
-      tbF.innerHTML = `<tr><td colspan="6">No hay tickets pendientes. Envíe uno desde "1. Vista Subcontratista".</td></tr>`;
+      tbF.innerHTML = `<tr><td colspan="6">No hay tickets pendientes en cola.</td></tr>`;
     } else {
       STATE.tickets_filtro.forEach((t, i) => {
         const tr = document.createElement('tr');
@@ -1701,10 +2098,13 @@ ${cuerpo}`;
 
   window.addEventListener('DOMContentLoaded', () => {
     auditarAccessDirecto();
-    const params = new URLSearchParams(window.location.search);
-    const p = parseInt(params.get('paso') || '0');
-    if (p >= 1 && p <= 4) goStep(p);
-    if (params.get('dnis')) document.getElementById('f2Dnis').value = params.get('dnis');
+    const saved = sessionStorage.getItem('tecsur_sesion_activa');
+    if (saved) {
+      try {
+        SESION_ACTUAL = JSON.parse(saved);
+        aplicarSesionActiva();
+      } catch (e) {}
+    }
   });
 </script>
 </body>
