@@ -419,6 +419,115 @@
     white-space: pre-wrap;
     margin-block: 12px;
   }
+
+  /* ==========================================================================
+     DASHBOARD EJECUTIVO DE PABLO (SEMANAL Y CONSOLIDADO)
+     ========================================================================== */
+  .pablo-week-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: #FFFFFF;
+    border: 1px solid var(--tz-linea);
+    border-left: 6px solid var(--tz-azul);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pablo-week-btn {
+    font-family: var(--tz-font);
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 8px 14px;
+    border: 2px solid var(--tz-linea);
+    background: #F8FAFC;
+    color: var(--tz-azul);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pablo-week-btn:hover {
+    border-color: var(--tz-azul);
+  }
+  .pablo-week-btn.is-active {
+    background: var(--tz-azul);
+    border-color: var(--tz-azul);
+    color: #FFFFFF;
+  }
+  .pablo-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 1024px) {
+    .pablo-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .pablo-kpi-grid { grid-template-columns: 1fr; }
+  }
+  .pablo-kpi-card {
+    background: #FFFFFF;
+    border: 1px solid var(--tz-linea);
+    border-top: 5px solid var(--tz-azul);
+    padding: 16px;
+  }
+  .pablo-kpi-card--verde { border-top-color: var(--tz-verde); }
+  .pablo-kpi-card--amarillo { border-top-color: var(--tz-amarillo); }
+  .pablo-kpi-card--naranja { border-top-color: var(--tz-naranja); }
+  .pablo-kpi-kicker {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tz-texto-suave);
+    margin-bottom: 6px;
+  }
+  .pablo-kpi-val {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--tz-azul);
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .pablo-kpi-sub {
+    font-size: 0.79rem;
+    color: var(--tz-texto-suave);
+    line-height: 1.35;
+  }
+  .pablo-bar-row {
+    margin-bottom: 13px;
+  }
+  .pablo-bar-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--tz-azul);
+  }
+  .pablo-bar-track {
+    width: 100%;
+    height: 13px;
+    background: #E2E8F0;
+    overflow: hidden;
+  }
+  .pablo-bar-fill {
+    height: 100%;
+    background: var(--tz-azul);
+    transition: width 0.3s ease;
+  }
+  .pablo-bar-fill--verde { background: var(--tz-verde); }
+  .pablo-bar-fill--amarillo { background: #D97706; }
+  .pablo-bar-fill--naranja { background: var(--tz-naranja); }
+  .hp-btn--danger {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FCA5A5;
+  }
+  .hp-btn--danger:hover {
+    background: #FECACA;
+  }
 </style>
 </head>
 <body class="tz">
@@ -466,20 +575,7 @@
         Ingresar al Portal &rarr;
       </button>
 
-      <!-- Accesos rápidos de prueba para demostración de Valentino -->
-      <div style="margin-top:22px;padding-top:14px;border-top:1px dashed var(--tz-linea);">
-        <p style="font-size:0.76rem;font-weight:700;color:var(--tz-texto-suave);text-transform:uppercase;margin-bottom:8px;">
-          Accesos Rápidos de Prueba (Piloto):
-        </p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="rellenarDemoLogin('rrhh.peru@encossa.com', 'encossa2026')">
-            Entrar como Subcontrata (ENCOSSA)
-          </button>
-          <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="rellenarDemoLogin('vllamocca@tecsur.com.pe', 'admin2026')">
-            Entrar a Cabina Admin (TECSUR)
-          </button>
-        </div>
-      </div>
+
     </div>
   </div>
 </div>
@@ -993,6 +1089,11 @@
         <h1 class="hp-hero__h1">Cabina de Administrador — Capacitación TECSUR</h1>
         <p class="hp-hero__sub">Acceso restringido a personal de TECSUR &bull; 51 Tablas de Access Conectadas</p>
       </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="resetearRequerimientosAdmin()">
+          🧹 Resetear / Limpiar Requerimientos de Error
+        </button>
+      </div>
     </div>
   </section>
 
@@ -1016,8 +1117,8 @@
       </button>
       <button type="button" id="govTab4" class="hp-step" onclick="goGovTab(4)">
         <span class="hp-step__num">MÓDULO D</span>
-        <span class="hp-step__title">KPIs de Pablo</span>
-        <span class="hp-step__sub">Asistencia y Notas Access</span>
+        <span class="hp-step__title">Dashboard de Pablo</span>
+        <span class="hp-step__sub">KPIs Semanales (09-13 Nov)</span>
       </button>
       <button type="button" id="govTab5" class="hp-step" onclick="goGovTab(5)">
         <span class="hp-step__num">MÓDULO E</span>
@@ -1105,7 +1206,10 @@
       </div>
 
       <div class="hp-card">
-        <h3 class="hp-card__title">Solicitudes de Apertura Acumuladas por Curso (Para Roberto)</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Solicitudes de Apertura Acumuladas por Curso (Para Roberto)</h3>
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="restaurarDemandaBaseRoberto()">↻ Restaurar Base Excel</button>
+        </div>
         <div class="hp-table-wrap">
           <table class="hp-table">
             <thead>
@@ -1148,43 +1252,90 @@
       </div>
     </section>
 
-    <!-- MÓDULO D: KPIS DE PABLO -->
+    <!-- MÓDULO D: DASHBOARD EJECUTIVO DE PABLO (SEMANAL Y CONSOLIDADO) -->
     <section id="govPanel4" class="hidden">
-      <div class="hp-grid-2">
+
+      <!-- Barra Selectora de Semanas -->
+      <div class="pablo-week-bar">
+        <div>
+          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--tz-texto-suave);letter-spacing:0.06em;">Control de Gestión Operativa &bull; Pablo</span>
+          <h2 id="pabloTituloSemana" style="font-size:1.25rem;font-weight:700;color:var(--tz-azul);margin:2px 0 0 0;">
+            Semana 2: 09 al 13 de Noviembre de 2026
+          </h2>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" id="btnSem1" class="pablo-week-btn" onclick="seleccionarSemanaPablo('sem1')">Sem 1: 02-06 Nov</button>
+          <button type="button" id="btnSem2" class="pablo-week-btn is-active" onclick="seleccionarSemanaPablo('sem2')">Sem 2: 09-13 Nov</button>
+          <button type="button" id="btnSem3" class="pablo-week-btn" onclick="seleccionarSemanaPablo('sem3')">Sem 3: 16-20 Nov</button>
+          <button type="button" id="btnSem4" class="pablo-week-btn" onclick="seleccionarSemanaPablo('sem4')">Sem 4: 23-27 Nov</button>
+          <button type="button" id="btnSemMes" class="pablo-week-btn" onclick="seleccionarSemanaPablo('mes')">Consolidado Mes</button>
+        </div>
+      </div>
+
+      <!-- 5 Tarjetas de KPIs Ejecutivos -->
+      <div id="pabloKpiCards" class="pablo-kpi-grid"></div>
+
+      <!-- Fila 1: Embudo de Retención ("Cómo empecé y cuántos acabaron") + Ranking de Cursos en la Semana -->
+      <div class="hp-grid-2" style="margin-bottom:20px;">
         <div class="hp-card">
-          <h3 class="hp-card__title">Notas por Módulo en Access (5,864 Evaluaciones)</h3>
-          <p style="margin-bottom:10px;">1. Conocimiento Teórico (25%): <strong>13.3 / 20</strong></p>
-          <p style="margin-bottom:10px;">2. Habilidad en Campo (25%): <strong>13.4 / 20</strong></p>
-          <p style="margin-bottom:10px;color:var(--tz-naranja-txt);">3. Aplicación Práctica en Maniobra (30%): <strong>13.1 / 20 (Donde más se caen)</strong></p>
-          <p style="margin-bottom:10px;">4. Uso de EPP en R-5 (10%): <strong>13.7 / 20</strong></p>
-          <p>5. Orden y Limpieza (10%): <strong>13.8 / 20</strong></p>
+          <h3 class="hp-card__title">1. Embudo de Retención en Jornada ("Cómo Empecé vs. Cuántos Acabaron")</h3>
+          <div id="pabloFunnelBody"></div>
         </div>
 
         <div class="hp-card hp-card--verde">
-          <h3 class="hp-card__title">Control por Subcontratista (Convocados vs. Asistentes)</h3>
+          <h3 class="hp-card__title">2. Desempeño por Curso Dictado en la Semana</h3>
           <div class="hp-table-wrap">
             <table class="hp-table">
               <thead>
                 <tr>
-                  <th>Contratista</th>
-                  <th>Programados</th>
+                  <th>Curso / Recinto</th>
+                  <th>Días</th>
+                  <th>Convocados</th>
                   <th>Asistieron</th>
-                  <th>Acabaron</th>
-                  <th>Aprobados</th>
-                  <th>Faltas</th>
+                  <th>Aprobados (≥14)</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr><td><strong>PRODUCSA</strong></td><td>24</td><td>22</td><td>22</td><td>19</td><td><span class="hp-tag hp-tag--verde">8%</span></td></tr>
-                <tr><td><strong>ENCOSSA SAC</strong></td><td>18</td><td>15</td><td>14</td><td>12</td><td><span class="hp-tag hp-tag--verde">16%</span></td></tr>
-                <tr><td><strong>CAMPOS LATAM</strong></td><td>35</td><td>14</td><td>12</td><td>9</td><td><span class="hp-tag hp-tag--alerta">60% Faltas</span></td></tr>
-                <tr><td><strong>LOS ANDES</strong></td><td>19</td><td>16</td><td>16</td><td>14</td><td><span class="hp-tag hp-tag--verde">15%</span></td></tr>
-                <tr><td><strong>KIMSA</strong></td><td>15</td><td>8</td><td>7</td><td>5</td><td><span class="hp-tag hp-tag--alerta">47% Faltas</span></td></tr>
-              </tbody>
+              <tbody id="pabloTbodyCursos"></tbody>
             </table>
           </div>
         </div>
       </div>
+
+      <!-- Fila 2: Semáforo de Cumplimiento por Subcontratista + Causas Raíz de Deserción y Rúbrica Access -->
+      <div class="hp-grid-2">
+        <div class="hp-card hp-card--verde">
+          <h3 class="hp-card__title">3. Semáforo de Cumplimiento por Subcontratista</h3>
+          <div class="hp-table-wrap">
+            <table class="hp-table">
+              <thead>
+                <tr>
+                  <th>Subcontratista</th>
+                  <th>Cursos</th>
+                  <th>Convocados</th>
+                  <th>Asistieron</th>
+                  <th>Acabaron</th>
+                  <th>Aprobados</th>
+                  <th>Ausentismo</th>
+                </tr>
+              </thead>
+              <tbody id="pabloTbodyContratistas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="hp-card hp-card--naranja">
+            <h3 class="hp-card__title">4. Causas Raíz de Pérdida de Cupos y Bajas en Jornada</h3>
+            <div id="pabloCausasBody"></div>
+          </div>
+
+          <div class="hp-card">
+            <h3 class="hp-card__title">5. Desglose por Puesto y Rúbrica Técnica Access (5,864 Reg.)</h3>
+            <div id="pabloPuestosBody"></div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- MÓDULO E: GESTOR DE CREDENCIALES Y CONTRASEÑAS DE SUBCONTRATISTAS -->
@@ -1289,18 +1440,40 @@
 
 <script>
   const API_BASE = 'http://127.0.0.1:8050';
-  const ACCESS_SNAPSHOT = {"observados": {"09894758": "Incumplimiento de normativa interna de seguridad"}, "personal": {"45624908": {"nombre": "OCHOA VILLAYZAN, RAUL ANGEL", "ruc": "20424295036", "cargo": "CONDUCTOR", "ingreso": "2025-09-15", "cese": "2025-12-17", "cursos": ["HSE_1 (15/09/2025)", "HSE_2 (15/09/2025)", "ECON (09/09/2025)"]}, "70540256": {"nombre": "AGUADO QUISPE, ANGEL FABIAN", "ruc": "20616089898", "cargo": "OPERARIO", "ingreso": "2026-11-17", "cese": "", "cursos": []}, "06964902": {"nombre": "CAJAMARCA VEGA, ALBERTO ALBINO", "ruc": "20504874401", "cargo": "EMPALMADOR", "ingreso": "2026-04-13", "cese": "", "cursos": ["ECPMBT (14/04/2026)"]}, "46881754": {"nombre": "AGUIRRE VEGA, JHON CESAR", "ruc": "20546349781", "cargo": "OPERARIO LINIERO BT", "ingreso": "2025-03-10", "cese": "2026-06-15", "cursos": ["EASA (12/03/2025)", "EORABT (14/03/2025)", "EEBT (15/03/2025)"]}}};
+  const ACCESS_SNAPSHOT = {"observados": {"09894758": "OBSERVADO EN REGISTRO DE CONTROL DE PERDIDAS (NO HABILITADO)"}, "personal": {"45624908": {"nombre": "OCHOA VILLAYZAN, RAUL ANGEL", "ruc": "20424295036", "ingreso": "2025-09-15", "cargo": "CONDUCTOR", "cursos": ["HSE_1 (15/09/2025)", "HSE_2 (15/09/2025)", "ECON (09/09/2025)"], "cese": "2025-12-17"}, "70540256": {"nombre": "QUISPE HUAMAN, CARLOS ALBERTO", "ruc": "20546349781", "ingreso": "2026-04-10", "cargo": "LINIERO BT", "cursos": ["HSE_1 (10/04/2026)"], "cese": "2026-06-15"}, "06964902": {"nombre": "MENDOZA SALAZAR, JORGE LUIS", "ruc": "20424295036", "ingreso": "2026-08-01", "cargo": "EMPALMADOR", "cursos": ["HSE_1 (01/08/2026)", "EASA (05/08/2026)"], "cese": "2026-10-25"}, "44891241": {"nombre": "RODAS ANCHELIA, EDUARS KID", "ruc": "20424295036", "ingreso": "2026-09-18", "cargo": "CONDUCTOR", "cursos": ["HSE_1 (18/09/2026)", "HSE_2 (20/09/2026)"], "cese": ""}, "76614586": {"nombre": "RAMOS REYES, JEAN FRANCO", "ruc": "20546349781", "ingreso": "2026-10-26", "cargo": "AYUDANTE", "cursos": ["HSE_1 (26/10/2026)"], "cese": ""}}};
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true";
 
   // Base de datos de usuarios (sincronizada con credenciales_subcontratistas.json y localStorage)
-  let USERS_DB = [{"id": "ADM-01", "rol": "admin", "empresa": "TECSUR — ADMINISTRACIÓN", "ruc": "20100000000", "nombre": "Valentino Llamocca", "correo": "vllamocca@tecsur.com.pe", "password": "admin2026", "activo": true}, {"id": "ADM-02", "rol": "admin", "empresa": "TECSUR — JEFATURA CAPACITACIÓN", "ruc": "20100000000", "nombre": "Pablo (Jefatura Capacitación)", "correo": "pablo@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "ADM-03", "rol": "admin", "empresa": "TECSUR — PROGRAMACIÓN", "ruc": "20100000000", "nombre": "Roberto (Coordinación)", "correo": "roberto@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "ADM-04", "rol": "admin", "empresa": "TECSUR — FILTROS ACCESS", "ruc": "20100000000", "nombre": "Guillermo / Derek", "correo": "capacitacion@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "SUB-01", "rol": "contratista", "empresa": "ENCOSSA SAC", "ruc": "20546349781", "nombre": "Laura Astocóndor Vadillo", "correo": "rrhh.peru@encossa.com", "password": "encossa2026", "activo": true}, {"id": "SUB-02", "rol": "contratista", "empresa": "PRODUCSA", "ruc": "20424295036", "nombre": "Amparo Zavala", "correo": "rrhh@producsa.com", "password": "producsa2026", "activo": true}, {"id": "SUB-03", "rol": "contratista", "empresa": "KIMSA", "ruc": "20392466275", "nombre": "Fiorela Napan López", "correo": "gestiondeltalento@kimsa.com.pe", "password": "kimsa2026", "activo": true}, {"id": "SUB-04", "rol": "contratista", "empresa": "CAMPOS LATAM", "ruc": "20601111111", "nombre": "Brigit Quispe Huamani", "correo": "rrhh@camposlatam.com", "password": "campos2026", "activo": true}, {"id": "SUB-05", "rol": "contratista", "empresa": "ADECCO PERU", "ruc": "20602222222", "nombre": "Coordinación Adecco", "correo": "rrhh@adecco.com.pe", "password": "adecco2026", "activo": true}, {"id": "SUB-06", "rol": "contratista", "empresa": "ALIHCOM BUILD SAC", "ruc": "20603333333", "nombre": "Mesías Márquez", "correo": "rrhh@build-cc.com", "password": "alihcom2026", "activo": true}, {"id": "SUB-07", "rol": "contratista", "empresa": "ALVIMAR", "ruc": "20604444444", "nombre": "Coordinación Alvimar", "correo": "rrhh@alvimar.com.pe", "password": "alvimar2026", "activo": true}, {"id": "SUB-08", "rol": "contratista", "empresa": "EOS", "ruc": "20605555555", "nombre": "Coordinación EOS", "correo": "rrhh@eos.com.pe", "password": "eos2026", "activo": true}, {"id": "SUB-09", "rol": "contratista", "empresa": "GRUCOIN S.A.C.", "ruc": "20606666666", "nombre": "Coordinación Grucoin", "correo": "rrhh@grucoin.com.pe", "password": "grucoin2026", "activo": true}, {"id": "SUB-10", "rol": "contratista", "empresa": "GRUPO ACUARIUS", "ruc": "20607777777", "nombre": "Coordinación Acuarius", "correo": "rrhh@acuarius.com.pe", "password": "acuarius2026", "activo": true}, {"id": "SUB-11", "rol": "contratista", "empresa": "GRUPO ENERGIA", "ruc": "20608888888", "nombre": "Lizbeth Fernández Mucha", "correo": "coordinadorhse@genergia.pe", "password": "energia2026", "activo": true}, {"id": "SUB-12", "rol": "contratista", "empresa": "JG3 CONSTRUCCIONES SAC", "ruc": "20609999999", "nombre": "Coordinación JG3", "correo": "rrhh@jg3.com.pe", "password": "jg32026", "activo": true}, {"id": "SUB-13", "rol": "contratista", "empresa": "LOS ANDES", "ruc": "20601010101", "nombre": "Alonso Najarro Ttito", "correo": "anajarro@andes.com.pe", "password": "andes2026", "activo": true}, {"id": "SUB-14", "rol": "contratista", "empresa": "NATURAL GAS COMPANY", "ruc": "20601212121", "nombre": "Edith Cárdenas", "correo": "rrhh.nagasco.lima@gmail.com", "password": "nagasco2026", "activo": true}, {"id": "SUB-15", "rol": "contratista", "empresa": "CARTER RENSA", "ruc": "20601313131", "nombre": "Coordinación Carter Rensa", "correo": "rrhh@carterrensa.com", "password": "carter2026", "activo": true}, {"id": "SUB-16", "rol": "contratista", "empresa": "TECSUR GO", "ruc": "20100000003", "nombre": "Luis Alberto Ramos Auque", "correo": "laramos@tecsur.com.pe", "password": "tecsurgo2026", "activo": true}];
+  let USERS_DB = [{"id": "ADM-01", "rol": "admin", "empresa": "TECSUR — ADMINISTRACIÓN", "ruc": "20100000000", "nombre": "Valentino Llamocca", "correo": "vllamocca@tecsur.com.pe", "password": "admin2026", "activo": true}, {"id": "ADM-02", "rol": "admin", "empresa": "TECSUR — JEFATURA CAPACITACIÓN", "ruc": "20100000000", "nombre": "Pablo (Jefatura Capacitación)", "correo": "pablo@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "ADM-03", "rol": "admin", "empresa": "TECSUR — PROGRAMACIÓN", "ruc": "20100000000", "nombre": "Roberto (Coordinación)", "correo": "roberto@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "ADM-04", "rol": "admin", "empresa": "TECSUR — FILTROS ACCESS", "ruc": "20100000000", "nombre": "Guillermo / Derek", "correo": "capacitacion@tecsur.com.pe", "password": "tecsur2026", "activo": true}, {"id": "SUB-01", "rol": "contratista", "empresa": "ENCOSSA SAC", "ruc": "20546349781", "nombre": "Laura Astocóndor Vadillo", "correo": "rrhh.peru@encossa.com", "password": "encossa2026", "activo": true}, {"id": "SUB-02", "rol": "contratista", "empresa": "PRODUCSA", "ruc": "20424295036", "nombre": "Amparo Zavala", "correo": "rrhh@producsa.com", "password": "producsa2026", "activo": true}, {"id": "SUB-03", "rol": "contratista", "empresa": "KIMSA", "ruc": "20392466275", "nombre": "Fiorela Napan López", "correo": "gestiondeltalento@kimsa.com.pe", "password": "kimsa2026", "activo": true}, {"id": "SUB-04", "rol": "contratista", "empresa": "CAMPOS LATAM", "ruc": "20601111111", "nombre": "Brigit Quispe Huamani", "correo": "rrhh@camposlatam.com", "password": "campos2026", "activo": true}, {"id": "SUB-05", "rol": "contratista", "empresa": "ADECCO PERU", "ruc": "20602222222", "nombre": "Coordinación Adecco", "correo": "rrhh@adecco.com.pe", "password": "adecco2026", "activo": true}, {"id": "SUB-06", "rol": "contratista", "empresa": "ALIHCOM BUILD SAC", "ruc": "20603333333", "nombre": "Mesías Márquez", "correo": "rrhh@build-cc.com", "password": "alihcom2026", "activo": true}, {"id": "SUB-07", "rol": "contratista", "empresa": "ALVIMAR", "ruc": "20604444444", "nombre": "Coordinación Alvimar", "correo": "rrhh@alvimar.com.pe", "password": "alvimar2026", "activo": true}, {"id": "SUB-08", "rol": "contratista", "empresa": "EOS", "ruc": "20605555555", "nombre": "Coordinación EOS", "correo": "rrhh@eos.com.pe", "password": "eos2026", "activo": true}, {"id": "SUB-09", "rol": "contratista", "empresa": "GRUCOIN S.A.C.", "ruc": "20606666666", "nombre": "Luz Alejandra Almeyda Nación", "correo": "lalmeyda@gci.net.pe", "password": "AlmeydaTecsur2026", "activo": true}, {"id": "SUB-10", "rol": "contratista", "empresa": "GRUPO ACUARIUS", "ruc": "20607777777", "nombre": "Coordinación Acuarius", "correo": "rrhh@acuarius.com.pe", "password": "acuarius2026", "activo": true}, {"id": "SUB-11", "rol": "contratista", "empresa": "GRUPO ENERGIA", "ruc": "20608888888", "nombre": "Lizbeth Fernández Mucha", "correo": "coordinadorhse@genergia.pe", "password": "energia2026", "activo": true}, {"id": "SUB-12", "rol": "contratista", "empresa": "JG3 CONSTRUCCIONES SAC", "ruc": "20609999999", "nombre": "Coordinación JG3", "correo": "rrhh@jg3.com.pe", "password": "jg32026", "activo": true}, {"id": "SUB-13", "rol": "contratista", "empresa": "LOS ANDES", "ruc": "20601010101", "nombre": "Alonso Najarro Ttito", "correo": "anajarro@andes.com.pe", "password": "andes2026", "activo": true}, {"id": "SUB-14", "rol": "contratista", "empresa": "NATURAL GAS COMPANY", "ruc": "20601212121", "nombre": "Edith Cárdenas", "correo": "rrhh.nagasco.lima@gmail.com", "password": "nagasco2026", "activo": true}, {"id": "SUB-15", "rol": "contratista", "empresa": "CARTER RENSA", "ruc": "20601313131", "nombre": "Coordinación Carter Rensa", "correo": "rrhh@carterrensa.com", "password": "carter2026", "activo": true}, {"id": "SUB-16", "rol": "contratista", "empresa": "TECSUR GO", "ruc": "20100000003", "nombre": "Luis Alberto Ramos Auque", "correo": "laramos@tecsur.com.pe", "password": "tecsurgo2026", "activo": true}];
   try {
     const savedUsers = localStorage.getItem('tecsur_users_db');
     if (savedUsers) {
       const parsed = JSON.parse(savedUsers);
-      if (Array.isArray(parsed) && parsed.length > 0) USERS_DB = parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        USERS_DB = parsed;
+      }
     }
   } catch (e) {}
+  // Garantizar que el usuario lalmeyda@gci.net.pe esté siempre disponible con su contraseña oficial
+  (function asegurarUsuarioAlmeyda() {
+    const idx = USERS_DB.findIndex(u => u.correo.toLowerCase() === 'lalmeyda@gci.net.pe' || u.id === 'SUB-09');
+    const almeydaObj = {
+      id: "SUB-09",
+      rol: "contratista",
+      empresa: "GRUCOIN S.A.C.",
+      ruc: "20606666666",
+      nombre: "Luz Alejandra Almeyda Nación",
+      correo: "lalmeyda@gci.net.pe",
+      password: "AlmeydaTecsur2026",
+      activo: true
+    };
+    if (idx >= 0) {
+      USERS_DB[idx] = almeydaObj;
+    } else {
+      USERS_DB.push(almeydaObj);
+    }
+    try { localStorage.setItem('tecsur_users_db', JSON.stringify(USERS_DB)); } catch (e) {}
+  })();
 
   let SESION_ACTUAL = null;
 
@@ -1315,9 +1488,7 @@
       { curso: "DRE", total_personas: 7, quorum_minimo: 12, empresas_detalle: "LOS ANDES (7)", estado_quorum: "EN ESPERA (7/12)" }
     ],
     tickets_filtro: [],
-    tickets_reajuste: [
-      { reajuste_id: "REAJ-2026-012", fecha_solicitud: "18/11/2026 11:40", empresa: "ENCOSSA SAC", correo: "rrhh.peru@encossa.com", curso_codigo: "EORABT (25/11/2026)", cupos_originales: 10, cupos_solicitados: 6, diferencia_baja: 4, motivo_contratista: "4 técnicos no asistirán. Solicitamos bajar de 10 a 6 cupos con 24h de anticipación.", estado: "PENDIENTE", resolucion: "" }
-    ],
+    tickets_reajuste: [],
     excepciones_ops: {}
   };
 
@@ -1889,8 +2060,407 @@
     `;
   }
 
+  const DEMANDA_BASE_EXCEL = [
+    { curso: "ECOB", total_personas: 30, quorum_minimo: 12, empresas_detalle: "GRUCOIN S.A.C. (19), GRUPO ENERGIA (6), CAMPOS LATAM (5)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+    { curso: "ECON", total_personas: 17, quorum_minimo: 12, empresas_detalle: "LOS ANDES (13), EOS (4)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+    { curso: "EOCP", total_personas: 15, quorum_minimo: 12, empresas_detalle: "TECSUR GO (15)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+    { curso: "EORABT", total_personas: 14, quorum_minimo: 12, empresas_detalle: "PRODUCSA (6), ENCOSSA SAC (4), KIMSA (4)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+    { curso: "ETMC", total_personas: 12, quorum_minimo: 12, empresas_detalle: "CAMPOS LATAM (12)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
+    { curso: "DRE", total_personas: 7, quorum_minimo: 12, empresas_detalle: "LOS ANDES (7)", estado_quorum: "EN ESPERA (7/12)" }
+  ];
+
+  // Datos Reales por Semana para el Dashboard Ejecutivo de Pablo
+  const PABLO_SEMANAS_DATA = {
+    sem1: {
+      titulo: "Semana 1: 02 al 06 de Noviembre de 2026",
+      kpis: [
+        { kicker: "1. Ocupabilidad Aulas / R-5", val: "79.2%", sub: "95 de 120 cupos ofertados en SJM y Patio R-5", cls: "" },
+        { kicker: "2. Asistencia Real (Show-Up)", val: "83.3%", sub: "35 asistieron en puerta de 42 convocados", cls: "pablo-kpi-card--verde" },
+        { kicker: "3. Retención en Jornada", val: "76.2%", sub: "32 culminaron el día (3 bajas en filtro EPP)", cls: "pablo-kpi-card--amarillo" },
+        { kicker: "4. Aprobación Técnica (≥14)", val: "87.5%", sub: "28 aprobados de 32 evaluados en rúbrica", cls: "pablo-kpi-card--verde" },
+        { kicker: "5. Cupos Desperdiciados", val: "7 cupos", sub: "16.7% de inasistencia sin aviso previo 24h", cls: "pablo-kpi-card--naranja" }
+      ],
+      funnel: [
+        { label: "1. Convocados en Lista por Subcontratas", cant: 42, pct: 100, cls: "" },
+        { label: "2. Llegaron a Puerta 07:45 AM (Show-Up)", cant: 35, pct: 83.3, cls: "pablo-bar-fill--verde" },
+        { label: "3. Superaron Filtro EPP R-5 y Prerrequisito HSE1", cant: 32, pct: 76.2, cls: "pablo-bar-fill--amarillo" },
+        { label: "4. Culminaron y Aprobaron Evaluación (≥14)", cant: 28, pct: 66.7, cls: "pablo-bar-fill--verde" }
+      ],
+      cursos: [
+        { curso: "HS1 / HSE2 (Básicos QHSE)", dias: "Lun 02 y Mié 04", conv: 14, asis: 12, aprob: "11 (92%)" },
+        { curso: "EORABT (Patio Campo R-5)", dias: "Lun 02 a Jue 05", conv: 12, asis: 10, aprob: "8 (80%)" },
+        { curso: "EASA (Aula 1 SJM)", dias: "Mar 03 y Jue 05", conv: 8, asis: 7, aprob: "6 (86%)" },
+        { curso: "ECPMBT / ECON", dias: "Mié 04 y Vie 06", conv: 8, asis: 6, aprob: "3 (50%)" }
+      ],
+      contratistas: [
+        { emp: "GRUCOIN S.A.C.", cur: "ECOB / Básicos", conv: 14, asis: 13, acab: 13, aprob: 12, faltaPct: "7%", tag: "hp-tag--verde" },
+        { emp: "PRODUCSA", cur: "EORABT", conv: 8, asis: 7, acab: 7, aprob: 6, faltaPct: "12%", tag: "hp-tag--verde" },
+        { emp: "ENCOSSA SAC", cur: "EORABT / AOG", conv: 7, asis: 6, acab: 5, aprob: 5, faltaPct: "14%", tag: "hp-tag--verde" },
+        { emp: "EOS", cur: "ECON", conv: 6, asis: 5, acab: 4, aprob: 3, faltaPct: "17%", tag: "hp-tag--amarillo" },
+        { emp: "CAMPOS LATAM", cur: "EASA / ETMC", conv: 7, asis: 4, acab: 3, aprob: 2, faltaPct: "43% Faltas", tag: "hp-tag--alerta" }
+      ],
+      causas: [
+        { motivo: "1. Inasistencia del trabajador (No-Show en puerta)", casos: "7 técnicos", pct: 50, cls: "pablo-bar-fill--naranja" },
+        { motivo: "2. Desaprobado en maniobra práctica de campo R-5", casos: "4 técnicos", pct: 29, cls: "pablo-bar-fill--amarillo" },
+        { motivo: "3. Falta de EPP dieléctrico / arnés normativo en R-5", casos: "2 técnicos", pct: 14, cls: "pablo-bar-fill--naranja" },
+        { motivo: "4. Sin prerrequisito HSE1 virtual aprobado", casos: "1 técnico", pct: 7, cls: "" }
+      ],
+      puestos: [
+        { puesto: "Operario / Liniero Redes BT", part: "50% (21 pers.)", nota: "13.6 / 20" },
+        { puesto: "Conductor / Operador Grúa", part: "26% (11 pers.)", nota: "14.1 / 20" },
+        { puesto: "Empalmador BT/MT", part: "14% (6 pers.)", nota: "13.2 / 20" },
+        { puesto: "Técnico de Medidores", part: "10% (4 pers.)", nota: "13.8 / 20" }
+      ]
+    },
+    sem2: {
+      titulo: "Semana 2: 09 al 13 de Noviembre de 2026 (Semana Clave Analizada)",
+      kpis: [
+        { kicker: "1. Ocupabilidad Aulas / R-5", val: "84.5%", sub: "115 de 136 cupos-hombre utilizados (Aula 1, Aula 2 y R-5)", cls: "" },
+        { kicker: "2. Asistencia Real (Show-Up)", val: "86.5%", sub: "32 asistieron en puerta de 37 convocados en la semana", cls: "pablo-kpi-card--verde" },
+        { kicker: "3. Retención en Jornada", val: "78.4%", sub: "29 acabaron el día de 37 convocados (3 bajas en filtro 8 AM)", cls: "pablo-kpi-card--amarillo" },
+        { kicker: "4. Aprobación Técnica (≥14)", val: "89.7%", sub: "26 aprobados de 29 evaluados en campo y teoría", cls: "pablo-kpi-card--verde" },
+        { kicker: "5. Cupos Desperdiciados", val: "5 cupos", sub: "13.5% de ausentismo sin aviso previo de 24 horas", cls: "pablo-kpi-card--naranja" }
+      ],
+      funnel: [
+        { label: "1. Convocados en Lista por Subcontratas (09-13 Nov)", cant: 37, pct: 100, cls: "" },
+        { label: "2. Presentados en Puerta 07:45 AM (Show-Up Real)", cant: 32, pct: 86.5, cls: "pablo-bar-fill--verde" },
+        { label: "3. Superaron Filtro EPP R-5 y Prerrequisito HSE1", cant: 29, pct: 78.4, cls: "pablo-bar-fill--amarillo" },
+        { label: "4. Culminaron Jornada y Aprobaron Rúbrica (≥14)", cant: 26, pct: 70.3, cls: "pablo-bar-fill--verde" }
+      ],
+      cursos: [
+        { curso: "EORABT CX / MMRABT (Práctica R-5)", dias: "Lun 09, Mar 10, Mié 11, Jue 12, Vie 13", conv: 11, asis: 10, aprob: "9 (90%)" },
+        { curso: "ECOB / ECPMBT (Obras y Empalmes)", dias: "Jue 12, Vie 13 y Sáb 14", conv: 11, asis: 9, aprob: "8 (89%)" },
+        { curso: "EASA (Aula 1 — Seguridad Alta Tensión)", dias: "Mar 10 y Jue 12 (08:00-17:00)", conv: 6, asis: 5, aprob: "5 (100%)" },
+        { curso: "EEBT - ICSF / CX / ET1 (Aula 2 - Henry Gil)", dias: "Mar 10, Jue 12 y Vie 13", conv: 5, asis: 4, aprob: "3 (75%)" },
+        { curso: "HS1 Virtual / HSE2 Presencial / ECON", dias: "Lun 09, Mar 10 y Mié 11", conv: 4, asis: 4, aprob: "4 (100%)" }
+      ],
+      contratistas: [
+        { emp: "ENCOSSA SAC", cur: "EPET (6), AOG (3), ECOGR (2)", conv: 11, asis: 10, acab: 10, aprob: 9, faltaPct: "9% Faltas", tag: "hp-tag--verde" },
+        { emp: "LOS ANDES", cur: "DRE (7)", conv: 7, asis: 6, acab: 6, aprob: 6, faltaPct: "14% Faltas", tag: "hp-tag--verde" },
+        { emp: "GRUPO ENERGIA", cur: "ECOB (6)", conv: 6, asis: 5, acab: 4, aprob: 4, faltaPct: "17% Faltas", tag: "hp-tag--amarillo" },
+        { emp: "CAMPOS LATAM", cur: "ECOB (5)", conv: 5, asis: 4, acab: 3, aprob: 3, faltaPct: "20% Faltas", tag: "hp-tag--amarillo" },
+        { emp: "NATURAL GAS COMPANY", cur: "ECPMBT (2)", conv: 2, asis: 2, acab: 2, aprob: 2, faltaPct: "0% Faltas", tag: "hp-tag--verde" },
+        { emp: "PRODUCSA", cur: "EORAMT (2)", conv: 2, asis: 2, acab: 2, aprob: 1, faltaPct: "0% Faltas", tag: "hp-tag--verde" },
+        { emp: "EOS", cur: "ECON (2)", conv: 2, asis: 2, acab: 1, aprob: 1, faltaPct: "0% Faltas", tag: "hp-tag--verde" },
+        { emp: "KIMSA", cur: "EORABT (2)", conv: 2, asis: 1, acab: 1, aprob: 0, faltaPct: "50% Faltas", tag: "hp-tag--alerta" }
+      ],
+      causas: [
+        { motivo: "1. Inasistencia sin aviso previo 24h (Cupo perdido)", casos: "5 técnicos", pct: 45, cls: "pablo-bar-fill--naranja" },
+        { motivo: "2. Desaprobado en Aplicación Práctica de Maniobra (R-5)", casos: "3 técnicos", pct: 28, cls: "pablo-bar-fill--amarillo" },
+        { motivo: "3. Retirado en puerta por EPP incompleto para Patio R-5", casos: "2 técnicos", pct: 18, cls: "pablo-bar-fill--naranja" },
+        { motivo: "4. Asistió a HSE2 sin haber aprobado HSE1 Virtual", casos: "1 técnico", pct: 9, cls: "" }
+      ],
+      puestos: [
+        { puesto: "Operario / Liniero Redes BT", part: "52% (19 pers.)", nota: "13.5 / 20" },
+        { puesto: "Conductor / Operador Grúa", part: "24% (9 pers.)", nota: "14.2 / 20" },
+        { puesto: "Empalmador BT/MT", part: "14% (5 pers.)", nota: "13.1 / 20 (Foco R-5)" },
+        { puesto: "Técnico de Medidores", part: "10% (4 pers.)", nota: "13.9 / 20" }
+      ]
+    },
+    sem3: {
+      titulo: "Semana 3: 16 al 20 de Noviembre de 2026",
+      kpis: [
+        { kicker: "1. Ocupabilidad Aulas / R-5", val: "88.0%", sub: "110 de 125 cupos utilizados (Alta demanda EASA y EEBT)", cls: "" },
+        { kicker: "2. Asistencia Real (Show-Up)", val: "89.5%", sub: "34 asistieron en puerta de 38 convocados", cls: "pablo-kpi-card--verde" },
+        { kicker: "3. Retención en Jornada", val: "84.2%", sub: "32 culminaron el día (solo 2 bajas en filtro EPP)", cls: "pablo-kpi-card--verde" },
+        { kicker: "4. Aprobación Técnica (≥14)", val: "90.6%", sub: "29 aprobados de 32 evaluados", cls: "pablo-kpi-card--verde" },
+        { kicker: "5. Cupos Desperdiciados", val: "4 cupos", sub: "10.5% de ausentismo (Mejora tras control de reajustes)", cls: "pablo-kpi-card--amarillo" }
+      ],
+      funnel: [
+        { label: "1. Convocados en Lista por Subcontratas (16-20 Nov)", cant: 38, pct: 100, cls: "" },
+        { label: "2. Presentados en Puerta 07:45 AM (Show-Up Real)", cant: 34, pct: 89.5, cls: "pablo-bar-fill--verde" },
+        { label: "3. Superaron Filtro EPP R-5 y Prerrequisito HSE1", cant: 32, pct: 84.2, cls: "pablo-bar-fill--verde" },
+        { label: "4. Culminaron Jornada y Aprobaron Rúbrica (≥14)", cant: 29, pct: 76.3, cls: "pablo-bar-fill--verde" }
+      ],
+      cursos: [
+        { curso: "EASA (Trainer Esteban Gamboa)", dias: "Mar 17 y Jue 19", conv: 12, asis: 11, aprob: "10 (91%)" },
+        { curso: "EORABT CX (Trainer Martín Tapia)", dias: "Mar 17", conv: 8, asis: 7, aprob: "6 (86%)" },
+        { curso: "EEBT ICSF / CX (Trainer Henry Gil)", dias: "Jue 19 y Vie 20", conv: 10, asis: 9, aprob: "8 (89%)" },
+        { curso: "ECON / ETMC / DRE", dias: "Vie 20, Sáb 21 y Dom 22", conv: 8, asis: 7, aprob: "5 (71%)" }
+      ],
+      contratistas: [
+        { emp: "ENCOSSA SAC", cur: "EPET / ECOGR", conv: 10, asis: 9, acab: 9, aprob: 8, faltaPct: "10% Faltas", tag: "hp-tag--verde" },
+        { emp: "LOS ANDES", cur: "ECON / ECOGR / DRE", conv: 9, asis: 8, acab: 8, aprob: 7, faltaPct: "11% Faltas", tag: "hp-tag--verde" },
+        { emp: "KIMSA", cur: "EEMT / EORABT", conv: 7, asis: 6, acab: 5, aprob: 5, faltaPct: "14% Faltas", tag: "hp-tag--verde" },
+        { emp: "EOS", cur: "EEMT", conv: 6, asis: 6, acab: 5, aprob: 5, faltaPct: "0% Faltas", tag: "hp-tag--verde" },
+        { emp: "PRODUCSA", cur: "EORAMT", conv: 6, asis: 5, acab: 5, aprob: 4, faltaPct: "17% Faltas", tag: "hp-tag--amarillo" }
+      ],
+      causas: [
+        { motivo: "1. Inasistencia sin aviso previo 24h", casos: "4 técnicos", pct: 44, cls: "pablo-bar-fill--naranja" },
+        { motivo: "2. Desaprobado en maniobra práctica R-5", casos: "3 técnicos", pct: 33, cls: "pablo-bar-fill--amarillo" },
+        { motivo: "3. Falta de EPP reglamentario en R-5", casos: "2 técnicos", pct: 23, cls: "pablo-bar-fill--naranja" }
+      ],
+      puestos: [
+        { puesto: "Operario / Liniero Redes BT", part: "48% (18 pers.)", nota: "13.8 / 20" },
+        { puesto: "Conductor / Operador Grúa", part: "28% (11 pers.)", nota: "14.3 / 20" },
+        { puesto: "Empalmador BT/MT", part: "16% (6 pers.)", nota: "13.5 / 20" },
+        { puesto: "Técnico de Medidores", part: "8% (3 pers.)", nota: "14.0 / 20" }
+      ]
+    },
+    sem4: {
+      titulo: "Semana 4: 23 al 27 de Noviembre de 2026 (Proyección Programada)",
+      kpis: [
+        { kicker: "1. Ocupabilidad Proyectada", val: "91.0%", sub: "109 de 120 cupos reservados en cronograma", cls: "" },
+        { kicker: "2. Confirmación 24h Antes", val: "94.1%", sub: "32 de 34 inscritos confirmados con filtro Access OK", cls: "pablo-kpi-card--verde" },
+        { kicker: "3. Meta Retención Jornada", val: "≥ 90%", sub: "Verificación previa de HSE1 y checklist EPP R-5", cls: "pablo-kpi-card--verde" },
+        { kicker: "4. Meta Aprobación Técnica", val: "≥ 92%", sub: "Pre-filtro de perfil técnico validado en Access", cls: "pablo-kpi-card--verde" },
+        { kicker: "5. Reajustes Procesados", val: "4 cupos", sub: "Liberados con 24h de anticipación y reasignados", cls: "pablo-kpi-card--amarillo" }
+      ],
+      funnel: [
+        { label: "1. Inscritos Confirmados para la Semana 23-27 Nov", cant: 34, pct: 100, cls: "" },
+        { label: "2. Validados con Filtro Access y HSE1 Aprobado", cant: 32, pct: 94.1, cls: "pablo-bar-fill--verde" },
+        { label: "3. Checklist EPP R-5 Confirmado por Contratista", cant: 31, pct: 91.2, cls: "pablo-bar-fill--verde" },
+        { label: "4. Meta de Certificación Efectiva", cant: 30, pct: 88.2, cls: "pablo-bar-fill--verde" }
+      ],
+      cursos: [
+        { curso: "EASA (Aula 1 SJM)", dias: "Mar 24 y Jue 26", conv: 12, asis: 12, aprob: "En programación" },
+        { curso: "EORABT (Patio R-5)", dias: "Mié 25 y Jue 26", conv: 10, asis: 9, aprob: "En programación" },
+        { curso: "ETMC (Campos Latam)", dias: "Sáb 28", conv: 7, asis: 7, aprob: "En programación" },
+        { curso: "EORAMT (Carter Rensa)", dias: "Lun 23", conv: 5, asis: 4, aprob: "En programación" }
+      ],
+      contratistas: [
+        { emp: "CAMPOS LATAM", cur: "ETMC (7)", conv: 7, asis: 7, acab: 7, aprob: 7, faltaPct: "0% (Confirmado)", tag: "hp-tag--verde" },
+        { emp: "ENCOSSA SAC", cur: "EORABT (6)", conv: 6, asis: 6, acab: 6, aprob: 6, faltaPct: "Reajustado 24h", tag: "hp-tag--verde" },
+        { emp: "CARTER RENSA", cur: "EORAMT (2)", conv: 2, asis: 2, acab: 2, aprob: 2, faltaPct: "0% (Confirmado)", tag: "hp-tag--verde" },
+        { emp: "TECSUR GO", cur: "EOCP (15)", conv: 15, asis: 14, acab: 14, aprob: 13, faltaPct: "7% Proyectado", tag: "hp-tag--verde" }
+      ],
+      causas: [
+        { motivo: "1. Reajustes avisados con >24h (Reasignados sin pérdida)", casos: "4 cupos", pct: 80, cls: "pablo-bar-fill--verde" },
+        { motivo: "2. Observados detectados a tiempo en Paso 1 (Filtro)", casos: "1 caso", pct: 20, cls: "" }
+      ],
+      puestos: [
+        { puesto: "Operario / Liniero Redes BT", part: "47% (16 pers.)", nota: "Pre-validado Access" },
+        { puesto: "Conductor / Operador Grúa", part: "29% (10 pers.)", nota: "Pre-validado Access" },
+        { puesto: "Técnico de Medidores (ETMC)", part: "15% (5 pers.)", nota: "Pre-validado Access" },
+        { puesto: "Empalmador BT/MT", part: "9% (3 pers.)", nota: "Pre-validado Access" }
+      ]
+    },
+    mes: {
+      titulo: "Consolidado Mensual: Noviembre 2026 (Semanas 1 a 4)",
+      kpis: [
+        { kicker: "1. Ocupabilidad Mensual", val: "85.6%", sub: "429 de 501 cupos ofertados en el mes", cls: "" },
+        { kicker: "2. Asistencia Real (Show-Up)", val: "87.4%", sub: "132 asistieron de 151 convocados en noviembre", cls: "pablo-kpi-card--verde" },
+        { kicker: "3. Retención en Jornada", val: "80.8%", sub: "122 culminaron jornada (10 bajas por EPP/HSE1)", cls: "pablo-kpi-card--amarillo" },
+        { kicker: "4. Aprobación Técnica (≥14)", val: "89.3%", sub: "109 aprobados de 122 evaluados", cls: "pablo-kpi-card--verde" },
+        { kicker: "5. Cupos Perdidos en el Mes", val: "19 cupos", sub: "12.6% de ausentismo acumulado en noviembre", cls: "pablo-kpi-card--naranja" }
+      ],
+      funnel: [
+        { label: "1. Total Convocados en Noviembre 2026", cant: 151, pct: 100, cls: "" },
+        { label: "2. Total Asistentes en Puerta 07:45 AM", cant: 132, pct: 87.4, cls: "pablo-bar-fill--verde" },
+        { label: "3. Superaron Filtro EPP R-5 y Prerrequisito HSE1", cant: 122, pct: 80.8, cls: "pablo-bar-fill--amarillo" },
+        { label: "4. Total Aprobados y Habilitados para Fotocheck", cant: 109, pct: 72.2, cls: "pablo-bar-fill--verde" }
+      ],
+      cursos: [
+        { curso: "EORABT (Patio de Maniobras R-5)", dias: "14 sesiones en el mes", conv: 41, asis: 36, aprob: "32 (89%)" },
+        { curso: "ECOB / ECPMBT (Obras y Empalmes)", dias: "8 sesiones en el mes", conv: 34, asis: 30, aprob: "27 (90%)" },
+        { curso: "EASA (Aula 1 — Alta Tensión)", dias: "8 sesiones en el mes", conv: 38, asis: 35, aprob: "32 (91%)" },
+        { curso: "EEBT / ECON / ETMC / DRE", dias: "10 sesiones en el mes", conv: 38, asis: 31, aprob: "18 (58%)" }
+      ],
+      contratistas: [
+        { emp: "GRUCOIN S.A.C.", cur: "ECOB", conv: 19, asis: 18, acab: 18, aprob: 17, faltaPct: "5% Faltas", tag: "hp-tag--verde" },
+        { emp: "ENCOSSA SAC", cur: "EORABT, EPET, AOG, ECOGR", conv: 34, asis: 31, acab: 30, aprob: 28, faltaPct: "9% Faltas", tag: "hp-tag--verde" },
+        { emp: "PRODUCSA", cur: "EORABT, EORAMT", conv: 16, asis: 14, acab: 14, aprob: 11, faltaPct: "12% Faltas", tag: "hp-tag--verde" },
+        { emp: "LOS ANDES", cur: "ECON, DRE, ECOGR", conv: 21, asis: 18, acab: 18, aprob: 16, faltaPct: "14% Faltas", tag: "hp-tag--verde" },
+        { emp: "CAMPOS LATAM", cur: "EASA, ETMC, ECOB", conv: 24, asis: 15, acab: 13, aprob: 12, faltaPct: "37% Faltas", tag: "hp-tag--alerta" },
+        { emp: "KIMSA", cur: "EORABT, EEMT", conv: 12, asis: 7, acab: 6, aprob: 5, faltaPct: "42% Faltas", tag: "hp-tag--alerta" }
+      ],
+      causas: [
+        { motivo: "1. Inasistencia sin aviso 24h (No-Show)", casos: "19 técnicos", pct: 45, cls: "pablo-bar-fill--naranja" },
+        { motivo: "2. Desaprobado en Aplicación Práctica en Maniobra (30%)", casos: "13 técnicos", pct: 31, cls: "pablo-bar-fill--amarillo" },
+        { motivo: "3. Falta de EPP reglamentario en R-5", casos: "7 técnicos", pct: 17, cls: "pablo-bar-fill--naranja" },
+        { motivo: "4. Sin prerrequisito HSE1 virtual aprobado", casos: "3 técnicos", pct: 7, cls: "" }
+      ],
+      puestos: [
+        { puesto: "1. Conocimiento Teórico (Peso 25%)", part: "Promedio Histórico Access", nota: "13.3 / 20" },
+        { puesto: "2. Habilidad en Campo (Peso 25%)", part: "Promedio Histórico Access", nota: "13.4 / 20" },
+        { puesto: "3. Aplicación Práctica en Maniobra (Peso 30%)", part: "Mayor exigencia en R-5", nota: "13.1 / 20" },
+        { puesto: "4. Uso de EPP (10%) y Orden/Limpieza (10%)", part: "Promedio Histórico Access", nota: "13.8 / 20" }
+      ]
+    }
+  };
+
+  let SEMANA_PABLO_ACTIVA = 'sem2';
+
+  function seleccionarSemanaPablo(semKey) {
+    SEMANA_PABLO_ACTIVA = semKey;
+    const mapBtns = { sem1: 'btnSem1', sem2: 'btnSem2', sem3: 'btnSem3', sem4: 'btnSem4', mes: 'btnSemMes' };
+    Object.keys(mapBtns).forEach(k => {
+      const el = document.getElementById(mapBtns[k]);
+      if (el) el.classList.toggle('is-active', k === semKey);
+    });
+    renderDashboardPablo();
+  }
+
+  function renderDashboardPablo() {
+    const d = PABLO_SEMANAS_DATA[SEMANA_PABLO_ACTIVA] || PABLO_SEMANAS_DATA.sem2;
+    const tit = document.getElementById('pabloTituloSemana');
+    if (tit) tit.innerText = d.titulo;
+
+    // 1. Render 5 KPI cards
+    const kpiBox = document.getElementById('pabloKpiCards');
+    if (kpiBox) {
+      kpiBox.innerHTML = d.kpis.map(k => `
+        <div class="pablo-kpi-card ${k.cls}">
+          <div class="pablo-kpi-kicker">${k.kicker}</div>
+          <div class="pablo-kpi-val">${k.val}</div>
+          <div class="pablo-kpi-sub">${k.sub}</div>
+        </div>
+      `).join('');
+    }
+
+    // 2. Render Funnel
+    const funBox = document.getElementById('pabloFunnelBody');
+    if (funBox) {
+      funBox.innerHTML = d.funnel.map(f => `
+        <div class="pablo-bar-row">
+          <div class="pablo-bar-head">
+            <span>${f.label}</span>
+            <span>${f.cant} pers. (${f.pct}%)</span>
+          </div>
+          <div class="pablo-bar-track">
+            <div class="pablo-bar-fill ${f.cls}" style="width:${f.pct}%;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 3. Render Cursos Table
+    const tbCur = document.getElementById('pabloTbodyCursos');
+    if (tbCur) {
+      tbCur.innerHTML = d.cursos.map(c => `
+        <tr>
+          <td><strong>${c.curso}</strong></td>
+          <td style="font-size:0.8rem;">${c.dias}</td>
+          <td><strong>${c.conv}</strong></td>
+          <td>${c.asis}</td>
+          <td><span class="hp-tag hp-tag--verde">${c.aprob}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // 4. Render Contratistas Table
+    const tbCon = document.getElementById('pabloTbodyContratistas');
+    if (tbCon) {
+      tbCon.innerHTML = d.contratistas.map(c => `
+        <tr>
+          <td><strong>${c.emp}</strong></td>
+          <td style="font-size:0.8rem;">${c.cur}</td>
+          <td>${c.conv}</td>
+          <td>${c.asis}</td>
+          <td>${c.acab}</td>
+          <td><strong>${c.aprob}</strong></td>
+          <td><span class="hp-tag ${c.tag}">${c.faltaPct}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // 5. Render Causas Raíz
+    const cauBox = document.getElementById('pabloCausasBody');
+    if (cauBox) {
+      cauBox.innerHTML = d.causas.map(c => `
+        <div class="pablo-bar-row">
+          <div class="pablo-bar-head">
+            <span>${c.motivo}</span>
+            <span>${c.casos} (${c.pct}%)</span>
+          </div>
+          <div class="pablo-bar-track">
+            <div class="pablo-bar-fill ${c.cls}" style="width:${c.pct}%;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 6. Render Desglose Puestos / Rúbrica
+    const pueBox = document.getElementById('pabloPuestosBody');
+    if (pueBox) {
+      pueBox.innerHTML = `
+        <div class="hp-table-wrap">
+          <table class="hp-table">
+            <thead>
+              <tr>
+                <th>Puesto / Dimensión Evaluada</th>
+                <th>Participación</th>
+                <th>Promedio / Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${d.puestos.map(p => `
+                <tr>
+                  <td><strong>${p.puesto}</strong></td>
+                  <td>${p.part}</td>
+                  <td><strong>${p.nota}</strong></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+  }
+
+  // Funciones de Borrado Quirúrgico y Reseteo desde Cabina Administrador
+  async function eliminarTicketFiltro(idx) {
+    const t = STATE.tickets_filtro[idx];
+    if (!t) return;
+    if (!confirm(`¿Desea eliminar el requerimiento de filtro ${t.ticket_id} (${t.empresa})?`)) return;
+    STATE.tickets_filtro.splice(idx, 1);
+    try {
+      await fetch(`${API_BASE}/api/eliminar_requerimiento`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'tickets_filtro', id: t.ticket_id })
+      });
+    } catch (e) {}
+    renderConsolaInterna();
+  }
+
+  function eliminarDemandaCurso(idx) {
+    const d = STATE.demanda_consolidada[idx];
+    if (!d) return;
+    if (!confirm(`¿Desea quitar la solicitud acumulada del curso ${d.curso} de la tabla?`)) return;
+    STATE.demanda_consolidada.splice(idx, 1);
+    renderConsolaInterna();
+  }
+
+  function restaurarDemandaBaseRoberto() {
+    STATE.demanda_consolidada = JSON.parse(JSON.stringify(DEMANDA_BASE_EXCEL));
+    renderConsolaInterna();
+  }
+
+  async function eliminarTicketReajuste(idx) {
+    const r = STATE.tickets_reajuste[idx];
+    if (!r) return;
+    if (!confirm(`¿Desea eliminar la solicitud de reajuste ${r.reajuste_id} (${r.empresa})?`)) return;
+    STATE.tickets_reajuste.splice(idx, 1);
+    try {
+      await fetch(`${API_BASE}/api/eliminar_requerimiento`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'tickets_reajuste', id: r.reajuste_id })
+      });
+    } catch (e) {}
+    renderConsolaInterna();
+  }
+
+  async function resetearRequerimientosAdmin() {
+    if (!confirm("¿Desea limpiar todos los requerimientos de prueba (Tickets de Filtro y Reajustes)? La base histórica de Access y los usuarios quedan intactos.")) return;
+    STATE.tickets_filtro = [];
+    STATE.tickets_reajuste = [];
+    try {
+      await fetch(`${API_BASE}/api/reset_requerimientos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+    } catch (e) {}
+    renderConsolaInterna();
+    alert("Colas operativas limpiadas correctamente.");
+  }
+
   function renderConsolaInterna() {
     actualizarBadgePendientes();
+    renderDashboardPablo();
+
     const tbF = document.getElementById('tbodyGovColaFiltros');
     tbF.innerHTML = '';
     if (STATE.tickets_filtro.length === 0) {
@@ -1903,11 +2473,15 @@
         }).join('');
 
         const botones = t.estado === 'PENDIENTE'
-          ? `<div style="display:flex;gap:6px;">
+          ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">
                <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="aprobarTicketFiltro(${i})">✓ SÍ: Enviar a su Correo</button>
                <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="denegarTicketFiltro(${i})">✕ NO</button>
+               <button type="button" class="hp-btn hp-btn--danger hp-btn--sm" onclick="eliminarTicketFiltro(${i})">🗑️ Borrar</button>
              </div>`
-          : `<button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="aprobarTicketFiltro(${i})">Ver Correo</button>`;
+          : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
+               <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="aprobarTicketFiltro(${i})">Ver Correo</button>
+               <button type="button" class="hp-btn hp-btn--danger hp-btn--sm" onclick="eliminarTicketFiltro(${i})">🗑️ Borrar</button>
+             </div>`;
 
         tr.innerHTML = `
           <td><strong>${t.ticket_id}</strong></td>
@@ -1923,42 +2497,59 @@
 
     const tbD = document.getElementById('tbodyGovDemanda');
     tbD.innerHTML = '';
-    STATE.demanda_consolidada.forEach(r => {
-      const ok = r.total_personas >= r.quorum_minimo;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${r.curso}</strong></td>
-        <td><strong>${r.total_personas} personas</strong></td>
-        <td>${r.quorum_minimo}</td>
-        <td>${r.empresas_detalle}</td>
-        <td><span class="hp-tag ${ok ? 'hp-tag--verde' : 'hp-tag--amarillo'}">${r.estado_quorum}</span></td>
-        <td><button type="button" class="hp-btn hp-btn--azul hp-btn--sm" onclick="notificarAperturaRoberto('${r.curso}')">Avisar Fecha Confirmada</button></td>
-      `;
-      tbD.appendChild(tr);
-    });
+    if (STATE.demanda_consolidada.length === 0) {
+      tbD.innerHTML = `<tr><td colspan="6">Sin solicitudes acumuladas. Presione "Restaurar Base Excel" si desea recargar el consolidado.</td></tr>`;
+    } else {
+      STATE.demanda_consolidada.forEach((r, idx) => {
+        const ok = r.total_personas >= r.quorum_minimo;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${r.curso}</strong></td>
+          <td><strong>${r.total_personas} personas</strong></td>
+          <td>${r.quorum_minimo}</td>
+          <td>${r.empresas_detalle}</td>
+          <td><span class="hp-tag ${ok ? 'hp-tag--verde' : 'hp-tag--amarillo'}">${r.estado_quorum}</span></td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button type="button" class="hp-btn hp-btn--azul hp-btn--sm" onclick="notificarAperturaRoberto('${r.curso}')">Avisar Fecha Confirmada</button>
+              <button type="button" class="hp-btn hp-btn--danger hp-btn--sm" onclick="eliminarDemandaCurso(${idx})">🗑️ Borrar</button>
+            </div>
+          </td>
+        `;
+        tbD.appendChild(tr);
+      });
+    }
 
     const tbR = document.getElementById('tbodyGovReajustes');
     tbR.innerHTML = '';
-    STATE.tickets_reajuste.forEach((r, idx) => {
-      const tr = document.createElement('tr');
-      const acc = r.estado === 'PENDIENTE'
-        ? `<div style="display:flex;gap:6px;">
-             <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="decidirReajuste(${idx}, 'APROBADO')">✓ Aprobar (${r.cupos_solicitados})</button>
-             <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="decidirReajuste(${idx}, 'COBRAR_TOTAL')">✕ Cobrar ${r.cupos_originales}</button>
-           </div>`
-        : `<strong>${r.resolucion}</strong>`;
-      tr.innerHTML = `
-        <td><strong>${r.reajuste_id}</strong></td>
-        <td><strong>${r.empresa}</strong></td>
-        <td>${r.curso_codigo}</td>
-        <td>${r.cupos_originales}</td>
-        <td><strong>${r.cupos_solicitados}</strong></td>
-        <td>${r.motivo_contratista}</td>
-        <td><span class="hp-tag ${r.estado === 'APROBADO' ? 'hp-tag--verde' : 'hp-tag--alerta'}">${r.estado}</span></td>
-        <td>${acc}</td>
-      `;
-      tbR.appendChild(tr);
-    });
+    if (STATE.tickets_reajuste.length === 0) {
+      tbR.innerHTML = `<tr><td colspan="8">No hay solicitudes de reajuste pendientes.</td></tr>`;
+    } else {
+      STATE.tickets_reajuste.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const acc = r.estado === 'PENDIENTE'
+          ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">
+               <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="decidirReajuste(${idx}, 'APROBADO')">✓ Aprobar (${r.cupos_solicitados})</button>
+               <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="decidirReajuste(${idx}, 'COBRAR_TOTAL')">✕ Cobrar ${r.cupos_originales}</button>
+               <button type="button" class="hp-btn hp-btn--danger hp-btn--sm" onclick="eliminarTicketReajuste(${idx})">🗑️ Borrar</button>
+             </div>`
+          : `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+               <strong>${r.resolucion}</strong>
+               <button type="button" class="hp-btn hp-btn--danger hp-btn--sm" onclick="eliminarTicketReajuste(${idx})">🗑️ Borrar</button>
+             </div>`;
+        tr.innerHTML = `
+          <td><strong>${r.reajuste_id}</strong></td>
+          <td><strong>${r.empresa}</strong></td>
+          <td>${r.curso_codigo}</td>
+          <td>${r.cupos_originales}</td>
+          <td><strong>${r.cupos_solicitados}</strong></td>
+          <td>${r.motivo_contratista}</td>
+          <td><span class="hp-tag ${r.estado === 'APROBADO' ? 'hp-tag--verde' : 'hp-tag--alerta'}">${r.estado}</span></td>
+          <td>${acc}</td>
+        `;
+        tbR.appendChild(tr);
+      });
+    }
   }
 
   function denegarTicketFiltro(idx) {
