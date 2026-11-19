@@ -1397,14 +1397,16 @@
 
     // Intento 1: API local
     try {
-      const resp = await fetch(`${API_BASE}/api/evaluar-lote`, {
+      const resp = await fetch(`${API_BASE}/api/evaluar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dnis, ruc_empresa: rucEmpresa })
+        body: JSON.stringify({ dnis, ruc_target: rucEmpresa, ruc_empresa: rucEmpresa })
       });
       if (resp.ok) {
         const json = await resp.json();
-        if (json.evaluaciones && Array.isArray(json.evaluaciones)) {
+        if (Array.isArray(json)) {
+          resultados = json;
+        } else if (json.evaluaciones && Array.isArray(json.evaluaciones)) {
           resultados = json.evaluaciones;
         }
       }
