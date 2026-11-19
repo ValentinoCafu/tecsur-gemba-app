@@ -1855,6 +1855,7 @@
       }
 
       const cursos = lab.cursos || [];
+      const vencidos = lab.vencidos || [];
       const cargoExtraido = lab.cargo || "OPERARIO";
       const nomFinal = nombre || lab.nombre || "TRABAJADOR REGISTRADO";
 
@@ -1866,12 +1867,12 @@
             nombre: nomFinal,
             estado_filtro: "ACTIVO_MISMA_EMPRESA",
             badge_class: "azul",
-            motivo: `Personal Ya Activo: Ya figura con contrato y fotocheck vigente en su empresa (RUC ${lab.ruc} - Cargo: ${cargoExtraido} desde ${lab.ingreso || 'inicio'}). No requiere tramite de nuevo ingreso.`,
-            motivo_contratista: `El colaborador ya figura ACTIVO en su empresa (Cargo: ${cargoExtraido}). Si requiere actualizar cursos vencidos, inscribalo directamente en el cronograma.`,
+            motivo: `Personal Ya Activo: Ya figura con contrato y fotocheck vigente en su empresa (RUC ${lab.ruc} - Cargo: ${cargoExtraido} desde ${lab.ingreso || 'inicio'}). Cuenta con ${cursos.length} cursos vigentes y ${vencidos.length} vencidos en Access.`,
+            motivo_contratista: `El colaborador ya figura ACTIVO en su empresa (Cargo: ${cargoExtraido}). Cuenta con ${cursos.length} cursos vigentes. Si requiere actualizar cursos vencidos, inscribalo en el cronograma.`,
             bifurcacion: "PERSONAL YA ACTIVO (EN PLANILLA)",
             cursos_vigentes: cursos,
             cursos_vigentes_codigos: cursos.map(c => c.split(' ')[0]),
-            cursos_vencidos: [],
+            cursos_vencidos: vencidos,
             cursos_sugeridos_faltantes: [],
             ultima_empresa: lab.ruc,
             ultimo_cargo: cargoExtraido,
@@ -1884,12 +1885,12 @@
             nombre: nomFinal,
             estado_filtro: "BLOQUEADO_ACTIVO",
             badge_class: "alerta",
-            motivo: `Incompatibilidad Activa: Registra vinculo ACTIVO en empresa colaboradora (RUC ${empRef} - Cargo: ${cargoExtraido}) sin fecha de cese formal.`,
+            motivo: `Incompatibilidad Activa: Registra vinculo ACTIVO en empresa colaboradora (RUC ${empRef} - Cargo: ${cargoExtraido}) sin fecha de cese formal. Cuenta con ${cursos.length} cursos vigentes y ${vencidos.length} vencidos en Access.`,
             motivo_contratista: `El postulante figura actualmente ACTIVO en la empresa colaboradora (RUC ${empRef}). No puede postular a otra empresa hasta registrar su cese formal.`,
             bifurcacion: "NO HABILITADO (ACTIVO EN OTRA CONTRATA)",
-            cursos_vigentes: [],
-            cursos_vigentes_codigos: [],
-            cursos_vencidos: [],
+            cursos_vigentes: cursos,
+            cursos_vigentes_codigos: cursos.map(c => c.split(' ')[0]),
+            cursos_vencidos: vencidos,
             cursos_sugeridos_faltantes: [],
             ultima_empresa: empRef,
             ultimo_cargo: cargoExtraido,
@@ -1907,12 +1908,12 @@
             nombre: nomFinal,
             estado_filtro: "BLOQUEADO_CESE_60D",
             badge_class: "amarillo",
-            motivo: `Regla de Cese de 60 Dias: Ceso hace ${dias} dias (${lab.cese}). Se libera el ${fLib.toLocaleDateString('es-PE')} (faltan ${60 - dias} dias). Requiere Carta de Excepcion de Operaciones.`,
+            motivo: `Regla de Cese de 60 Dias: Ceso hace ${dias} dias (${lab.cese}). Se libera el ${fLib.toLocaleDateString('es-PE')} (faltan ${60 - dias} dias). Cuenta con ${cursos.length} cursos vigentes en Access.`,
             motivo_contratista: `Periodo de carencia post-cese en curso (Cese: ${lab.cese}). Requiere Carta de Excepcion autorizada por Jefatura de Operaciones.`,
             bifurcacion: "BLOQUEO TEMPORAL (< 60 DIAS)",
             cursos_vigentes: cursos,
-            cursos_vigentes_codigos: [],
-            cursos_vencidos: [],
+            cursos_vigentes_codigos: cursos.map(c => c.split(' ')[0]),
+            cursos_vencidos: vencidos,
             cursos_sugeridos_faltantes: [],
             ultima_empresa: lab.ruc,
             ultimo_cargo: cargoExtraido,
@@ -1932,7 +1933,7 @@
           bifurcacion: "PASE DIRECTO A FOTOCHECK",
           cursos_vigentes: cursos,
           cursos_vigentes_codigos: cursos.map(c => c.split(' ')[0]),
-          cursos_vencidos: [],
+          cursos_vencidos: vencidos,
           cursos_sugeridos_faltantes: [],
           ultima_empresa: lab.ruc,
           ultimo_cargo: cargoExtraido,
@@ -1945,12 +1946,12 @@
         nombre: nomFinal,
         estado_filtro: "APTO_CAPACITACION",
         badge_class: "capsula",
-        motivo: `Postulante Habilitado: Puesto ${cargoExtraido} | Habilitado para inscripcion (${cursos.length} cursos vigentes).`,
+        motivo: `Postulante Habilitado: Puesto ${cargoExtraido} | Habilitado para inscripcion (${cursos.length} cursos vigentes, ${vencidos.length} vencidos).`,
         motivo_contratista: `Personal Habilitado para ingreso. Debe inscribirse en los cursos requeridos.`,
         bifurcacion: "HABILITADO PARA INSCRIPCION",
         cursos_vigentes: cursos,
         cursos_vigentes_codigos: cursos.map(c => c.split(' ')[0]),
-        cursos_vencidos: [],
+        cursos_vencidos: vencidos,
         cursos_sugeridos_faltantes: ["EASA", "EORABT", "EEBT"],
         ultima_empresa: lab.ruc,
         ultimo_cargo: cargoExtraido,
@@ -2858,9 +2859,19 @@ ${cuerpo}`;
       const tagCls = item.estado_filtro === 'APTO_FOTOCHECK' ? 'hp-tag--verde'
         : (item.estado_filtro === 'APTO_CAPACITACION' ? 'hp-tag--azul'
         : (item.estado_filtro === 'BLOQUEADO_CESE_60D' ? 'hp-tag--amarillo' : 'hp-tag--alerta'));
-      const cursosStr = (item.cursos_vigentes && item.cursos_vigentes.length > 0)
-        ? item.cursos_vigentes.join(' | ')
-        : 'Sin cursos vigentes';
+      let cursosHtml = '';
+      if (item.cursos_vigentes && item.cursos_vigentes.length > 0) {
+        cursosHtml += `<div style="margin-bottom:6px;"><strong style="color:var(--tz-verde-txt,#047857);font-size:0.8rem;">✓ Cursos Vigentes (${item.cursos_vigentes.length}):</strong><br>` + 
+          item.cursos_vigentes.map(c => `<span style="display:inline-block;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:2px 6px;border-radius:4px;font-size:0.75rem;margin:2px 2px;">${c}</span>`).join(' ') + `</div>`;
+      } else {
+        cursosHtml += `<div style="color:#6b7280;font-size:0.78rem;margin-bottom:4px;">Sin cursos vigentes</div>`;
+      }
+      if (item.cursos_vencidos && item.cursos_vencidos.length > 0) {
+        const totalV = item.cursos_vencidos.length;
+        const primeros = item.cursos_vencidos.slice(0, 3).map(c => `<span style="display:inline-block;background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;padding:2px 5px;border-radius:4px;font-size:0.72rem;margin:1px;">${c}</span>`).join(' ');
+        const mas = totalV > 3 ? ` <span style="font-size:0.72rem;color:#6b7280;font-weight:600;">(+${totalV - 3} más)</span>` : '';
+        cursosHtml += `<div><strong style="color:#6b7280;font-size:0.75rem;">Historial Vencidos (${totalV}):</strong><br>${primeros}${mas}</div>`;
+      }
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -2869,7 +2880,7 @@ ${cuerpo}`;
         <td>Puesto: <strong>${item.ultimo_cargo || 'N/A'}</strong><br>RUC: ${item.ultima_empresa || '-'}</td>
         <td><span class="hp-tag ${tagCls}">${item.bifurcacion}</span></td>
         <td style="font-size:0.83rem;">${item.motivo}</td>
-        <td style="font-size:0.8rem;">${cursosStr}</td>
+        <td>${cursosHtml}</td>
         <td><strong>${item.bifurcacion}</strong></td>
       `;
       tb.appendChild(tr);
