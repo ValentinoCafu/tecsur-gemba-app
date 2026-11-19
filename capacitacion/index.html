@@ -1858,22 +1858,40 @@
       const cargoExtraido = lab.cargo || "OPERARIO";
       const nomFinal = nombre || lab.nombre || "TRABAJADOR REGISTRADO";
 
-      // Validar empresa activa y regla de 60 dias
+      // Validar si el trabajador esta actualmente ACTIVO (sin cese formal)
       if (!lab.cese || lab.cese === "" || (typeof lab.cese === 'object' && Object.keys(lab.cese).length === 0)) {
-        if (lab.ruc && rucTarget && lab.ruc !== rucTarget) {
+        if (rucTarget && lab.ruc && lab.ruc === rucTarget) {
+          return {
+            dni: dniNorm,
+            nombre: nomFinal,
+            estado_filtro: "ACTIVO_MISMA_EMPRESA",
+            badge_class: "azul",
+            motivo: `Personal Ya Activo: Ya figura con contrato y fotocheck vigente en su empresa (RUC ${lab.ruc} - Cargo: ${cargoExtraido} desde ${lab.ingreso || 'inicio'}). No requiere tramite de nuevo ingreso.`,
+            motivo_contratista: `El colaborador ya figura ACTIVO en su empresa (Cargo: ${cargoExtraido}). Si requiere actualizar cursos vencidos, inscribalo directamente en el cronograma.`,
+            bifurcacion: "PERSONAL YA ACTIVO (EN PLANILLA)",
+            cursos_vigentes: cursos,
+            cursos_vigentes_codigos: cursos.map(c => c.split(' ')[0]),
+            cursos_vencidos: [],
+            cursos_sugeridos_faltantes: [],
+            ultima_empresa: lab.ruc,
+            ultimo_cargo: cargoExtraido,
+            fecha_cese: ""
+          };
+        } else {
+          const empRef = lab.ruc || "otra contratista";
           return {
             dni: dniNorm,
             nombre: nomFinal,
             estado_filtro: "BLOQUEADO_ACTIVO",
             badge_class: "alerta",
-            motivo: `Incompatibilidad Activa: Registra vinculo ACTIVO en otra empresa colaboradora (RUC ${lab.ruc} - Cargo: ${cargoExtraido}) sin cese formal.`,
-            motivo_contratista: `Figura actualmente ACTIVO en otra empresa colaboradora (RUC ${lab.ruc}). Debe registrar cese para postular.`,
-            bifurcacion: "NO HABILITADO (ACTIVO)",
+            motivo: `Incompatibilidad Activa: Registra vinculo ACTIVO en empresa colaboradora (RUC ${empRef} - Cargo: ${cargoExtraido}) sin fecha de cese formal.`,
+            motivo_contratista: `El postulante figura actualmente ACTIVO en la empresa colaboradora (RUC ${empRef}). No puede postular a otra empresa hasta registrar su cese formal.`,
+            bifurcacion: "NO HABILITADO (ACTIVO EN OTRA CONTRATA)",
             cursos_vigentes: [],
             cursos_vigentes_codigos: [],
             cursos_vencidos: [],
             cursos_sugeridos_faltantes: [],
-            ultima_empresa: lab.ruc,
+            ultima_empresa: empRef,
             ultimo_cargo: cargoExtraido,
             fecha_cese: ""
           };
@@ -2073,43 +2091,50 @@
     const countCap = resultados.filter(r => r.estado_filtro === 'APTO_CAPACITACION').length;
     const countBloq = resultados.length - countFoto - countCap;
 
-    document.getElementById('f1OutTitle').innerText = `✓ Ticket ${ticketId} Registrado en Access`;
+    document.getElementById('f1OutTitle').innerText = `✓ Solicitud de Filtro Recibida (${ticketId})`;
     document.getElementById('f1OutBody').innerHTML = `
-      <div class="tz-panel tz-panel--verde" style="margin-bottom:12px;">
-        <p class="tz-panel__name" style="font-size:1.1rem;">✓ Consulta Procesada con Éxito (${dnis.length} DNI)</p>
-        <p style="margin-top:6px;font-size:0.88rem;">
-          <strong>Ticket:</strong> ${ticketId} | <strong>Empresa:</strong> ${emp.empresa}<br>
-          <strong>Respuesta oficial para:</strong> ${correo}
+      <div class="tz-panel tz-panel--verde" style="margin-bottom:14px;padding:20px;border-left:6px solid #10b981;background:#f0fdf4;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:2rem;line-height:1;">✅</span>
+          <div>
+            <h4 style="margin:0;font-size:1.15rem;color:var(--tz-azul);font-weight:700;">Solicitud Recibida &mdash; Ticket ${ticketId}</h4>
+            <span style="font-size:0.85rem;color:var(--tz-texto-suave);">Estado: <strong style="color:#d97706;background:#fef3c7;padding:2px 8px;border-radius:4px;">⏳ PENDIENTE DE VALIDACIÓN POR CAPACITACIÓN</strong></span>
+          </div>
+        </div>
+        <p style="margin:10px 0;font-size:0.9rem;line-height:1.5;color:var(--tz-texto);">
+          Se ha recibido su solicitud con <strong>${dnis.length} postulante(s)</strong> para la empresa <strong>${emp.empresa}</strong>.<br>
+          El equipo de Capacitación de Tecsur validará la información con la base de datos oficial (verificación de antecedentes, incompatibilidad de vínculo activo, regla de cese de 60 días y cursos vigentes).
         </p>
+        <div style="background:#FFFFFF;border:1px solid #bbf7d0;padding:12px;border-radius:4px;font-size:0.85rem;color:#166534;">
+          📬 <strong>Notificación oficial:</strong> Una vez validado el requerimiento por el equipo de Tecsur, el dictamen oficial con el estatus de cada postulante será enviado formalmente a su correo: <strong>${correo}</strong>.
+        </div>
       </div>
 
-      <div style="background:#FFFFFF;border:1px solid var(--tz-linea);padding:14px;margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.86rem;font-weight:700;color:var(--tz-azul);">
-          <span>Diagnóstico de Base de Datos Access:</span>
-          <span>${countFoto} Fotocheck | ${countCap} Cursos | ${countBloq} Bloqueados</span>
-        </div>
-        <div style="max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
-          ${resultados.map(r => {
-            const badgeCls = r.estado_filtro === 'APTO_FOTOCHECK' ? 'hp-tag--verde'
-              : (r.estado_filtro === 'APTO_CAPACITACION' ? 'hp-tag--azul'
-              : (r.estado_filtro === 'BLOQUEADO_CESE_60D' ? 'hp-tag--amarillo' : 'hp-tag--alerta'));
-            return `
-              <div style="padding:6px 8px;background:var(--tz-panel);border-left:4px solid var(--tz-azul);font-size:0.82rem;display:flex;justify-content:space-between;align-items:center;gap:8px;">
-                <div>
-                  <strong>${r.dni}</strong> &mdash; ${r.nombre}<br>
-                  <span style="font-size:0.75rem;color:var(--tz-texto-suave);">${r.motivo_contratista || r.motivo}</span>
-                </div>
-                <span class="hp-tag ${badgeCls}" style="white-space:nowrap;">${r.bifurcacion}</span>
-              </div>
-            `;
-          }).join('')}
-        </div>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+        <button class="hp-btn hp-btn--primario" onclick="irACronogramaCursos()" style="flex:1;min-width:220px;background:var(--tz-azul);color:#fff;padding:10px 16px;font-weight:600;">
+          📅 Consultar Cronograma de Cursos &rarr;
+        </button>
+        <button class="hp-btn hp-btn--outline" onclick="reiniciarFormularioFiltro()" style="flex:1;min-width:180px;padding:10px 16px;">
+          ➕ Registrar Nueva Solicitud
+        </button>
       </div>
     `;
-
-    document.getElementById('f1NextActions').classList.remove('hidden');
+    document.getElementById('f1NextActions').classList.add('hidden');
     document.getElementById('stepTab1').classList.add('is-done');
     document.getElementById('badgeStep1').innerText = "✓ PASO 1 LISTO";
+  }
+
+  
+  function irACronogramaCursos() {
+    activarPaso(2);
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  }
+
+  function reiniciarFormularioFiltro() {
+    document.getElementById('f1Dnis').value = '';
+    document.getElementById('f1Dnis').focus();
+    document.getElementById('f1Output').classList.add('hidden');
+    window.scrollTo({ top: 200, behavior: 'smooth' });
   }
 
   function enlazarPaso1APaso2() {
