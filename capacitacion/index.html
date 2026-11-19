@@ -2471,15 +2471,6 @@ ${solicitante} (${empresa})`;
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
   };
-    } else {
-      item.estado = 'RECHAZADO';
-      item.resolucion = `Rechazado por ${adminNom} (${fechaRes}). Fuera de plazo o no cumple con los criterios de Capacitación.`;
-    }
-    guardarEstadoLocal();
-    renderBandejaCambiosRetirosAdmin();
-    actualizarContadorAdmin();
-    mostrarNotificacion(`Solicitud ${reajusteId} marcada como ${decision}.`, decision === 'APROBADO' ? 'verde' : 'alerta');
-  };
 
   // Funciones del Tutorial / Guía Rápida de Uso
   window.abrirTutorial = function() {
