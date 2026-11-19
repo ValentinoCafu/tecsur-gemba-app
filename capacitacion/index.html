@@ -774,6 +774,11 @@
           Gestión de Cronograma, Validación de Inscripciones, Asignación de Aulas y Demanda de Apertura
         </p>
       </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button type="button" class="hp-btn hp-btn--sm" style="background:#dc2626;color:#ffffff;border:none;padding:8px 14px;font-weight:600;display:flex;align-items:center;gap:6px;border-radius:6px;cursor:pointer;box-shadow:0 2px 4px rgba(220,38,38,0.2);" onclick="confirmarResetTotalAdmin()" title="Elimina todas las solicitudes y tickets de prueba para dejar el sistema 100% limpio en producción">
+          🗑️ Resetear Bandejas / Limpiar Pruebas
+        </button>
+      </div>
     </div>
   </section>
 
@@ -821,7 +826,22 @@
     <!-- BANDEJA 1: AUDITORÍA DE FILTROS DNI -->
     <section id="govPanel1">
       <div class="hp-card hp-card--azul">
-        <h3 class="hp-card__title">Auditoría en Tiempo Real de Tickets de Consulta Filtro DNI por Subcontratista</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <div>
+            <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Auditoría en Tiempo Real de Tickets de Consulta Filtro DNI por Subcontratista</h3>
+            <p style="font-size:0.83rem;color:var(--tz-texto-suave);margin:4px 0 0 0;">
+              Registro de todas las consultas realizadas por las contratistas para trazabilidad y auditoría.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="renderBandejaFiltrosAdmin()">
+              🔄 Refrescar
+            </button>
+            <button type="button" class="hp-btn hp-btn--sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="limpiarTodasConsultasFiltroAdmin()" title="Vaciar historial de consultas de DNI">
+              🗑️ Vaciar Consultas DNI
+            </button>
+          </div>
+        </div>
         <div class="hp-table-wrap">
           <table class="hp-table">
             <thead>
@@ -834,6 +854,7 @@
                 <th>Colaborador</th>
                 <th>Resultado Filtro</th>
                 <th>Historial de Cursos en Access</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody id="tbodyGovFiltros">
@@ -854,9 +875,14 @@
               Revise las solicitudes enviadas por las contratas, verifique el cupo en el cronograma oficial y asigne el aula correspondiente.
             </p>
           </div>
-          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="renderBandejaInscripcionesAdmin()">
-            🔄 Refrescar Tickets
-          </button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="renderBandejaInscripcionesAdmin()">
+              🔄 Refrescar Tickets
+            </button>
+            <button type="button" class="hp-btn hp-btn--sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="limpiarTodasInscripcionesAdmin()" title="Vaciar todos los tickets de inscripción a cursos">
+              🗑️ Vaciar Inscripciones
+            </button>
+          </div>
         </div>
 
         <div class="hp-table-wrap">
@@ -909,7 +935,12 @@
       </div>
 
       <div class="hp-card hp-card--azul">
-        <h3 class="hp-card__title">2. Desglose Detallado de Solicitudes Individuales de Apertura</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">2. Desglose Detallado de Solicitudes Individuales de Apertura</h3>
+          <button type="button" class="hp-btn hp-btn--sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="limpiarTodasAperturasAdmin()" title="Vaciar solicitudes individuales de apertura">
+            🗑️ Vaciar Aperturas
+          </button>
+        </div>
         <div class="hp-table-wrap">
           <table class="hp-table">
             <thead>
@@ -922,6 +953,7 @@
                 <th>Cant.</th>
                 <th>Fechas Propuestas</th>
                 <th>Nivel Urgencia / Obra</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody id="tbodyDemandaDetalle">
@@ -935,7 +967,12 @@
     <!-- BANDEJA 4: GESTIÓN DE CAMBIOS Y RETIROS (48H) -->
     <section id="govPanel4" class="hidden">
       <div class="hp-card hp-card--naranja">
-        <h3 class="hp-card__title">Bandeja de Gestión de Cambios y Retiros (Regla 48 Horas)</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Bandeja de Gestión de Cambios y Retiros (Regla 48 Horas)</h3>
+          <button type="button" class="hp-btn hp-btn--sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="limpiarTodosReajustesAdmin()" title="Vaciar solicitudes de cambios y retiros">
+            🗑️ Vaciar Reajustes
+          </button>
+        </div>
         <div class="hp-table-wrap">
           <table class="hp-table">
             <thead>
@@ -950,6 +987,7 @@
                 <th>Cumplimiento 48h</th>
                 <th>Motivo Contratista</th>
                 <th>Resolución Administrativa</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody id="tbodyGovReajustes">
@@ -1126,108 +1164,11 @@
   // Estado Central del Sistema (Sincronizado con localStorage)
   let STATE = {
     power_automate_webhook: "",
-    tickets_filtro: [
-      {
-        ticket_id: "FIL-2026-101",
-        fecha: "19/11/2026 09:15",
-        empresa: "CAMPOS LATAM",
-        solicitante: "Brigit Marilyn Quispe Huamani",
-        dni: "70468980",
-        nombre: "LLAMOCCA BARRAZA, VALENTINO MOISES",
-        estado_filtro: "APTO_CAPACITACION",
-        cursos_vigentes: "HSE_2 (Aprob: 28/09/2026 | Nota: 20 | Vig: 2a - Vence: 27/09/2028), HSE_1 (Aprob: 21/09/2026 | Nota: 19 | Vig: 2a - Vence: 20/09/2028)",
-        cursos_vencidos: "Ninguno"
-      }
-    ],
-    tickets_inscripciones: [
-      {
-        ticket_id: "INS-2026-101",
-        fecha: "19/11/2026 08:30",
-        empresa: "CAMPOS LATAM",
-        solicitante: "Brigit Marilyn Quispe Huamani",
-        correo: "rrhh@camposlatam.com",
-        curso_codigo: "EASA",
-        curso_nombre: "Entrenamiento en la tarea del Ayudantes en Redes Subterráneas/Aéreas BT/MT",
-        fecha_curso: "2026-11-24",
-        turno: "Turno Mañana (08:00 - 13:00)",
-        dnis: ["45871236", "47895623", "71254896"],
-        cantidad: 3,
-        aula_asignada: "Aula 1 — Sede Central SJM",
-        estado: "CONFIRMADO (AULA ASIGNADA)",
-        observacion_admin: "Cupo confirmado. Asignado al aula 1 de SJM con el instructor asignado."
-      },
-      {
-        ticket_id: "INS-2026-102",
-        fecha: "19/11/2026 09:45",
-        empresa: "KIMSA",
-        solicitante: "FIORELA ESTHER NAPAN LOPEZ",
-        correo: "gestiondeltalento@kimsa.com.pe",
-        curso_codigo: "EEBT",
-        curso_nombre: "Entrenamiento en la tarea de Empalmador de Redes Aéreas y Subterráneas de BT",
-        fecha_curso: "2026-11-26",
-        turno: "Turno Tarde (14:00 - 18:00)",
-        dnis: ["41258963", "42365897"],
-        cantidad: 2,
-        aula_asignada: "Pendiente de Asignación",
-        estado: "PENDIENTE VALIDACIÓN",
-        observacion_admin: "En revisión de cupos en cronograma por el Área de Capacitación."
-      }
-    ],
-    solicitudes_apertura: [
-      {
-        ticket_id: "AP-2026-01",
-        fecha: "18/11/2026 18:50",
-        empresa: "CAMPOS LATAM",
-        solicitante: "Brigit Marilyn Quispe Huamani",
-        correo: "rrhh@camposlatam.com",
-        curso_codigo: "ECOB",
-        curso_nombre: "Entrenamiento en la tarea de Operario de Redes Aéreas y Subterráneas en MT",
-        cantidad: 15,
-        fechas_propuestas: "28/11/2026 o 05/12/2026",
-        urgencia: "ALTA - Ingreso de Cuadrilla Inmediato",
-        observaciones: "Proyecto ampliación Cono Sur, requerimos habilitar personal urgente."
-      },
-      {
-        ticket_id: "AP-2026-02",
-        fecha: "19/11/2026 08:40",
-        empresa: "GRUCOIN S.A.C.",
-        solicitante: "LEANDRO ANDRE MORENO NAMOC",
-        correo: "lmoreno@gci.net.pe",
-        curso_codigo: "EOCP",
-        curso_nombre: "Entrenamiento en la tarea Control de Pérdidas de Energía",
-        cantidad: 15,
-        fechas_propuestas: "02/12/2026 o 09/12/2026",
-        urgencia: "ALTA - Ingreso de Cuadrilla Inmediato",
-        observaciones: "Campaña de inspección de suministros."
-      }
-    ],
-    demanda_consolidada: [
-      { curso: "ECOB", total_personas: 30, quorum_minimo: 12, empresas_detalle: "CAMPOS LATAM (15), GRUPO ENERGIA (15)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
-      { curso: "ECON", total_personas: 17, quorum_minimo: 12, empresas_detalle: "LOS ANDES (12), PRODUCSA (5)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
-      { curso: "EOCP", total_personas: 15, quorum_minimo: 12, empresas_detalle: "GRUCOIN (15)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
-      { curso: "EORABT", total_personas: 14, quorum_minimo: 12, empresas_detalle: "KIMSA (2), ENCOSSA (4), PRODUCSA (6), LOS ANDES (2)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
-      { curso: "ETMC", total_personas: 13, quorum_minimo: 12, empresas_detalle: "CAMPOS LATAM (5), CONSTRUCTORA SUR (8)", estado_quorum: "QUÓRUM COMPLETO (ABRIR)" },
-      { curso: "DRE", total_personas: 7, quorum_minimo: 12, empresas_detalle: "LOS ANDES (7)", estado_quorum: "EN ESPERA DE QUÓRUM" },
-      { curso: "ECPMMT", total_personas: 6, quorum_minimo: 12, empresas_detalle: "ADECCO (6)", estado_quorum: "EN ESPERA DE QUÓRUM" }
-    ],
-    tickets_reajuste: [
-      {
-        reajuste_id: "CR-2026-01",
-        fecha_solicitud: "19/11/2026 09:10",
-        empresa: "CAMPOS LATAM",
-        correo: "rrhh@camposlatam.com",
-        ticket_origen: "INS-2026-101",
-        curso_codigo: "EASA",
-        tipo_gestion: "SUSTITUCION",
-        dni_saliente: "47895623",
-        dni_sustituto: "09894758",
-        horas_anticipacion: 120,
-        cumple_48h: true,
-        motivo_contratista: "Colaborador presentó descanso médico. Se sustituye por trabajador previamente apto.",
-        estado: "APROBADO",
-        resolucion: "Cambio aceptado sin penalidad. Cumplió plazo de 48 horas."
-      }
-    ]
+    tickets_filtro: [],
+    tickets_inscripciones: [],
+    solicitudes_apertura: [],
+    demanda_consolidada: [],
+    tickets_reajuste: []
   };
 
   // Cargar estado persistido si existe
@@ -2153,7 +2094,7 @@ ${solicitante} (${empresa})`;
     if (!tbody) return;
 
     if (STATE.tickets_filtro.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--tz-texto-suave);">No hay consultas de DNI registradas.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No hay consultas de DNI registradas. Las consultas que realicen las contratas aparecerán aquí.</td></tr>`;
       return;
     }
 
@@ -2173,6 +2114,11 @@ ${solicitante} (${empresa})`;
             <strong>Vigentes:</strong> ${f.cursos_vigentes || 'Ninguno'}
             ${f.cursos_vencidos && f.cursos_vencidos !== 'Ninguno' ? `<br><span style="color:#9a3412;"><strong>Vencidos:</strong> ${f.cursos_vencidos}</span>` : ''}
           </td>
+          <td style="text-align:center;">
+            <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="color:#b91c1c;border-color:#fca5a5;padding:4px 8px;font-size:0.78rem;" title="Eliminar esta consulta de auditoría" onclick="eliminarTicketFiltroAdmin('${tkt}')">
+              🗑️
+            </button>
+          </td>
         </tr>
       `;
     }).join('');
@@ -2184,7 +2130,7 @@ ${solicitante} (${empresa})`;
     if (!tbody) return;
 
     if (STATE.tickets_inscripciones.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--tz-texto-suave);">No hay tickets de inscripción registrados.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No hay tickets de inscripción registrados.</td></tr>`;
       return;
     }
 
@@ -2212,7 +2158,7 @@ ${solicitante} (${empresa})`;
           </td>
           <td><span class="hp-badge ${badge}">${t.estado}</span></td>
           <td>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
               <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" title="Aprobar Cupo y Notificar Aula" onclick="cambiarEstadoInscripcionAdmin('${t.ticket_id}', 'CONFIRMADO (AULA ASIGNADA)')">
                 ✓ Aprobar
               </button>
@@ -2221,6 +2167,9 @@ ${solicitante} (${empresa})`;
               </button>
               <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" title="Observar" onclick="cambiarEstadoInscripcionAdmin('${t.ticket_id}', 'RECHAZADO')">
                 ✕
+              </button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="color:#b91c1c;border-color:#fca5a5;padding:4px 6px;" title="Eliminar ticket de inscripción" onclick="eliminarTicketInscripcionAdmin('${t.ticket_id}')">
+                🗑️
               </button>
             </div>
           </td>
@@ -2287,30 +2236,34 @@ ${solicitante} (${empresa})`;
 
     // 1. Quórum Consolidado
     if (tbCons) {
-      tbCons.innerHTML = STATE.demanda_consolidada.map((d, i) => {
-        const esListo = d.total_personas >= d.quorum_minimo;
-        const badge = esListo ? 'hp-badge--verde' : 'hp-badge--naranja';
-        return `
-          <tr>
-            <td><strong style="color:var(--tz-azul);font-size:1.05rem;">${d.curso}</strong></td>
-            <td><strong>${d.total_personas} personas</strong></td>
-            <td>${d.quorum_minimo} alumnos</td>
-            <td style="font-size:0.8rem;">${d.empresas_detalle}</td>
-            <td><span class="hp-badge ${badge}">${d.estado_quorum}</span></td>
-            <td>
-              <button type="button" class="hp-btn ${esListo ? 'hp-btn--verde' : 'hp-btn--outline'} hp-btn--sm" onclick="alert('Se abrirá la coordinación con instructores para fijar fecha en el cronograma oficial de ${d.curso}.')">
-                ${esListo ? '🚀 Abrir Fecha en Cronograma' : 'Monitorear'}
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
+      if (!STATE.demanda_consolidada || STATE.demanda_consolidada.length === 0) {
+        tbCons.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No hay cursos con demanda acumulada pendiente de quórum.</td></tr>`;
+      } else {
+        tbCons.innerHTML = STATE.demanda_consolidada.map((d, i) => {
+          const esListo = d.total_personas >= d.quorum_minimo;
+          const badge = esListo ? 'hp-badge--verde' : 'hp-badge--naranja';
+          return `
+            <tr>
+              <td><strong style="color:var(--tz-azul);font-size:1.05rem;">${d.curso}</strong></td>
+              <td><strong>${d.total_personas} personas</strong></td>
+              <td>${d.quorum_minimo} alumnos</td>
+              <td style="font-size:0.8rem;">${d.empresas_detalle}</td>
+              <td><span class="hp-badge ${badge}">${d.estado_quorum}</span></td>
+              <td>
+                <button type="button" class="hp-btn ${esListo ? 'hp-btn--verde' : 'hp-btn--outline'} hp-btn--sm" onclick="alert('Se abrirá la coordinación con instructores para fijar fecha en el cronograma oficial de ${d.curso}.')">
+                  ${esListo ? '🚀 Abrir Fecha en Cronograma' : 'Monitorear'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
     // 2. Desglose Detallado Individual
     if (tbDet) {
-      if (STATE.solicitudes_apertura.length === 0) {
-        tbDet.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--tz-texto-suave);">No hay solicitudes individuales de apertura registradas.</td></tr>`;
+      if (!STATE.solicitudes_apertura || STATE.solicitudes_apertura.length === 0) {
+        tbDet.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No hay solicitudes individuales de apertura registradas.</td></tr>`;
       } else {
         tbDet.innerHTML = STATE.solicitudes_apertura.map(s => `
           <tr>
@@ -2322,6 +2275,11 @@ ${solicitante} (${empresa})`;
             <td><span class="hp-badge hp-badge--azul">${s.cantidad} pers.</span></td>
             <td>${s.fechas_propuestas}</td>
             <td style="font-size:0.8rem;"><em>${s.observaciones || 'Sin observaciones'}</em></td>
+            <td style="text-align:center;">
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="color:#b91c1c;border-color:#fca5a5;padding:4px 8px;font-size:0.78rem;" title="Eliminar esta solicitud de apertura" onclick="eliminarSolicitudAperturaAdmin('${s.ticket_id}')">
+                🗑️
+              </button>
+            </td>
           </tr>
         `).join('');
       }
@@ -2333,8 +2291,8 @@ ${solicitante} (${empresa})`;
     const tbody = document.getElementById('tbodyGovReajustes');
     if (!tbody) return;
 
-    if (STATE.tickets_reajuste.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--tz-texto-suave);">No hay solicitudes de cambios o retiros registradas.</td></tr>`;
+    if (!STATE.tickets_reajuste || STATE.tickets_reajuste.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No hay solicitudes de cambios o retiros registradas.</td></tr>`;
       return;
     }
 
@@ -2371,6 +2329,11 @@ ${solicitante} (${empresa})`;
             <small style="color:#991b1b;line-height:1.2;">${r.resolucion}</small>
           `)}
         </td>
+        <td style="text-align:center;">
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="color:#b91c1c;border-color:#fca5a5;padding:4px 8px;font-size:0.78rem;" title="Eliminar ticket de reajuste" onclick="eliminarTicketReajusteAdmin('${r.reajuste_id}')">
+            🗑️
+          </button>
+        </td>
       </tr>
     `).join('');
   }
@@ -2384,6 +2347,130 @@ ${solicitante} (${empresa})`;
     if (decision === 'APROBADO') {
       item.estado = 'APROBADO';
       item.resolucion = `Aprobado por ${adminNom} (${fechaRes}). Cumplió con el plazo reglamentario y política de 48 horas.`;
+    } else {
+      item.estado = 'RECHAZADO';
+      item.resolucion = `Rechazado por ${adminNom} (${fechaRes}). Fuera de plazo o no cumple con los criterios de Capacitación.`;
+    }
+    guardarEstadoLocal();
+    renderBandejaCambiosRetirosAdmin();
+    actualizarContadorAdmin();
+    mostrarNotificacion(`Solicitud ${reajusteId} marcada como ${decision}.`, decision === 'APROBADO' ? 'verde' : 'alerta');
+  };
+
+  // ========================================================
+  // FUNCIONES DE LIMPIEZA Y RESETEO DE BANDEJAS (ADMIN TECSUR)
+  // ========================================================
+  window.confirmarResetTotalAdmin = function() {
+    const seguro = confirm(
+      "⚠️ ATENCIÓN - ZONA ADMINISTRATIVA TECSUR\n\n" +
+      "¿Está seguro de que desea ELIMINAR TODAS LAS SOLICITUDES Y TICKETS DE PRUEBA?\n\n" +
+      "Esta acción borrará:\n" +
+      "• Todas las consultas de DNI realizadas en auditoría.\n" +
+      "• Todos los tickets de inscripción a cursos.\n" +
+      "• Todas las solicitudes individuales de apertura.\n" +
+      "• Toda la demanda acumulada y quórum de cursos.\n" +
+      "• Todos los tickets de cambios y retiros (48h).\n\n" +
+      "Las bandejas quedarán 100% limpias (en cero) para iniciar la operación oficial con contratistas."
+    );
+    if (!seguro) return;
+
+    STATE.tickets_filtro = [];
+    STATE.tickets_inscripciones = [];
+    STATE.solicitudes_apertura = [];
+    STATE.demanda_consolidada = [];
+    STATE.tickets_reajuste = [];
+
+    guardarEstadoLocal();
+    renderBandejaFiltrosAdmin();
+    renderBandejaInscripcionesAdmin();
+    renderBandejaDemandaRoberto();
+    renderBandejaCambiosRetirosAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+
+    alert("✓ Operación completada: Todas las bandejas han sido reseteadas a cero para producción oficial.");
+  };
+
+  window.eliminarTicketFiltroAdmin = function(ticketId) {
+    if (!confirm(`¿Eliminar la consulta de filtro ${ticketId}?`)) return;
+    STATE.tickets_filtro = STATE.tickets_filtro.filter(x => (x.ticket_id || '') !== ticketId);
+    guardarEstadoLocal();
+    renderBandejaFiltrosAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.limpiarTodasConsultasFiltroAdmin = function() {
+    if (!confirm("¿Desea eliminar todas las consultas de DNI registradas en la bandeja de auditoría?")) return;
+    STATE.tickets_filtro = [];
+    guardarEstadoLocal();
+    renderBandejaFiltrosAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.eliminarTicketInscripcionAdmin = function(ticketId) {
+    if (!confirm(`¿Eliminar el ticket de inscripción ${ticketId}?`)) return;
+    STATE.tickets_inscripciones = STATE.tickets_inscripciones.filter(x => x.ticket_id !== ticketId);
+    guardarEstadoLocal();
+    renderBandejaInscripcionesAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.limpiarTodasInscripcionesAdmin = function() {
+    if (!confirm("¿Desea eliminar todos los tickets de inscripción a cursos?")) return;
+    STATE.tickets_inscripciones = [];
+    guardarEstadoLocal();
+    renderBandejaInscripcionesAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.eliminarSolicitudAperturaAdmin = function(ticketId) {
+    if (!confirm(`¿Eliminar la solicitud de apertura ${ticketId}?`)) return;
+    const sol = STATE.solicitudes_apertura.find(x => x.ticket_id === ticketId);
+    if (sol && STATE.demanda_consolidada) {
+      const cons = STATE.demanda_consolidada.find(d => d.curso === sol.curso_codigo);
+      if (cons) {
+        cons.total_personas = Math.max(0, cons.total_personas - (sol.cantidad || 0));
+        cons.estado_quorum = cons.total_personas >= cons.quorum_minimo ? "QUÓRUM COMPLETO (ABRIR)" : "EN ESPERA DE QUÓRUM";
+      }
+    }
+    STATE.solicitudes_apertura = STATE.solicitudes_apertura.filter(x => x.ticket_id !== ticketId);
+    guardarEstadoLocal();
+    renderBandejaDemandaRoberto();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.limpiarTodasAperturasAdmin = function() {
+    if (!confirm("¿Desea eliminar todas las solicitudes individuales de apertura?")) return;
+    STATE.solicitudes_apertura = [];
+    STATE.demanda_consolidada = [];
+    guardarEstadoLocal();
+    renderBandejaDemandaRoberto();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.eliminarTicketReajusteAdmin = function(reajusteId) {
+    if (!confirm(`¿Eliminar el ticket de reajuste ${reajusteId}?`)) return;
+    STATE.tickets_reajuste = STATE.tickets_reajuste.filter(x => x.reajuste_id !== reajusteId);
+    guardarEstadoLocal();
+    renderBandejaCambiosRetirosAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
+
+  window.limpiarTodosReajustesAdmin = function() {
+    if (!confirm("¿Desea eliminar todas las solicitudes de cambios y retiros registradas?")) return;
+    STATE.tickets_reajuste = [];
+    guardarEstadoLocal();
+    renderBandejaCambiosRetirosAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+  };
     } else {
       item.estado = 'RECHAZADO';
       item.resolucion = `Rechazado por ${adminNom} (${fechaRes}). Fuera de plazo o no cumple con los criterios de Capacitación.`;
