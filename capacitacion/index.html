@@ -573,14 +573,136 @@
             📌 <strong>Nota sobre Aulas:</strong> La asignación de aula física (Aulas Centrales SJM, Recinto R-5 Campo o Aula Virtual) es gestionada de manera interna por el Área de Capacitación de acuerdo a los aforos y cronograma oficial. Le será confirmada en su correo.
           </div>
 
-          <div class="hp-field">
-            <label class="hp-label" for="f2Dnis">4. DNI(s) y Correo de los Colaboradores de la Subcontrata a Inscribir *</label>
-            <textarea id="f2Dnis" rows="4" class="hp-textarea" placeholder="Pegue aquí los DNI de los colaboradores a inscribir (uno por línea, o acompañado de su correo: 09474425 malonmarticonera1@gmail.com)..."></textarea>
+          <!-- 4. FORMULARIO EN ORDEN ESTRICTO OFICIAL (10 CAMPOS) -->
+          <div class="hp-field" style="margin-bottom:14px;background:#f8fafc;padding:12px 14px;border-radius:8px;border:1px solid var(--tz-borde);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <label class="hp-label" style="font-weight:bold;color:var(--tz-azul);margin:0;font-size:0.92rem;">
+                4. Registro Individual de Colaboradores (Orden Oficial F01-PA-CAP-004) *
+              </label>
+              <span style="font-size:0.75rem;color:var(--tz-texto-suave);">
+                🔍 Ingrese el DNI para autocompletar apellidos y nombres del padrón
+              </span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;">
+              <!-- 1. APELLIDO PATERNO -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">1. APELLIDO PATERNO *</label>
+                <input type="text" id="f2InputPaterno" class="hp-input" placeholder="Ej. MALON" oninput="actualizarApellidosCompletosInput()" style="background:#fff;">
+              </div>
+              <!-- 2. APELLIDO MATERNO -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">2. APELLIDO MATERNO *</label>
+                <input type="text" id="f2InputMaterno" class="hp-input" placeholder="Ej. MARTICONERA" oninput="actualizarApellidosCompletosInput()" style="background:#fff;">
+              </div>
+              <!-- 3. NOMBRES -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">3. NOMBRES *</label>
+                <input type="text" id="f2InputNombres" class="hp-input" placeholder="Ej. JOHNNY EDUARDO" style="background:#fff;">
+              </div>
+              <!-- 4. DNI -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">4. DNI (8 dígitos) *</label>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="f2InputDni" class="hp-input" placeholder="Ej. 09474425" maxlength="10" oninput="autocompletarColaboradorPorDni(this.value)" style="background:#fff;">
+                  <button type="button" class="hp-btn hp-btn--sm hp-btn--outline" onclick="autocompletarColaboradorPorDni(document.getElementById('f2InputDni').value)" title="Buscar en padrón de Access">🔍</button>
+                </div>
+              </div>
+              <!-- 5. RUC EMPRESA -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">5. RUC EMPRESA</label>
+                <input type="text" id="f2InputRuc" class="hp-input" placeholder="20100000000" readonly style="background:#f1f5f9;color:#475569;">
+              </div>
+              <!-- 6. EMPRESA -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">6. EMPRESA</label>
+                <input type="text" id="f2InputEmpresa" class="hp-input" placeholder="CONTRATISTA" readonly style="background:#f1f5f9;color:#475569;">
+              </div>
+              <!-- 7. CURSO -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">7. CURSO *</label>
+                <input type="text" id="f2InputCurso" class="hp-input" readonly style="background:#f1f5f9;color:var(--tz-azul);font-weight:bold;">
+              </div>
+              <!-- 8. CORREO -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">8. CORREO *</label>
+                <input type="email" id="f2InputCorreo" class="hp-input" placeholder="colaborador@empresa.com" style="background:#fff;">
+              </div>
+              <!-- 9. FECHA INICIO -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">9. FECHA INICIO *</label>
+                <input type="date" id="f2InputFechaInicio" class="hp-input" style="background:#fff;">
+              </div>
+              <!-- 10. apellidos completos -->
+              <div>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">10. apellidos completos (Auto)</label>
+                <input type="text" id="f2InputApellidosCompletos" class="hp-input" placeholder="Autogenerado" readonly style="background:#eff6ff;color:#1d4ed8;font-weight:bold;">
+              </div>
+            </div>
+
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+              <a href="javascript:void(0)" onclick="toggleCargaMasivaPreRegistro()" style="font-size:0.8rem;color:var(--tz-azul);text-decoration:underline;cursor:pointer;">
+                ⚡ ¿Tiene varios colaboradores? Carga rápida masiva de DNIs &darr;
+              </a>
+              <button type="button" class="hp-btn hp-btn--azul" onclick="agregarColaboradorPreRegistro()" style="font-weight:bold;white-space:nowrap;padding:8px 18px;">
+                + Agregar a Nómina de Pre-Registro
+              </button>
+            </div>
+
+            <div id="boxCargaMasivaPre" class="hidden" style="margin-top:10px;background:#f1f5f9;padding:10px;border-radius:6px;border:1px dashed var(--tz-borde);">
+              <label class="hp-label" style="font-size:0.78rem;">Pegue la lista de DNIs (uno por línea, o con su correo al costado: 09474425 malon@gmail.com):</label>
+              <textarea id="f2TextareaMasivo" rows="3" class="hp-textarea" placeholder="09474425 malon@gmail.com&#10;72381878 bruno@gmail.com&#10;43489382"></textarea>
+              <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" onclick="cargarColaboradoresMasivosPreRegistro()" style="margin-top:6px;">
+                Cargar Cuadrilla a la Tabla &rarr;
+              </button>
+            </div>
           </div>
 
-          <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="confirmarMatriculaPaso2()">
-            Enviar Solicitud de Inscripción a Capacitación &rarr;
-          </button>
+          <!-- TABLA DE PRE-REGISTRO INTERACTIVA (ORDEN OFICIAL F01-PA-CAP-004) -->
+          <div style="margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <label class="hp-label" style="font-weight:bold;color:var(--tz-verde);margin:0;">
+                📋 Vista de Pre-Registro de la Cuadrilla (Nómina Previa del Ticket):
+              </label>
+              <span id="lblConteoPreRegistro" style="font-size:0.82rem;font-weight:bold;color:var(--tz-azul);background:#e0f2fe;padding:3px 10px;border-radius:12px;">
+                0 colaboradores
+              </span>
+            </div>
+
+            <div class="hp-table-wrap" style="max-height:280px;overflow-y:auto;border:1px solid var(--tz-borde);border-radius:6px;background:#fff;">
+              <table class="hp-table" style="font-size:0.8rem;margin:0;">
+                <thead style="position:sticky;top:0;background:#f8fafc;z-index:2;">
+                  <tr>
+                    <th>N°</th>
+                    <th>APELLIDO PATERNO</th>
+                    <th>APELLIDO MATERNO</th>
+                    <th>NOMBRES</th>
+                    <th>DNI</th>
+                    <th>RUC EMPRESA</th>
+                    <th>EMPRESA</th>
+                    <th>CURSO</th>
+                    <th>CORREO</th>
+                    <th>FECHA INICIO</th>
+                    <th>apellidos completos</th>
+                    <th style="text-align:center;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyPreRegistroColaboradores">
+                  <tr>
+                    <td colspan="12" style="text-align:center;padding:18px;color:var(--tz-texto-suave);">
+                      No ha agregado colaboradores a la nómina de este ticket aún. Ingrese un DNI arriba para comenzar.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button type="button" id="btnEnviarTicketUnico" class="hp-btn hp-btn--verde hp-btn--full" onclick="confirmarMatriculaPreRegistro()" style="font-weight:bold;font-size:0.95rem;padding:12px;box-shadow:0 2px 6px rgba(16,185,129,0.3);" disabled>
+              🚀 Enviar Solicitud Consolidada (1 Solo Ticket) &rarr;
+            </button>
+          </div>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:18px;">
@@ -1396,6 +1518,7 @@
     popularSelectoresCursos();
     renderBandejaCatalogoCursos();
     actualizarContadorAdmin();
+    if (typeof renderTablaPreRegistro === 'function') renderTablaPreRegistro();
 
     // Comprobar si hay sesión guardada
     try {
@@ -1425,9 +1548,30 @@
       opts += `<option value="${c.codigo}">${c.codigo} — ${c.nombre} (${c.horas} hrs)</option>`;
     });
 
-    if (s2) s2.innerHTML = opts;
+    if (s2) {
+      s2.innerHTML = opts;
+      s2.addEventListener('change', function() {
+        const inCur = document.getElementById('f2InputCurso');
+        if (inCur) inCur.value = this.value;
+      });
+    }
     if (s3) s3.innerHTML = opts;
     if (s4) s4.innerHTML = opts;
+
+    const f2Fec = document.getElementById('f2FechaVista');
+    if (f2Fec) {
+      f2Fec.addEventListener('change', function() {
+        const inFec = document.getElementById('f2InputFechaInicio');
+        if (inFec) inFec.value = this.value;
+      });
+    }
+    const inFecInit = document.getElementById('f2InputFechaInicio');
+    if (inFecInit) {
+      inFecInit.addEventListener('change', function() {
+        const f2F = document.getElementById('f2FechaVista');
+        if (f2F) f2F.value = this.value;
+      });
+    }
   }
 
   // 2. Render y Filtro del Catálogo Oficial (Bandeja 5)
@@ -1551,6 +1695,7 @@
     const f2Sol = document.getElementById('lblF2Solicitante');
     if (f2Emp) f2Emp.innerText = SESION_ACTUAL.empresa;
     if (f2Sol) f2Sol.innerText = `${SESION_ACTUAL.nombre} (${SESION_ACTUAL.correo})`;
+    if (typeof sincronizarCamposFormularioPaso2 === 'function') sincronizarCamposFormularioPaso2();
 
     // Paso 3
     const f3Emp = document.getElementById('lblF3Empresa');
@@ -1600,6 +1745,10 @@
       const panel = document.getElementById(`stepPanel${i}`);
       if (tab) tab.classList.toggle('is-active', i === stepNum);
       if (panel) panel.classList.toggle('hidden', i !== stepNum);
+    }
+    if (stepNum === 2) {
+      if (typeof sincronizarCamposFormularioPaso2 === 'function') sincronizarCamposFormularioPaso2();
+      if (typeof renderTablaPreRegistro === 'function') renderTablaPreRegistro();
     }
     if (stepNum === 5) renderMisSolicitudes();
   }
@@ -1977,57 +2126,279 @@ ${solicitante} (${empresa})`;
     }
   }
 
+  // ==========================================================================
+  // PRE-REGISTRO INTERACTIVO DE COLABORADORES (PASO 2)
+  // ==========================================================================
+
+  let PRE_REGISTRO_COLABORADORES = [];
+
+  window.toggleCargaMasivaPreRegistro = function() {
+    const box = document.getElementById('boxCargaMasivaPre');
+    if (box) {
+      box.classList.toggle('hidden');
+    }
+  };
+
   function prepararInscripcionPaso2(dni) {
     goStep(2);
-    document.getElementById('f2Dnis').value = dni;
+    if (dni) {
+      const inputDni = document.getElementById('f2InputDni');
+      if (inputDni) inputDni.value = dni;
+      agregarColaboradorPreRegistro();
+    }
   }
 
   function enlazarPaso1APaso3() {
     goStep(3);
   }
 
-  // 8. PASO 2: Confirmar Inscripción de Participantes (Sin Aulas para Subcontratistas)
-  function confirmarMatriculaPaso2() {
-    const cursoCod = document.getElementById('f2CursoCodigo').value;
-    const fecha = document.getElementById('f2FechaVista').value;
-    const turno = document.getElementById('f2TurnoVista').value;
-    const rawText = document.getElementById('f2Dnis').value;
+  function obtenerRucEmpresaActual() {
+    if (SESION_ACTUAL && SESION_ACTUAL.ruc) return SESION_ACTUAL.ruc;
+    const emp = SESION_ACTUAL ? SESION_ACTUAL.empresa : "";
+    const u = USERS_DB.find(x => x.empresa === emp);
+    return u && u.ruc ? u.ruc : "20100000000";
+  }
 
-    if (!cursoCod) {
-      alert("Seleccione un curso del catálogo oficial.");
+  // 10. Concatenar apellidos completos automáticamente en el formulario
+  window.actualizarApellidosCompletosInput = function() {
+    const pat = (document.getElementById('f2InputPaterno')?.value || '').trim();
+    const mat = (document.getElementById('f2InputMaterno')?.value || '').trim();
+    const compInput = document.getElementById('f2InputApellidosCompletos');
+    if (compInput) {
+      compInput.value = (pat + ' ' + mat).trim().toUpperCase();
+    }
+  };
+
+  // Autocompletar datos del colaborador al ingresar DNI
+  window.autocompletarColaboradorPorDni = function(dniRaw) {
+    const dni = (dniRaw || '').trim();
+    if (dni.length < 8) return;
+    const nombreCompleto = ACCESS_SNAPSHOT.personal?.[dni];
+    if (nombreCompleto) {
+      const desglose = desglosarNombreCompleto(nombreCompleto);
+      const inPat = document.getElementById('f2InputPaterno');
+      const inMat = document.getElementById('f2InputMaterno');
+      const inNom = document.getElementById('f2InputNombres');
+      const inComp = document.getElementById('f2InputApellidosCompletos');
+      if (inPat) inPat.value = desglose.paterno;
+      if (inMat) inMat.value = desglose.materno;
+      if (inNom) inNom.value = desglose.nombres;
+      if (inComp) inComp.value = desglose.apellidosCompletos;
+    }
+  };
+
+  // Sincronizar RUC, Empresa, Curso y Fecha en el formulario de registro (10 campos)
+  window.sincronizarCamposFormularioPaso2 = function() {
+    const emp = SESION_ACTUAL ? SESION_ACTUAL.empresa : "CONTRATISTA";
+    const ruc = obtenerRucEmpresaActual();
+    const cursoCod = document.getElementById('f2CursoCodigo')?.value || 'HSE';
+    const fecha = document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
+
+    const inRuc = document.getElementById('f2InputRuc');
+    const inEmp = document.getElementById('f2InputEmpresa');
+    const inCur = document.getElementById('f2InputCurso');
+    const inFec = document.getElementById('f2InputFechaInicio');
+
+    if (inRuc) inRuc.value = ruc;
+    if (inEmp) inEmp.value = emp;
+    if (inCur) inCur.value = cursoCod;
+    if (inFec && !inFec.value) inFec.value = fecha;
+  };
+
+  // Agregar Colaborador a la Nómina de Pre-Registro (Campos en Orden Estricto Oficial)
+  window.agregarColaboradorPreRegistro = function() {
+    const inPat = document.getElementById('f2InputPaterno');
+    const inMat = document.getElementById('f2InputMaterno');
+    const inNom = document.getElementById('f2InputNombres');
+    const inDni = document.getElementById('f2InputDni');
+    const inRuc = document.getElementById('f2InputRuc');
+    const inEmp = document.getElementById('f2InputEmpresa');
+    const inCur = document.getElementById('f2InputCurso');
+    const inCor = document.getElementById('f2InputCorreo');
+    const inFec = document.getElementById('f2InputFechaInicio');
+    const inComp = document.getElementById('f2InputApellidosCompletos');
+
+    const dni = (inDni?.value || '').trim();
+    if (!dni || !dni.match(/^\d{7,10}$/)) {
+      alert("Por favor ingrese un número de DNI válido (entre 7 y 10 dígitos).");
+      if (inDni) inDni.focus();
       return;
     }
-    if (!fecha) {
-      alert("Seleccione la fecha del curso en el cronograma.");
+
+    if (PRE_REGISTRO_COLABORADORES.some(c => c.dni === dni)) {
+      alert(`El DNI ${dni} ya se encuentra agregado en la lista de pre-registro de este ticket.`);
       return;
     }
 
-    // Extracción de colaboradores (DNI y correo opcional por colaborador)
-    const lines = rawText.split(/\r?\n/);
-    const colaboradores = [];
-    lines.forEach(l => {
-      const dniMatch = l.match(/\b\d{7,10}\b/);
-      const emailMatch = l.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    let paterno = (inPat?.value || '').trim();
+    let materno = (inMat?.value || '').trim();
+    let nombres = (inNom?.value || '').trim();
+
+    // Si no los llenó manualmente, intentamos resolverlos del padrón oficial
+    if (!paterno || !nombres) {
+      const nombreCompleto = (ACCESS_SNAPSHOT.personal?.[dni] || "").toUpperCase();
+      if (nombreCompleto) {
+        const d = desglosarNombreCompleto(nombreCompleto);
+        if (!paterno) paterno = d.paterno;
+        if (!materno) materno = d.materno;
+        if (!nombres) nombres = d.nombres;
+      } else {
+        if (!paterno) paterno = "COLABORADOR";
+        if (!materno) materno = "";
+        if (!nombres) nombres = `DNI ${dni}`;
+      }
+    }
+
+    const apellidosCompletos = (paterno + " " + materno).trim();
+    const ruc = inRuc?.value || obtenerRucEmpresaActual();
+    const emp = inEmp?.value || (SESION_ACTUAL ? SESION_ACTUAL.empresa : "CONTRATISTA");
+    const cursoCod = inCur?.value || document.getElementById('f2CursoCodigo')?.value || 'HSE';
+    const correo = (inCor?.value || '').trim() || (SESION_ACTUAL ? SESION_ACTUAL.correo : "");
+    const fecha = inFec?.value || document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
+
+    // REGISTRO EN EL ORDEN ESTRICTO EXIGIDO:
+    // APELLIDO PATERNO, APELLIDO MATERNO, NOMBRES, DNI, RUC EMPRESA, EMPRESA, CURSO, CORREO, FECHA INICIO, apellidos completos
+    PRE_REGISTRO_COLABORADORES.push({
+      paterno: paterno.toUpperCase(),
+      materno: materno.toUpperCase(),
+      nombres: nombres.toUpperCase(),
+      dni: dni,
+      ruc: ruc,
+      empresa: emp,
+      curso: cursoCod,
+      correo: correo,
+      fecha_inicio: fecha,
+      apellidos_completos: apellidosCompletos.toUpperCase()
+    });
+
+    // Limpiar campos individuales manteniendo empresa, ruc, curso y fecha listos para el siguiente
+    if (inPat) inPat.value = "";
+    if (inMat) inMat.value = "";
+    if (inNom) inNom.value = "";
+    if (inDni) inDni.value = "";
+    if (inCor) inCor.value = "";
+    if (inComp) inComp.value = "";
+
+    renderTablaPreRegistro();
+  };
+
+  window.cargarColaboradoresMasivosPreRegistro = function() {
+    const textarea = document.getElementById('f2TextareaMasivo');
+    const raw = (textarea?.value || '').trim();
+    if (!raw) {
+      alert("Pegue la lista de DNIs en la caja de texto.");
+      return;
+    }
+
+    const cursoCod = document.getElementById('f2CursoCodigo')?.value || 'HSE';
+    const fecha = document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
+    const emp = SESION_ACTUAL ? SESION_ACTUAL.empresa : "CONTRATISTA";
+    const rucEmp = obtenerRucEmpresaActual();
+    const emailDefault = SESION_ACTUAL ? SESION_ACTUAL.correo : "";
+
+    const lines = raw.split(/\r?\n/);
+    let agregados = 0;
+    let omitidos = 0;
+
+    lines.forEach(line => {
+      const dniMatch = line.match(/\b\d{7,10}\b/);
+      const emailMatch = line.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
       if (dniMatch) {
-        colaboradores.push({
-          dni: dniMatch[0],
-          correo: emailMatch ? emailMatch[0] : ""
-        });
+        const dni = dniMatch[0];
+        if (!PRE_REGISTRO_COLABORADORES.some(c => c.dni === dni)) {
+          const correo = emailMatch ? emailMatch[0] : emailDefault;
+          const nombreCompleto = (ACCESS_SNAPSHOT.personal?.[dni] || "PERSONAL REGISTRADO").toUpperCase();
+          const desglose = desglosarNombreCompleto(nombreCompleto);
+
+          PRE_REGISTRO_COLABORADORES.push({
+            paterno: desglose.paterno,
+            materno: desglose.materno,
+            nombres: desglose.nombres,
+            dni: dni,
+            ruc: rucEmp,
+            empresa: emp,
+            curso: cursoCod,
+            correo: correo,
+            fecha_inicio: fecha,
+            apellidos_completos: desglose.apellidosCompletos
+          });
+          agregados++;
+        } else {
+          omitidos++;
+        }
       }
     });
-    if (colaboradores.length === 0) {
-      const allDnis = (rawText.match(/\b\d{7,10}\b/g) || []);
-      allDnis.forEach(d => colaboradores.push({ dni: d, correo: "" }));
-    }
 
-    const dnis = colaboradores.map(c => c.dni);
-    if (dnis.length === 0) {
-      alert("Ingrese al menos un DNI válido de colaborador para inscribir.");
+    if (textarea) textarea.value = "";
+    const box = document.getElementById('boxCargaMasivaPre');
+    if (box) box.classList.add('hidden');
+
+    renderTablaPreRegistro();
+    alert(`✓ Se cargaron ${agregados} colaboradores a la nómina de pre-registro.` + (omitidos > 0 ? ` (${omitidos} omitidos por ya estar en nómina).` : ''));
+  };
+
+  window.quitarColaboradorPreRegistro = function(idx) {
+    if (idx >= 0 && idx < PRE_REGISTRO_COLABORADORES.length) {
+      PRE_REGISTRO_COLABORADORES.splice(idx, 1);
+      renderTablaPreRegistro();
+    }
+  };
+
+  window.actualizarCorreoPreRegistro = function(idx, nuevoCorreo) {
+    if (idx >= 0 && idx < PRE_REGISTRO_COLABORADORES.length) {
+      PRE_REGISTRO_COLABORADORES[idx].correo = nuevoCorreo.trim();
+    }
+  };
+
+  function renderTablaPreRegistro() {
+    const tbody = document.getElementById('tbodyPreRegistroColaboradores');
+    const lbl = document.getElementById('lblConteoPreRegistro');
+    const btn = document.getElementById('btnEnviarTicketUnico');
+    if (!tbody) return;
+
+    if (PRE_REGISTRO_COLABORADORES.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:18px;color:var(--tz-texto-suave);">No ha agregado colaboradores a la nómina de este ticket aún. Ingrese un DNI arriba para comenzar.</td></tr>`;
+      if (lbl) lbl.innerText = `0 colaboradores`;
+      if (btn) btn.disabled = true;
       return;
     }
 
+    if (lbl) lbl.innerText = `${PRE_REGISTRO_COLABORADORES.length} colaboradores en este ticket`;
+    if (btn) btn.disabled = false;
+
+    tbody.innerHTML = PRE_REGISTRO_COLABORADORES.map((c, idx) => `
+      <tr>
+        <td style="text-align:center;font-weight:bold;">${idx + 1}</td>
+        <td><strong>${c.paterno}</strong></td>
+        <td><strong>${c.materno}</strong></td>
+        <td>${c.nombres}</td>
+        <td><span class="hp-badge hp-badge--azul">${c.dni}</span></td>
+        <td><small>${c.ruc}</small></td>
+        <td><small>${c.empresa}</small></td>
+        <td><small style="color:var(--tz-azul);font-weight:bold;">${c.curso}</small></td>
+        <td><input type="email" class="hp-input" style="padding:4px 6px;font-size:0.78rem;min-width:180px;" value="${c.correo}" onchange="actualizarCorreoPreRegistro(${idx}, this.value)" placeholder="correo@empresa.com"></td>
+        <td style="white-space:nowrap;font-size:0.8rem;">${c.fecha_inicio}</td>
+        <td><small style="color:#1d4ed8;font-weight:bold;">${c.apellidos_completos}</small></td>
+        <td style="text-align:center;">
+          <button type="button" class="hp-btn hp-btn--sm hp-btn--outline" style="color:#b91c1c;border-color:#fca5a5;padding:2px 6px;" onclick="quitarColaboradorPreRegistro(${idx})" title="Quitar de la nómina">
+            🗑️
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  window.confirmarMatriculaPreRegistro = function() {
+    if (PRE_REGISTRO_COLABORADORES.length === 0) {
+      alert("Agregue al menos un colaborador a la nómina antes de enviar el ticket.");
+      return;
+    }
+
+    const cursoCod = document.getElementById('f2CursoCodigo')?.value || 'HSE';
+    const fecha = document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
     const cursoObj = CURSOS_OFICIALES.find(c => c.codigo === cursoCod);
     const nombreCurso = cursoObj ? cursoObj.nombre : cursoCod;
+
     const ticketId = `INS-2026-${100 + STATE.tickets_inscripciones.length + 1}`;
     const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 
@@ -2041,9 +2412,9 @@ ${solicitante} (${empresa})`;
       curso_nombre: nombreCurso,
       fecha_curso: fecha,
       turno: "Por asignar en corte (Mañana/Tarde)",
-      colaboradores: colaboradores,
-      dnis: dnis,
-      cantidad: dnis.length,
+      colaboradores: [...PRE_REGISTRO_COLABORADORES],
+      dnis: PRE_REGISTRO_COLABORADORES.map(c => c.dni),
+      cantidad: PRE_REGISTRO_COLABORADORES.length,
       aula_asignada: "Pendiente de Asignación por Capacitación",
       estado: "PENDIENTE DE PROGRAMAR",
       observacion_admin: "En cola para asignación de turno oficial (Mañana/Tarde) por el Área de Capacitación."
@@ -2052,28 +2423,39 @@ ${solicitante} (${empresa})`;
     STATE.tickets_inscripciones.unshift(nuevoTicket);
     guardarEstadoLocal();
 
+    const cantAlumnos = PRE_REGISTRO_COLABORADORES.length;
+    const listaDnis = PRE_REGISTRO_COLABORADORES.map(c => c.dni).join(', ');
+    PRE_REGISTRO_COLABORADORES = [];
+    renderTablaPreRegistro();
+
     // Confirmación visual
     document.getElementById('f2TicketContent').innerHTML = `
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-bottom:12px;">
-        <h4 style="color:#166534;margin:0 0 6px 0;font-size:1.05rem;">✓ Solicitud de Inscripción Registrada</h4>
+        <h4 style="color:#166534;margin:0 0 6px 0;font-size:1.05rem;">✓ Solicitud de Cuadrilla Enviada (Ticket Único)</h4>
         <div style="font-size:0.85rem;color:#14532d;line-height:1.4;">
-          <strong>Ticket:</strong> ${ticketId}<br>
+          <strong>Ticket Consolidado:</strong> ${ticketId}<br>
           <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
           <strong>Fecha Solicitada:</strong> ${fecha}<br>
-          <strong>Turno & Aula:</strong> <em>Por asignar en corte oficial por Capacitación</em><br>
-          <strong>Inscritos:</strong> ${dnis.length} colaboradores (${dnis.join(', ')})
+          <strong>Total Colaboradores Agrupados:</strong> ${cantAlumnos} colaboradores (${listaDnis})<br>
+          <strong>Turno & Aula:</strong> <em>Asignados en corte oficial por Capacitación</em>
         </div>
       </div>
       <div style="font-size:0.82rem;color:var(--tz-texto-suave);background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--tz-borde);">
-        📌 <strong>Importante:</strong> El Área de Capacitación agrupará y asignará el turno oficial (Mañana o Tarde) y aula según el aforo del cronograma. Puede realizar seguimiento en tiempo real desde el Paso 5.
+        📌 <strong>Importante:</strong> Se generó 1 solo ticket para todos los colaboradores de esta cuadrilla. El Área de Capacitación asignará el turno (Mañana o Tarde) y aula en el corte oficial.
       </div>
       <button type="button" class="hp-btn hp-btn--outline hp-btn--sm hp-btn--full" style="margin-top:10px;" onclick="goStep(5)">
         Ver mi ticket en "Mis Solicitudes" (Paso 5) &rarr;
       </button>
     `;
 
-    document.getElementById('badgeStep2').innerText = `✓ ${ticketId}`;
-    alert(`✓ Solicitud de inscripción enviada con éxito (Ticket: ${ticketId}). El Área de Capacitación validará el cupo y le asignará el aula.`);
+    const badge = document.getElementById('badgeStep2');
+    if (badge) badge.innerText = `✓ ${ticketId}`;
+    alert(`✓ Solicitud enviada con éxito (Ticket Consolidado: ${ticketId}).\n\nSe registraron ${cantAlumnos} colaboradores en 1 solo ticket para el curso ${cursoCod}.`);
+  };
+
+  // Mantener alias compatible para botones existentes
+  function confirmarMatriculaPaso2() {
+    confirmarMatriculaPreRegistro();
   }
 
   // 9. PASO 3: Registrar Solicitud de Apertura de Curso
@@ -2641,7 +3023,7 @@ ${solicitante} (${empresa})`;
       [""],
       ["", "EMPRESA:", empresaHeader || "CONTRATISTAS VINCULADAS TECSUR / LUZ DEL SUR"],
       ["", "CR - RUC:", rucHeader || "20100000000"],
-      ["N°", "APELLIDO PATERNO", "APELLIDO MATERNO", "NOMBRES", "DNI", "RUC EMPRESA", "EMPRESA", "CURSO", "CORREO", "FECHA INICIO", "apellidos completos"]
+      ["", "APELLIDO PATERNO", "APELLIDO MATERNO", "NOMBRES", "DNI", "RUC EMPRESA", "EMPRESA", "CURSO", "CORREO", "FECHA INICIO", "apellidos completos"]
     ];
 
     participantes.forEach((p, idx) => {
@@ -2673,17 +3055,17 @@ ${solicitante} (${empresa})`;
         { s: { r: 7, c: 2 }, e: { r: 7, c: 8 } }  // RUC C8:I8
       ];
       ws['!cols'] = [
-        { wch: 6 },  // A: N°
-        { wch: 22 }, // B: PATERNO
-        { wch: 22 }, // C: MATERNO
-        { wch: 28 }, // D: NOMBRES
+        { wch: 5 },  // A: #
+        { wch: 20 }, // B: APELLIDO PATERNO
+        { wch: 20 }, // C: APELLIDO MATERNO
+        { wch: 26 }, // D: NOMBRES
         { wch: 14 }, // E: DNI
-        { wch: 16 }, // F: RUC
+        { wch: 16 }, // F: RUC EMPRESA
         { wch: 24 }, // G: EMPRESA
-        { wch: 22 }, // H: CURSO
+        { wch: 16 }, // H: CURSO
         { wch: 32 }, // I: CORREO
         { wch: 14 }, // J: FECHA INICIO
-        { wch: 30 }  // K: apellidos completos
+        { wch: 28 }  // K: apellidos completos
       ];
 
       const wb = XLSX.utils.book_new();
