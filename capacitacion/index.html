@@ -569,30 +569,13 @@
             </div>
           </div>
 
-          <!-- Opcional: Trazabilidad contable para empresas externas no subcontratistas -->
-          <div style="background:#f8fafc;border:1px dashed var(--tz-borde);padding:10px 14px;border-radius:6px;margin-bottom:14px;">
-            <div style="font-size:0.83rem;font-weight:bold;color:var(--tz-texto);margin-bottom:6px;">
-              🏢 Datos de Pago (Solo para empresas externas que no son subcontratistas homologadas):
-            </div>
-            <div class="hp-row-2">
-              <div class="hp-field" style="margin-bottom:0;">
-                <label class="hp-label" for="f2OpBancaria" style="font-size:0.77rem;">N° de Operación Bancaria / Transferencia (Opcional)</label>
-                <input type="text" id="f2OpBancaria" class="hp-input" placeholder="Ej: OP-749102 BCP">
-              </div>
-              <div class="hp-field" style="margin-bottom:0;">
-                <label class="hp-label" for="f2RucFactura" style="font-size:0.77rem;">RUC / Razón Social Facturación (Opcional)</label>
-                <input type="text" id="f2RucFactura" class="hp-input" placeholder="Ej: 20601234567">
-              </div>
-            </div>
-          </div>
-
           <div style="background:#f1f5f9;border-left:4px solid var(--tz-azul);padding:10px 12px;margin-bottom:14px;border-radius:0 6px 6px 0;font-size:0.82rem;color:var(--tz-texto);">
             📌 <strong>Nota sobre Aulas:</strong> La asignación de aula física (Aulas Centrales SJM, Recinto R-5 Campo o Aula Virtual) es gestionada de manera interna por el Área de Capacitación de acuerdo a los aforos y cronograma oficial. Le será confirmada en su correo.
           </div>
 
           <div class="hp-field">
-            <label class="hp-label" for="f2Dnis">4. DNI(s) de los Participantes Aptos *</label>
-            <textarea id="f2Dnis" rows="3" class="hp-textarea" placeholder="Pegue aquí los DNI de los trabajadores a inscribir..."></textarea>
+            <label class="hp-label" for="f2Dnis">4. DNI(s) y Correo de los Colaboradores de la Subcontrata a Inscribir *</label>
+            <textarea id="f2Dnis" rows="4" class="hp-textarea" placeholder="Pegue aquí los DNI de los colaboradores a inscribir (uno por línea, o acompañado de su correo: 09474425 malonmarticonera1@gmail.com)..."></textarea>
           </div>
 
           <button type="button" class="hp-btn hp-btn--verde hp-btn--full" onclick="confirmarMatriculaPaso2()">
@@ -967,7 +950,6 @@
                   <th>Curso Solicitado</th>
                   <th>Fecha Curso</th>
                   <th>Participantes (DNIs)</th>
-                  <th>N° Op. / Comprobante</th>
                   <th>Estado</th>
                   <th>Acción</th>
                 </tr>
@@ -2009,8 +1991,7 @@ ${solicitante} (${empresa})`;
     const cursoCod = document.getElementById('f2CursoCodigo').value;
     const fecha = document.getElementById('f2FechaVista').value;
     const turno = document.getElementById('f2TurnoVista').value;
-    const rawDnis = document.getElementById('f2Dnis').value;
-    const dnis = (rawDnis.match(/\d{7,10}/g) || []);
+    const rawText = document.getElementById('f2Dnis').value;
 
     if (!cursoCod) {
       alert("Seleccione un curso del catálogo oficial.");
@@ -2020,8 +2001,28 @@ ${solicitante} (${empresa})`;
       alert("Seleccione la fecha del curso en el cronograma.");
       return;
     }
+
+    // Extracción de colaboradores (DNI y correo opcional por colaborador)
+    const lines = rawText.split(/\r?\n/);
+    const colaboradores = [];
+    lines.forEach(l => {
+      const dniMatch = l.match(/\b\d{7,10}\b/);
+      const emailMatch = l.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+      if (dniMatch) {
+        colaboradores.push({
+          dni: dniMatch[0],
+          correo: emailMatch ? emailMatch[0] : ""
+        });
+      }
+    });
+    if (colaboradores.length === 0) {
+      const allDnis = (rawText.match(/\b\d{7,10}\b/g) || []);
+      allDnis.forEach(d => colaboradores.push({ dni: d, correo: "" }));
+    }
+
+    const dnis = colaboradores.map(c => c.dni);
     if (dnis.length === 0) {
-      alert("Ingrese al menos un DNI válido para inscribir.");
+      alert("Ingrese al menos un DNI válido de colaborador para inscribir.");
       return;
     }
 
@@ -2029,9 +2030,6 @@ ${solicitante} (${empresa})`;
     const nombreCurso = cursoObj ? cursoObj.nombre : cursoCod;
     const ticketId = `INS-2026-${100 + STATE.tickets_inscripciones.length + 1}`;
     const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-
-    const opBancaria = (document.getElementById('f2OpBancaria')?.value || '').trim();
-    const rucFactura = (document.getElementById('f2RucFactura')?.value || '').trim();
 
     const nuevoTicket = {
       ticket_id: ticketId,
@@ -2043,10 +2041,9 @@ ${solicitante} (${empresa})`;
       curso_nombre: nombreCurso,
       fecha_curso: fecha,
       turno: "Por asignar en corte (Mañana/Tarde)",
+      colaboradores: colaboradores,
       dnis: dnis,
       cantidad: dnis.length,
-      op_bancaria: opBancaria,
-      ruc_factura: rucFactura,
       aula_asignada: "Pendiente de Asignación por Capacitación",
       estado: "PENDIENTE DE PROGRAMAR",
       observacion_admin: "En cola para asignación de turno oficial (Mañana/Tarde) por el Área de Capacitación."
@@ -2055,8 +2052,7 @@ ${solicitante} (${empresa})`;
     STATE.tickets_inscripciones.unshift(nuevoTicket);
     guardarEstadoLocal();
 
-    // Confirmación visual sin nombres propios (solo Área de Capacitación)
-    const detallePago = opBancaria ? `<br><strong>Comprobante Declarado:</strong> ${opBancaria}` : '';
+    // Confirmación visual
     document.getElementById('f2TicketContent').innerHTML = `
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-bottom:12px;">
         <h4 style="color:#166534;margin:0 0 6px 0;font-size:1.05rem;">✓ Solicitud de Inscripción Registrada</h4>
@@ -2065,7 +2061,7 @@ ${solicitante} (${empresa})`;
           <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
           <strong>Fecha Solicitada:</strong> ${fecha}<br>
           <strong>Turno & Aula:</strong> <em>Por asignar en corte oficial por Capacitación</em><br>
-          <strong>Inscritos:</strong> ${dnis.length} colaboradores (${dnis.join(', ')})${detallePago}
+          <strong>Inscritos:</strong> ${dnis.length} colaboradores (${dnis.join(', ')})
         </div>
       </div>
       <div style="font-size:0.82rem;color:var(--tz-texto-suave);background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--tz-borde);">
@@ -2459,10 +2455,6 @@ ${solicitante} (${empresa})`;
         return `<div>• <strong>${dni}</strong>: <small>${nom}</small></div>`;
       }).join('');
 
-      const opPagoBadge = t.op_bancaria 
-        ? `<span class="hp-badge hp-badge--azul" title="Comprobante declarado">${t.op_bancaria}</span>` 
-        : `<span style="color:var(--tz-texto-suave);font-size:0.8rem;">Convenio Contrata</span>`;
-
       return `
         <tr>
           <td style="text-align:center;">
@@ -2473,11 +2465,10 @@ ${solicitante} (${empresa})`;
           <td><strong>${t.empresa}</strong><br><small style="color:var(--tz-texto-suave);">${t.solicitante || ''}</small></td>
           <td><strong style="color:var(--tz-azul);">${t.curso_codigo}</strong><br><small style="color:var(--tz-texto-suave);">${t.curso_nombre || ''}</small></td>
           <td style="font-size:0.82rem;">${t.fecha_curso || 'Inmediata'}</td>
-          <td style="max-width:280px;">
-            <span class="hp-badge hp-badge--azul" style="margin-bottom:4px;">${dnisList.length} participante(s)</span>
+          <td style="max-width:320px;">
+            <span class="hp-badge hp-badge--azul" style="margin-bottom:4px;">${dnisList.length} colaborador(es)</span>
             <div style="font-size:0.78rem;line-height:1.35;max-height:80px;overflow-y:auto;">${participantesDesc}</div>
           </td>
-          <td>${opPagoBadge}</td>
           <td><span class="hp-badge hp-badge--amarillo">${t.estado}</span></td>
           <td>
             <div style="display:flex;gap:4px;">
@@ -2554,29 +2545,32 @@ ${solicitante} (${empresa})`;
 
     ticketsSeleccionados.forEach(t => {
       if (!empresaPrincipal) empresaPrincipal = t.empresa;
-      if (!rucPrincipal) {
-        const u = USERS_DB.find(x => x.empresa === t.empresa);
-        if (u && u.ruc) rucPrincipal = u.ruc;
-        else if (t.ruc_factura) rucPrincipal = t.ruc_factura;
-      }
+      const u = USERS_DB.find(x => x.empresa === t.empresa);
+      if (!rucPrincipal && u && u.ruc) rucPrincipal = u.ruc;
 
       const dnisList = Array.isArray(t.dnis) ? t.dnis : (t.dnis ? [t.dnis] : []);
-      dnisList.forEach(dni => {
+      const colabs = t.colaboradores || [];
+      const rucEmp = (u && u.ruc) ? u.ruc : (t.ruc || "20100000000");
+
+      dnisList.forEach((dni, idx) => {
+        // DATOS PROPIOS DEL COLABORADOR DE LA SUBCONTRATA A INSCRIBIR
         const nombreCompleto = (ACCESS_SNAPSHOT.personal?.[dni] || "-").toUpperCase();
         const desglose = desglosarNombreCompleto(nombreCompleto);
-        const u = USERS_DB.find(x => x.empresa === t.empresa);
-        const rucEmp = t.ruc_factura || (u ? u.ruc : "20100000000");
+
+        // Correo personal o asignado del colaborador
+        const cItem = colabs.find(c => c.dni === dni) || colabs[idx];
+        const emailColaborador = (cItem && cItem.correo) ? cItem.correo : (t.correo || (u ? u.correo : "capacitacion@tecsur.com.pe"));
 
         participantes.push({
           dni: dni,
-          paterno: desglose.paterno,
-          materno: desglose.materno,
-          nombres: desglose.nombres,
-          apellidos_completos: desglose.apellidosCompletos,
-          empresa: t.empresa || "CONTRATISTA",
-          ruc: rucEmp,
+          paterno: desglose.paterno,                        // APELLIDO PATERNO DEL COLABORADOR
+          materno: desglose.materno,                        // APELLIDO MATERNO DEL COLABORADOR
+          nombres: desglose.nombres,                        // NOMBRES DEL COLABORADOR
+          apellidos_completos: desglose.apellidosCompletos, // APELLIDOS COMPLETOS DEL COLABORADOR
+          empresa: t.empresa || "CONTRATISTA",              // SUBCONTRATA DEL COLABORADOR
+          ruc: rucEmp,                                      // RUC DE LA SUBCONTRATA
           curso: t.curso_codigo || "HSE",
-          correo: t.correo || (u ? u.correo : "capacitacion@tecsur.com.pe"),
+          correo: emailColaborador,                         // CORREO DEL COLABORADOR
           fecha_inicio: t.fecha_curso || new Date().toLocaleDateString('es-PE')
         });
       });
