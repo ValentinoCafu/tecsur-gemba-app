@@ -358,6 +358,12 @@
     background: #ffffff;
   }
 </style>
+<script src="assets/xlsx.full.min.js"></script>
+<script>
+  if (typeof XLSX === 'undefined') {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');
+  }
+</script>
 </head>
 <body class="tz">
 
@@ -551,16 +557,32 @@
 
           <div class="hp-row-2">
             <div class="hp-field">
-              <label class="hp-label" for="f2FechaVista">2. Fecha del Cronograma *</label>
+              <label class="hp-label" for="f2FechaVista">2. Fecha Solicitada del Cronograma *</label>
               <input type="date" id="f2FechaVista" class="hp-input" value="2026-11-24">
             </div>
             <div class="hp-field">
-              <label class="hp-label" for="f2TurnoVista">3. Turno / Horario Solicitado *</label>
-              <select id="f2TurnoVista" class="hp-select">
-                <option value="Turno Mañana (08:00 - 13:00)">Turno Mañana (08:00 - 13:00)</option>
-                <option value="Turno Tarde (14:00 - 18:00)">Turno Tarde (14:00 - 18:00)</option>
-                <option value="Jornada Completa (08:00 - 17:00)">Jornada Completa (08:00 - 17:00)</option>
-              </select>
+              <label class="hp-label">3. Turno & Horario Oficial</label>
+              <div style="padding:9px 12px;background:#f8fafc;border:1px solid var(--tz-borde);border-radius:6px;font-size:0.82rem;color:var(--tz-azul);line-height:1.35;">
+                🕒 <strong>Asignado por Capacitación:</strong> El turno (Mañana o Tarde) y aula son asignados por Capacitación en el corte oficial según aforo.
+              </div>
+              <input type="hidden" id="f2TurnoVista" value="Por asignar en corte (Mañana/Tarde)">
+            </div>
+          </div>
+
+          <!-- Opcional: Trazabilidad contable para empresas externas no subcontratistas -->
+          <div style="background:#f8fafc;border:1px dashed var(--tz-borde);padding:10px 14px;border-radius:6px;margin-bottom:14px;">
+            <div style="font-size:0.83rem;font-weight:bold;color:var(--tz-texto);margin-bottom:6px;">
+              🏢 Datos de Pago (Solo para empresas externas que no son subcontratistas homologadas):
+            </div>
+            <div class="hp-row-2">
+              <div class="hp-field" style="margin-bottom:0;">
+                <label class="hp-label" for="f2OpBancaria" style="font-size:0.77rem;">N° de Operación Bancaria / Transferencia (Opcional)</label>
+                <input type="text" id="f2OpBancaria" class="hp-input" placeholder="Ej: OP-749102 BCP">
+              </div>
+              <div class="hp-field" style="margin-bottom:0;">
+                <label class="hp-label" for="f2RucFactura" style="font-size:0.77rem;">RUC / Razón Social Facturación (Opcional)</label>
+                <input type="text" id="f2RucFactura" class="hp-input" placeholder="Ej: 20601234567">
+              </div>
             </div>
           </div>
 
@@ -871,46 +893,121 @@
       </div>
     </section>
 
-    <!-- BANDEJA 2: TICKETS DE INSCRIPCIÓN A CURSOS -->
+    <!-- BANDEJA 2: TICKETS DE INSCRIPCIÓN Y GESTIÓN DE CORTES (GUILLERMO) -->
     <section id="govPanel2" class="hidden">
       <div class="hp-card hp-card--verde">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
           <div>
-            <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Bandeja de Validación de Inscripciones y Asignación de Aulas</h3>
+            <h3 class="hp-card__title" style="margin:0;border:none;padding:0;">Bandeja Operativa de Inscripciones — Despacho por Turnos & Plantilla F01</h3>
             <p style="font-size:0.83rem;color:var(--tz-texto-suave);margin:4px 0 0 0;">
-              Revise las solicitudes enviadas por las contratas, verifique el cupo en el cronograma oficial y asigne el aula correspondiente.
+              Gestione las solicitudes en cola, asigne el turno (Mañana / Tarde), ejecute el corte y descargue automáticamente la plantilla oficial <strong>F01-PA-CAP-004</strong>.
             </p>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" onclick="renderBandejaInscripcionesAdmin()">
-              🔄 Refrescar Tickets
+              🔄 Refrescar
             </button>
-            <button type="button" class="hp-btn hp-btn--sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="limpiarTodasInscripcionesAdmin()" title="Vaciar todos los tickets de inscripción a cursos">
-              🗑️ Vaciar Inscripciones
+            <button type="button" class="hp-btn hp-btn--sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="limpiarTodasInscripcionesAdmin()" title="Vaciar todos los tickets de inscripción">
+              🗑️ Vaciar Bandeja
             </button>
           </div>
         </div>
 
-        <div class="hp-table-wrap">
-          <table class="hp-table">
-            <thead>
-              <tr>
-                <th>Ticket</th>
-                <th>Fecha Solicitud</th>
-                <th>Empresa Contratista</th>
-                <th>Curso Solicitado</th>
-                <th>Fecha & Turno</th>
-                <th>Participantes</th>
-                <th>Asignación de Aula (Tecsur)</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyGovInscripciones">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
+        <!-- PESTAÑAS DE SUB-NAVEGACIÓN (PENDIENTES vs HISTORIAL DE LOTES) -->
+        <div style="display:flex;gap:10px;border-bottom:2px solid var(--tz-borde);padding-bottom:10px;margin-bottom:16px;">
+          <button type="button" id="tabSubBtnPendientes" class="hp-btn hp-btn--sm hp-btn--azul" onclick="switchSubTabInscripciones('pendientes')">
+            ⚡ 1. Inscripciones Pendientes de Despacho <span id="badgeSubInscripcionesPendientes" class="hp-badge hp-badge--amarillo" style="margin-left:6px;">0</span>
+          </button>
+          <button type="button" id="tabSubBtnLotes" class="hp-btn hp-btn--sm hp-btn--outline" onclick="switchSubTabInscripciones('lotes')">
+            🗂️ 2. Historial de Lotes y Cortes Atendidos <span id="badgeSubInscripcionesLotes" class="hp-badge hp-badge--azul" style="margin-left:6px;">0</span>
+          </button>
         </div>
+
+        <!-- SUB-PANEL 1: PENDIENTES DE CORTE -->
+        <div id="subPanelInscripcionesPendientes">
+          <!-- BARRA DE ACCIÓN PARA EL CORTE DE TURNO -->
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
+              <div>
+                <label style="font-size:0.75rem;font-weight:bold;color:var(--tz-azul);display:block;margin-bottom:3px;">1. ASIGNAR TURNO:</label>
+                <select id="adminCorteTurno" class="hp-select" style="padding:6px 10px;font-size:0.85rem;background:#fff;border-color:#93c5fd;">
+                  <option value="Turno Mañana (08:00 - 13:00)">☀️ Turno Mañana (08:00 - 13:00)</option>
+                  <option value="Turno Tarde (14:00 - 18:00)">🌘 Turno Tarde (14:00 - 18:00)</option>
+                  <option value="Jornada Completa (08:00 - 17:00)">📅 Jornada Completa (08:00 - 17:00)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.75rem;font-weight:bold;color:var(--tz-azul);display:block;margin-bottom:3px;">2. AULA / RECINTO:</label>
+                <input type="text" id="adminCorteAula" class="hp-input" value="Aula 1 - Sede San Juan" placeholder="Aula o Recinto" style="padding:6px 10px;font-size:0.85rem;max-width:200px;background:#fff;border-color:#93c5fd;">
+              </div>
+              <div style="padding-top:14px;">
+                <span id="lblSeleccionadosCorte" style="background:#dbeafe;color:#1e40af;padding:6px 14px;border-radius:20px;font-size:0.82rem;font-weight:bold;border:1px solid #bfdbfe;">
+                  0 seleccionados (0 alumnos)
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <button type="button" class="hp-btn hp-btn--verde" onclick="ejecutarCorteInscripcionesAdmin()" style="font-weight:bold;box-shadow:0 2px 6px rgba(16,185,129,0.3);padding:10px 18px;font-size:0.9rem;">
+                ⚡ Ejecutar Corte y Descargar Plantilla Oficial F01-PA-CAP-004 &rarr;
+              </button>
+            </div>
+          </div>
+
+          <div class="hp-table-wrap">
+            <table class="hp-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;text-align:center;">
+                    <input type="checkbox" id="chkAllInscripciones" onchange="toggleSelectAllInscripciones(this.checked)" title="Seleccionar todos los pendientes">
+                  </th>
+                  <th>Ticket</th>
+                  <th>Fecha Ingreso</th>
+                  <th>Empresa</th>
+                  <th>Curso Solicitado</th>
+                  <th>Fecha Curso</th>
+                  <th>Participantes (DNIs)</th>
+                  <th>N° Op. / Comprobante</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyGovInscripciones">
+                <!-- Renderizado dinámico de pendientes -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SUB-PANEL 2: HISTORIAL DE LOTES Y CORTES ATENDIDOS -->
+        <div id="subPanelInscripcionesLotes" class="hidden">
+          <div style="background:#f8fafc;border:1px solid var(--tz-borde);border-radius:8px;padding:12px 16px;margin-bottom:14px;">
+            <p style="font-size:0.85rem;color:var(--tz-texto);margin:0;">
+              🗂️ <strong>Historial de Lotes Archivados:</strong> Los cortes ya realizados se encuentran registrados aquí. Puede volver a descargar la plantilla oficial <strong>F01-PA-CAP-004</strong> de cualquier lote en cualquier momento sin afectar las nuevas solicitudes.
+            </p>
+          </div>
+
+          <div class="hp-table-wrap">
+            <table class="hp-table">
+              <thead>
+                <tr>
+                  <th>N° Lote</th>
+                  <th>Fecha y Hora del Corte</th>
+                  <th>Turno Asignado</th>
+                  <th>Aula / Recinto</th>
+                  <th>Total Alumnos</th>
+                  <th>Tickets Agrupados</th>
+                  <th>Operador</th>
+                  <th>Descarga Oficial</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyGovLotes">
+                <!-- Renderizado dinámico de lotes -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -1265,7 +1362,8 @@
     solicitudes_apertura: [],
     demanda_consolidada: [],
     tickets_reajuste: [],
-    observados_dinamicos: {}
+    observados_dinamicos: {},
+    lotes_cortes: []
   };
 
   // Cargar estado persistido si existe
@@ -1279,6 +1377,7 @@
       if (st.demanda_consolidada) STATE.demanda_consolidada = st.demanda_consolidada;
       if (st.tickets_reajuste) STATE.tickets_reajuste = st.tickets_reajuste;
       if (st.observados_dinamicos) STATE.observados_dinamicos = st.observados_dinamicos;
+      if (st.lotes_cortes) STATE.lotes_cortes = st.lotes_cortes;
     }
   } catch(e) {
     console.warn("No se pudo cargar localStorage:", e);
@@ -1292,11 +1391,19 @@
   }
 
   function actualizarContadorAdmin() {
+    const pendIns = STATE.tickets_inscripciones.filter(t => !t.lote_id && (t.estado.includes('PENDIENTE') || t.estado.includes('VALIDACIÓN'))).length;
+    const pendReaj = STATE.tickets_reajuste.filter(t => t.estado === 'PENDIENTE').length;
     const badge = document.getElementById('badgePendientesGov');
     if (badge) {
-      const pendIns = STATE.tickets_inscripciones.filter(t => t.estado.includes('PENDIENTE')).length;
-      const pendReaj = STATE.tickets_reajuste.filter(t => t.estado === 'PENDIENTE').length;
       badge.innerText = String(pendIns + pendReaj + STATE.tickets_filtro.length);
+    }
+    const badgeSubPend = document.getElementById('badgeSubInscripcionesPendientes');
+    if (badgeSubPend) {
+      badgeSubPend.innerText = String(pendIns);
+    }
+    const badgeSubLotes = document.getElementById('badgeSubInscripcionesLotes');
+    if (badgeSubLotes) {
+      badgeSubLotes.innerText = String((STATE.lotes_cortes || []).length);
     }
   }
 
@@ -1923,6 +2030,9 @@ ${solicitante} (${empresa})`;
     const ticketId = `INS-2026-${100 + STATE.tickets_inscripciones.length + 1}`;
     const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 
+    const opBancaria = (document.getElementById('f2OpBancaria')?.value || '').trim();
+    const rucFactura = (document.getElementById('f2RucFactura')?.value || '').trim();
+
     const nuevoTicket = {
       ticket_id: ticketId,
       fecha: ahora,
@@ -1932,31 +2042,34 @@ ${solicitante} (${empresa})`;
       curso_codigo: cursoCod,
       curso_nombre: nombreCurso,
       fecha_curso: fecha,
-      turno: turno,
+      turno: "Por asignar en corte (Mañana/Tarde)",
       dnis: dnis,
       cantidad: dnis.length,
+      op_bancaria: opBancaria,
+      ruc_factura: rucFactura,
       aula_asignada: "Pendiente de Asignación por Capacitación",
-      estado: "PENDIENTE VALIDACIÓN",
-      observacion_admin: "El Área de Capacitación validará la inscripción en el cronograma oficial y asignará el aula correspondiente."
+      estado: "PENDIENTE DE PROGRAMAR",
+      observacion_admin: "En cola para asignación de turno oficial (Mañana/Tarde) por el Área de Capacitación."
     };
 
     STATE.tickets_inscripciones.unshift(nuevoTicket);
     guardarEstadoLocal();
 
     // Confirmación visual sin nombres propios (solo Área de Capacitación)
+    const detallePago = opBancaria ? `<br><strong>Comprobante Declarado:</strong> ${opBancaria}` : '';
     document.getElementById('f2TicketContent').innerHTML = `
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-bottom:12px;">
         <h4 style="color:#166534;margin:0 0 6px 0;font-size:1.05rem;">✓ Solicitud de Inscripción Registrada</h4>
         <div style="font-size:0.85rem;color:#14532d;line-height:1.4;">
           <strong>Ticket:</strong> ${ticketId}<br>
           <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
-          <strong>Fecha y Turno:</strong> ${fecha} (${turno})<br>
-          <strong>Inscritos:</strong> ${dnis.length} colaboradores (${dnis.join(', ')})<br>
-          <strong>Aula:</strong> <em>Pendiente de Asignación</em>
+          <strong>Fecha Solicitada:</strong> ${fecha}<br>
+          <strong>Turno & Aula:</strong> <em>Por asignar en corte oficial por Capacitación</em><br>
+          <strong>Inscritos:</strong> ${dnis.length} colaboradores (${dnis.join(', ')})${detallePago}
         </div>
       </div>
       <div style="font-size:0.82rem;color:var(--tz-texto-suave);background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--tz-borde);">
-        📌 <strong>Importante:</strong> El Área de Capacitación validará la disponibilidad de cupos en el cronograma oficial. Le notificaremos por correo electrónico con el aula y recinto asignado.
+        📌 <strong>Importante:</strong> El Área de Capacitación agrupará y asignará el turno oficial (Mañana o Tarde) y aula según el aforo del cronograma. Puede realizar seguimiento en tiempo real desde el Paso 5.
       </div>
       <button type="button" class="hp-btn hp-btn--outline hp-btn--sm hp-btn--full" style="margin-top:10px;" onclick="goStep(5)">
         Ver mi ticket en "Mis Solicitudes" (Paso 5) &rarr;
@@ -2142,16 +2255,20 @@ ${solicitante} (${empresa})`;
 
     // 2. Tickets de Inscripciones a Cursos (Paso 2)
     STATE.tickets_inscripciones.filter(t => esAdmin || t.empresa === emp).forEach(t => {
-      let badge = t.estado.includes('CONFIRMADO') ? 'hp-badge--verde' : (t.estado.includes('PENDIENTE') ? 'hp-badge--azul' : 'hp-badge--naranja');
+      const estaAtendido = t.lote_id || t.estado.includes('CONFIRMADO') || t.estado.includes('ATENDIDO');
+      let badge = estaAtendido ? 'hp-badge--verde' : (t.estado.includes('PENDIENTE') ? 'hp-badge--azul' : 'hp-badge--naranja');
+      const turnoTexto = t.turno_asignado ? `<strong>${t.turno_asignado}</strong>` : (t.turno || 'En cola de programación');
+      const loteDetalle = t.lote_id ? `<br><small style="color:#15803d;font-weight:bold;">✓ Despachado en ${t.lote_id}</small>` : '';
+
       filas.push(`
         <tr>
           <td><strong style="color:var(--tz-azul);">${t.ticket_id}</strong></td>
           <td><span class="hp-badge hp-badge--azul">Inscripción Curso</span></td>
           <td style="white-space:nowrap;">${t.fecha}</td>
-          <td><strong>${t.curso_codigo}</strong> - ${t.curso_nombre || ''}<br><small style="color:var(--tz-texto-suave);">${t.fecha_curso} (${t.turno})</small></td>
+          <td><strong>${t.curso_codigo}</strong> - ${t.curso_nombre || ''}<br><small style="color:var(--tz-texto-suave);">${t.fecha_curso || 'Fecha solicitada'}</small></td>
           <td>${t.cantidad} colaborador(es) (${t.dnis ? t.dnis.join(', ') : ''})</td>
-          <td><span class="hp-badge ${badge}">${t.estado}</span></td>
-          <td>${t.aula_asignada || 'Pendiente'}<br><small style="color:var(--tz-texto-suave);">${t.observacion_admin || ''}</small></td>
+          <td><span class="hp-badge ${badge}">${t.estado}</span>${loteDetalle}</td>
+          <td>${turnoTexto} &mdash; ${t.aula_asignada || 'Aula por asignar'}<br><small style="color:var(--tz-texto-suave);">${t.observacion_admin || ''}</small></td>
         </tr>
       `);
     });
@@ -2241,51 +2358,130 @@ ${solicitante} (${empresa})`;
     }).join('');
   }
 
-  // Bandeja 2: Tickets Inscripción (Validar y Asignar Aulas)
+  // ==========================================================================
+  // GESTIÓN DE CORTES POR TURNO Y PLANTILLA OFICIAL F01-PA-CAP-004 (GUILLERMO)
+  // ==========================================================================
+
+  window.switchSubTabInscripciones = function(tab) {
+    const pPend = document.getElementById('subPanelInscripcionesPendientes');
+    const pLotes = document.getElementById('subPanelInscripcionesLotes');
+    const bPend = document.getElementById('tabSubBtnPendientes');
+    const bLotes = document.getElementById('tabSubBtnLotes');
+
+    if (tab === 'pendientes') {
+      if (pPend) pPend.classList.remove('hidden');
+      if (pLotes) pLotes.classList.add('hidden');
+      if (bPend) { bPend.className = 'hp-btn hp-btn--sm hp-btn--azul'; }
+      if (bLotes) { bLotes.className = 'hp-btn hp-btn--sm hp-btn--outline'; }
+    } else {
+      if (pPend) pPend.classList.add('hidden');
+      if (pLotes) pLotes.classList.remove('hidden');
+      if (bPend) { bPend.className = 'hp-btn hp-btn--sm hp-btn--outline'; }
+      if (bLotes) { bLotes.className = 'hp-btn hp-btn--sm hp-btn--azul'; }
+      renderLotesAdmin();
+    }
+  };
+
+  window.toggleSelectAllInscripciones = function(checked) {
+    const cbs = document.querySelectorAll('.chk-ticket-inscripcion');
+    cbs.forEach(cb => cb.checked = checked);
+    actualizarConteoSeleccionados();
+  };
+
+  window.actualizarConteoSeleccionados = function() {
+    const cbs = document.querySelectorAll('.chk-ticket-inscripcion:checked');
+    let totalAlumnos = 0;
+    cbs.forEach(cb => {
+      totalAlumnos += parseInt(cb.getAttribute('data-alumnos') || '1', 10);
+    });
+    const lbl = document.getElementById('lblSeleccionadosCorte');
+    if (lbl) {
+      lbl.innerText = `${cbs.length} seleccionados (${totalAlumnos} alumnos)`;
+    }
+    const chkAll = document.getElementById('chkAllInscripciones');
+    const allCbs = document.querySelectorAll('.chk-ticket-inscripcion');
+    if (chkAll && allCbs.length > 0) {
+      chkAll.checked = (cbs.length === allCbs.length);
+    }
+  };
+
+  function desglosarNombreCompleto(nombreCompleto) {
+    if (!nombreCompleto || typeof nombreCompleto !== 'string' || nombreCompleto.trim() === '-' || nombreCompleto.trim() === '') {
+      return { paterno: '-', materno: '-', nombres: '-', apellidosCompletos: '-' };
+    }
+    let str = nombreCompleto.trim();
+    if (str.includes(',')) {
+      const parts = str.split(',');
+      const apStr = parts[0].trim();
+      const nomStr = parts.slice(1).join(',').trim();
+      const apWords = apStr.split(/\s+/);
+      const paterno = apWords[0] || '-';
+      const materno = apWords.slice(1).join(' ') || '-';
+      const apellidosCompletos = `${paterno} ${materno}`.trim();
+      return { paterno, materno, nombres: nomStr || '-', apellidosCompletos };
+    }
+    const words = str.split(/\s+/);
+    if (words.length === 1) {
+      return { paterno: words[0], materno: '-', nombres: words[0], apellidosCompletos: words[0] };
+    } else if (words.length === 2) {
+      return { paterno: words[0], materno: words[1], nombres: words[0], apellidosCompletos: `${words[0]} ${words[1]}` };
+    } else {
+      const paterno = words[0];
+      const materno = words[1];
+      const nombres = words.slice(2).join(' ');
+      const apellidosCompletos = `${paterno} ${materno}`;
+      return { paterno, materno, nombres, apellidosCompletos };
+    }
+  }
+
+  // Bandeja 2: Tickets Inscripción (Cola Activa de Pendientes)
   function renderBandejaInscripcionesAdmin() {
     const tbody = document.getElementById('tbodyGovInscripciones');
     if (!tbody) return;
 
-    if (STATE.tickets_inscripciones.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No hay tickets de inscripción registrados.</td></tr>`;
+    // Solo mostramos los pendientes de asignación / corte
+    const pendientes = STATE.tickets_inscripciones.filter(t => !t.lote_id && (t.estado.includes('PENDIENTE') || !t.estado.includes('CONFIRMADO')));
+
+    if (pendientes.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:28px;color:#166534;background:#f0fdf4;">
+        <div style="font-size:1.1rem;font-weight:bold;margin-bottom:4px;">✓ Bandeja Cero / Cola Limpia</div>
+        <div style="font-size:0.85rem;color:#15803d;">No hay inscripciones pendientes de corte en este momento. Todas las solicitudes han sido despachadas en sus turnos respectivos o la bandeja está vacía.</div>
+      </td></tr>`;
+      actualizarConteoSeleccionados();
+      renderLotesAdmin();
       return;
     }
 
-    tbody.innerHTML = STATE.tickets_inscripciones.map((t, idx) => {
-      const dnisStr = (t.dnis && Array.isArray(t.dnis)) ? t.dnis.join(', ') : (t.dnis || '');
-      let badge = t.estado.includes('CONFIRMADO') ? 'hp-badge--verde' : (t.estado.includes('PENDIENTE') ? 'hp-badge--azul' : 'hp-badge--rojo');
+    tbody.innerHTML = pendientes.map(t => {
+      const dnisList = Array.isArray(t.dnis) ? t.dnis : (t.dnis ? [t.dnis] : []);
+      const participantesDesc = dnisList.map(dni => {
+        const nom = ACCESS_SNAPSHOT.personal?.[dni] || 'Personal registrado';
+        return `<div>• <strong>${dni}</strong>: <small>${nom}</small></div>`;
+      }).join('');
+
+      const opPagoBadge = t.op_bancaria 
+        ? `<span class="hp-badge hp-badge--azul" title="Comprobante declarado">${t.op_bancaria}</span>` 
+        : `<span style="color:var(--tz-texto-suave);font-size:0.8rem;">Convenio Contrata</span>`;
 
       return `
         <tr>
-          <td><strong style="color:var(--tz-azul);">${t.ticket_id}</strong></td>
-          <td style="white-space:nowrap;">${t.fecha}</td>
-          <td><strong>${t.empresa}</strong><br><small style="color:var(--tz-texto-suave);">${t.solicitante} (${t.correo})</small></td>
-          <td><strong>${t.curso_codigo}</strong> - ${t.curso_nombre || ''}</td>
-          <td>${t.fecha_curso}<br><small style="color:var(--tz-texto-suave);">${t.turno}</small></td>
-          <td><span class="hp-badge hp-badge--azul">${t.cantidad} inscritos</span><br><small style="color:var(--tz-texto-suave);">${dnisStr}</small></td>
-          <td>
-            <select class="hp-select" style="padding:4px 6px;font-size:0.8rem;" onchange="asignarAulaInscripcionAdmin('${t.ticket_id}', this.value)">
-              <option value="Pendiente de Asignación" ${t.aula_asignada === 'Pendiente de Asignación' ? 'selected' : ''}>Pendiente de Asignación</option>
-              <option value="Aula 1 — Sede Central SJM" ${t.aula_asignada === 'Aula 1 — Sede Central SJM' ? 'selected' : ''}>Aula 1 — Sede Central SJM</option>
-              <option value="Aula 2 — Sede Central SJM" ${t.aula_asignada === 'Aula 2 — Sede Central SJM' ? 'selected' : ''}>Aula 2 — Sede Central SJM</option>
-              <option value="Aula 3 — Sede Central SJM" ${t.aula_asignada === 'Aula 3 — Sede Central SJM' ? 'selected' : ''}>Aula 3 — Sede Central SJM</option>
-              <option value="Recinto R-5 (Campo SJM)" ${t.aula_asignada === 'Recinto R-5 (Campo SJM)' ? 'selected' : ''}>Recinto R-5 (Campo SJM)</option>
-              <option value="Aula Virtual Tecsur" ${t.aula_asignada === 'Aula Virtual Tecsur' ? 'selected' : ''}>Aula Virtual Tecsur</option>
-            </select>
+          <td style="text-align:center;">
+            <input type="checkbox" class="chk-ticket-inscripcion" value="${t.ticket_id}" data-alumnos="${dnisList.length}" onchange="actualizarConteoSeleccionados()">
           </td>
-          <td><span class="hp-badge ${badge}">${t.estado}</span></td>
+          <td><strong style="color:var(--tz-azul);">${t.ticket_id}</strong></td>
+          <td style="white-space:nowrap;font-size:0.82rem;">${t.fecha}</td>
+          <td><strong>${t.empresa}</strong><br><small style="color:var(--tz-texto-suave);">${t.solicitante || ''}</small></td>
+          <td><strong style="color:var(--tz-azul);">${t.curso_codigo}</strong><br><small style="color:var(--tz-texto-suave);">${t.curso_nombre || ''}</small></td>
+          <td style="font-size:0.82rem;">${t.fecha_curso || 'Inmediata'}</td>
+          <td style="max-width:280px;">
+            <span class="hp-badge hp-badge--azul" style="margin-bottom:4px;">${dnisList.length} participante(s)</span>
+            <div style="font-size:0.78rem;line-height:1.35;max-height:80px;overflow-y:auto;">${participantesDesc}</div>
+          </td>
+          <td>${opPagoBadge}</td>
+          <td><span class="hp-badge hp-badge--amarillo">${t.estado}</span></td>
           <td>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
-              <button type="button" class="hp-btn hp-btn--verde hp-btn--sm" title="Aprobar Cupo y Notificar Aula" onclick="cambiarEstadoInscripcionAdmin('${t.ticket_id}', 'CONFIRMADO (AULA ASIGNADA)')">
-                ✓ Aprobar
-              </button>
-              <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" title="Derivar a Demanda por falta de cupo" onclick="derivarInscripcionAAperturaAdmin('${t.ticket_id}')">
-                ↗ Sin Cupo
-              </button>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" title="Observar" onclick="cambiarEstadoInscripcionAdmin('${t.ticket_id}', 'RECHAZADO')">
-                ✕
-              </button>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="color:#b91c1c;border-color:#fca5a5;padding:4px 6px;" title="Eliminar ticket de inscripción" onclick="eliminarTicketInscripcionAdmin('${t.ticket_id}')">
+            <div style="display:flex;gap:4px;">
+              <button type="button" class="hp-btn hp-btn--sm hp-btn--outline" style="color:#b91c1c;border-color:#fca5a5;padding:4px 8px;" title="Eliminar ticket" onclick="eliminarTicketInscripcionAdmin('${t.ticket_id}')">
                 🗑️
               </button>
             </div>
@@ -2293,6 +2489,236 @@ ${solicitante} (${empresa})`;
         </tr>
       `;
     }).join('');
+
+    actualizarConteoSeleccionados();
+    renderLotesAdmin();
+  }
+
+  // Renderizar Historial de Lotes Atendidos
+  function renderLotesAdmin() {
+    const tbodyLotes = document.getElementById('tbodyGovLotes');
+    if (!tbodyLotes) return;
+
+    if (!STATE.lotes_cortes || STATE.lotes_cortes.length === 0) {
+      tbodyLotes.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--tz-texto-suave);">No se ha ejecutado ningún corte de lote aún.</td></tr>`;
+      return;
+    }
+
+    tbodyLotes.innerHTML = STATE.lotes_cortes.map(lote => {
+      const badgeTurno = lote.turno.includes('Mañana') ? 'hp-badge--verde' : 'hp-badge--azul';
+      const ticketsStr = (lote.tickets_ids || []).join(', ');
+
+      return `
+        <tr>
+          <td><strong style="color:var(--tz-verde);">${lote.lote_id}</strong></td>
+          <td style="white-space:nowrap;font-size:0.82rem;">${lote.fecha}</td>
+          <td><span class="hp-badge ${badgeTurno}">${lote.turno}</span></td>
+          <td><strong>${lote.aula || 'Aula SJM'}</strong></td>
+          <td><span class="hp-badge hp-badge--verde">${lote.total_alumnos} alumnos</span></td>
+          <td><small style="color:var(--tz-texto-suave);">${lote.tickets_count || (lote.tickets_ids ? lote.tickets_ids.length : 0)} tickets (${ticketsStr})</small></td>
+          <td><small>${lote.operador || 'Área de Capacitación'}</small></td>
+          <td>
+            <button type="button" class="hp-btn hp-btn--sm hp-btn--verde" onclick="redescargarExcelLote('${lote.lote_id}')" title="Descargar nuevamente formato oficial F01-PA-CAP-004">
+              📥 Descargar Excel F01
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Ejecución del Corte de Turno (Mañana o Tarde)
+  window.ejecutarCorteInscripcionesAdmin = function() {
+    const checkboxes = document.querySelectorAll('.chk-ticket-inscripcion:checked');
+    if (!checkboxes || checkboxes.length === 0) {
+      alert("⚠️ Por favor seleccione al menos una inscripción de la lista con la casilla para ejecutar el corte de turno.");
+      return;
+    }
+
+    const turnoSelect = document.getElementById('adminCorteTurno');
+    const aulaInput = document.getElementById('adminCorteAula');
+    const turno = turnoSelect ? turnoSelect.value : "Turno Mañana (08:00 - 13:00)";
+    const aula = (aulaInput ? aulaInput.value : "").trim() || "Aula 1 - Sede San Juan";
+
+    const ticketIds = Array.from(checkboxes).map(cb => cb.value);
+    const ticketsSeleccionados = STATE.tickets_inscripciones.filter(t => ticketIds.includes(t.ticket_id));
+
+    if (!STATE.lotes_cortes) STATE.lotes_cortes = [];
+    const loteId = `LOTE-2026-${String(STATE.lotes_cortes.length + 1).padStart(3, '0')}`;
+    const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
+    // Armar padrón de alumnos para la plantilla F01
+    const participantes = [];
+    let empresaPrincipal = "";
+    let rucPrincipal = "";
+
+    ticketsSeleccionados.forEach(t => {
+      if (!empresaPrincipal) empresaPrincipal = t.empresa;
+      if (!rucPrincipal) {
+        const u = USERS_DB.find(x => x.empresa === t.empresa);
+        if (u && u.ruc) rucPrincipal = u.ruc;
+        else if (t.ruc_factura) rucPrincipal = t.ruc_factura;
+      }
+
+      const dnisList = Array.isArray(t.dnis) ? t.dnis : (t.dnis ? [t.dnis] : []);
+      dnisList.forEach(dni => {
+        const nombreCompleto = (ACCESS_SNAPSHOT.personal?.[dni] || "-").toUpperCase();
+        const desglose = desglosarNombreCompleto(nombreCompleto);
+        const u = USERS_DB.find(x => x.empresa === t.empresa);
+        const rucEmp = t.ruc_factura || (u ? u.ruc : "20100000000");
+
+        participantes.push({
+          dni: dni,
+          paterno: desglose.paterno,
+          materno: desglose.materno,
+          nombres: desglose.nombres,
+          apellidos_completos: desglose.apellidosCompletos,
+          empresa: t.empresa || "CONTRATISTA",
+          ruc: rucEmp,
+          curso: t.curso_codigo || "HSE",
+          correo: t.correo || (u ? u.correo : "capacitacion@tecsur.com.pe"),
+          fecha_inicio: t.fecha_curso || new Date().toLocaleDateString('es-PE')
+        });
+      });
+    });
+
+    if (ticketsSeleccionados.length > 1) {
+      empresaPrincipal = `CONSOLIDADO ${ticketsSeleccionados.length} CONTRATAS (${turno.includes('Mañana') ? 'MAÑANA' : 'TARDE'})`;
+    }
+
+    // 1. Generar y descargar el Excel oficial F01-PA-CAP-004
+    generarExcelF01Plantilla(loteId, turno, aula, participantes, empresaPrincipal, rucPrincipal);
+
+    // 2. Marcar cada ticket seleccionado como ATENDIDO
+    ticketsSeleccionados.forEach(t => {
+      t.estado = `CONFIRMADO (${turno.includes('Mañana') ? 'MAÑANA' : 'TARDE'})`;
+      t.lote_id = loteId;
+      t.turno_asignado = turno;
+      t.aula_asignada = aula;
+      t.fecha_atendido = ahora;
+      t.observacion_admin = `Atendido y programado en ${turno} - ${aula} (Lote: ${loteId}). Plantilla F01 generada.`;
+    });
+
+    // 3. Registrar el lote en el historial
+    const nuevoLote = {
+      lote_id: loteId,
+      fecha: ahora,
+      turno: turno,
+      aula: aula,
+      total_alumnos: participantes.length,
+      tickets_count: ticketsSeleccionados.length,
+      tickets_ids: ticketIds,
+      participantes: participantes,
+      empresa_header: empresaPrincipal,
+      ruc_header: rucPrincipal,
+      operador: SESION_ACTUAL ? SESION_ACTUAL.nombre : "Área de Capacitación"
+    };
+
+    STATE.lotes_cortes.unshift(nuevoLote);
+    guardarEstadoLocal();
+
+    // 4. Refrescar vistas
+    renderBandejaInscripcionesAdmin();
+    actualizarContadorAdmin();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+
+    alert(`✓ Corte ${loteId} ejecutado con éxito.\n\n• Turno Asignado: ${turno}\n• Aula: ${aula}\n• Total Alumnos Despachados: ${participantes.length}\n• Tickets Atendidos: ${ticketsSeleccionados.length}\n\nSe ha descargado la plantilla oficial F01-PA-CAP-004 en Excel y las solicitudes han sido retiradas de la cola de pendientes.`);
+  };
+
+  // Re-descargar Excel de un Lote previamente ejecutado
+  window.redescargarExcelLote = function(loteId) {
+    if (!STATE.lotes_cortes) return;
+    const lote = STATE.lotes_cortes.find(l => l.lote_id === loteId);
+    if (!lote) {
+      alert("No se encontró el lote especificado.");
+      return;
+    }
+    generarExcelF01Plantilla(lote.lote_id, lote.turno, lote.aula, lote.participantes || [], lote.empresa_header, lote.ruc_header);
+  };
+
+  // Motor de Exportación Excel según formato oficial F01-PA-CAP-004
+  function generarExcelF01Plantilla(loteId, turno, aula, participantes, empresaHeader, rucHeader) {
+    const ws_data = [
+      ["", "TECSUR", "", "", "INSCRIPCION DE PERSONAL PARA CAPACITACION HSE", "", "", "", "", "Código", "F01-PA-CAP-004"],
+      ["", "", "", "", "", "", "", "", "", "Versión", "01"],
+      ["", "", "", "", "", "", "", "", "", "Aprobado", "CAP"],
+      ["", "", "", "", "", "", "", "", "", "Fecha", "9/02/2017"],
+      ["", "", "", "", "", "", "", "", "", "Página", "1 de 1"],
+      [""],
+      ["", "EMPRESA:", empresaHeader || "CONTRATISTAS VINCULADAS TECSUR / LUZ DEL SUR"],
+      ["", "CR - RUC:", rucHeader || "20100000000"],
+      ["N°", "APELLIDO PATERNO", "APELLIDO MATERNO", "NOMBRES", "DNI", "RUC EMPRESA", "EMPRESA", "CURSO", "CORREO", "FECHA INICIO", "apellidos completos"]
+    ];
+
+    participantes.forEach((p, idx) => {
+      ws_data.push([
+        idx + 1,
+        p.paterno || "-",
+        p.materno || "-",
+        p.nombres || "-",
+        p.dni || "-",
+        p.ruc || "-",
+        p.empresa || "-",
+        p.curso || "-",
+        p.correo || "-",
+        p.fecha_inicio || "-",
+        p.apellidos_completos || "-"
+      ]);
+    });
+
+    const safeTurno = turno.includes('Mañana') ? 'MANANA' : (turno.includes('Tarde') ? 'TARDE' : 'COMPLETO');
+    const safeFecha = new Date().toISOString().slice(0, 10);
+    const fileName = `F01-PA-CAP-004_${loteId}_${safeTurno}_${safeFecha}.xlsx`;
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      ws['!merges'] = [
+        { s: { r: 0, c: 1 }, e: { r: 4, c: 3 } }, // TECSUR B1:D5
+        { s: { r: 0, c: 4 }, e: { r: 4, c: 8 } }, // TITULO E1:I5
+        { s: { r: 6, c: 2 }, e: { r: 6, c: 8 } }, // EMPRESA C7:I7
+        { s: { r: 7, c: 2 }, e: { r: 7, c: 8 } }  // RUC C8:I8
+      ];
+      ws['!cols'] = [
+        { wch: 6 },  // A: N°
+        { wch: 22 }, // B: PATERNO
+        { wch: 22 }, // C: MATERNO
+        { wch: 28 }, // D: NOMBRES
+        { wch: 14 }, // E: DNI
+        { wch: 16 }, // F: RUC
+        { wch: 24 }, // G: EMPRESA
+        { wch: 22 }, // H: CURSO
+        { wch: 32 }, // I: CORREO
+        { wch: 14 }, // J: FECHA INICIO
+        { wch: 30 }  // K: apellidos completos
+      ];
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "F01-PA-CAP-004");
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      descargarBlob(blob, fileName);
+    } else {
+      let tableHtml = '<table border="1">';
+      ws_data.forEach(row => {
+        tableHtml += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+      });
+      tableHtml += '</table>';
+      const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+      descargarBlob(blob, fileName.replace('.xlsx', '.xls'));
+    }
+  }
+
+  function descargarBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 150);
   }
 
   function asignarAulaInscripcionAdmin(ticketId, aula) {
@@ -2496,6 +2922,7 @@ ${solicitante} (${empresa})`;
     STATE.solicitudes_apertura = [];
     STATE.demanda_consolidada = [];
     STATE.tickets_reajuste = [];
+    STATE.lotes_cortes = [];
 
     guardarEstadoLocal();
     renderBandejaFiltrosAdmin();
@@ -2536,8 +2963,9 @@ ${solicitante} (${empresa})`;
   };
 
   window.limpiarTodasInscripcionesAdmin = function() {
-    if (!confirm("¿Desea eliminar todos los tickets de inscripción a cursos?")) return;
+    if (!confirm("¿Desea vaciar todos los tickets de inscripción y el historial de lotes?")) return;
     STATE.tickets_inscripciones = [];
+    STATE.lotes_cortes = [];
     guardarEstadoLocal();
     renderBandejaInscripcionesAdmin();
     actualizarContadorAdmin();
