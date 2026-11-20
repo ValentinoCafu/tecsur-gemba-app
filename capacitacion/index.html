@@ -550,9 +550,12 @@
 
           <div class="hp-field">
             <label class="hp-label" for="f2CursoCodigo">1. Curso Oficial a Inscribir *</label>
-            <select id="f2CursoCodigo" class="hp-select">
-              <!-- Se puebla dinámicamente con los 59 cursos oficiales -->
-            </select>
+            <div style="position:relative;">
+              <input type="text" id="f2CursoFiltroInput" class="hp-input" placeholder="🔍 Escriba una letra para filtrar los 59 cursos (ej. HSE, Altura, Riesgo...)" oninput="filtrarOpcionesCursosPaso2(this.value)" style="margin-bottom:6px;background:#fff;border-color:var(--tz-azul);">
+              <select id="f2CursoCodigo" class="hp-select">
+                <!-- Se puebla dinámicamente con los 59 cursos oficiales -->
+              </select>
+            </div>
           </div>
 
           <div class="hp-row-2">
@@ -610,18 +613,19 @@
               </div>
               <!-- 5. RUC EMPRESA -->
               <div>
-                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">5. RUC EMPRESA</label>
-                <input type="text" id="f2InputRuc" class="hp-input" placeholder="20100000000" readonly style="background:#f1f5f9;color:#475569;">
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">5. RUC EMPRESA (Manual) *</label>
+                <input type="text" id="f2InputRuc" class="hp-input" placeholder="20100000000" maxlength="11" style="background:#fff;font-weight:bold;color:#1e293b;">
               </div>
               <!-- 6. EMPRESA -->
               <div>
-                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">6. EMPRESA</label>
+                <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">6. EMPRESA (Sesión)</label>
                 <input type="text" id="f2InputEmpresa" class="hp-input" placeholder="CONTRATISTA" readonly style="background:#f1f5f9;color:#475569;">
               </div>
               <!-- 7. CURSO -->
               <div>
                 <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">7. CURSO *</label>
-                <input type="text" id="f2InputCurso" class="hp-input" readonly style="background:#f1f5f9;color:var(--tz-azul);font-weight:bold;">
+                <input type="text" id="f2InputCurso" class="hp-input" placeholder="Código (ej. HSE)" list="datalistCursosRapidos" oninput="sincronizarCursoDesdeInput(this.value)" style="background:#fff;color:var(--tz-azul);font-weight:bold;">
+                <datalist id="datalistCursosRapidos"></datalist>
               </div>
               <!-- 8. CORREO -->
               <div>
@@ -1537,15 +1541,18 @@
     document.getElementById('viewInterno').classList.add('hidden');
   });
 
-  // 1. Poblar Selectores con los 59 Cursos Oficiales
+  // 1. Poblar Selectores con los 59 Cursos Oficiales y Buscador Predictivo
   function popularSelectoresCursos() {
     const s2 = document.getElementById('f2CursoCodigo');
     const s3 = document.getElementById('f3CursoCodigo');
     const s4 = document.getElementById('f4Curso');
+    const dl = document.getElementById('datalistCursosRapidos');
 
     let opts = '<option value="">-- Seleccione un curso oficial --</option>';
+    let dlOpts = '';
     CURSOS_OFICIALES.forEach(c => {
       opts += `<option value="${c.codigo}">${c.codigo} — ${c.nombre} (${c.horas} hrs)</option>`;
+      dlOpts += `<option value="${c.codigo}">${c.codigo} — ${c.nombre}</option>`;
     });
 
     if (s2) {
@@ -1553,8 +1560,14 @@
       s2.addEventListener('change', function() {
         const inCur = document.getElementById('f2InputCurso');
         if (inCur) inCur.value = this.value;
+        const inFiltro = document.getElementById('f2CursoFiltroInput');
+        if (inFiltro && this.value) {
+          const cObj = CURSOS_OFICIALES.find(c => c.codigo === this.value);
+          if (cObj) inFiltro.value = `${cObj.codigo} — ${cObj.nombre}`;
+        }
       });
     }
+    if (dl) dl.innerHTML = dlOpts;
     if (s3) s3.innerHTML = opts;
     if (s4) s4.innerHTML = opts;
 
@@ -1573,6 +1586,53 @@
       });
     }
   }
+
+  // Buscador y Filtro Predictivo para el Selector de Cursos (Paso 2)
+  window.filtrarOpcionesCursosPaso2 = function(filtroRaw) {
+    const s2 = document.getElementById('f2CursoCodigo');
+    const inCur = document.getElementById('f2InputCurso');
+    if (!s2) return;
+
+    const filtro = (filtroRaw || '').trim().toLowerCase();
+    const filtrados = CURSOS_OFICIALES.filter(c => {
+      if (!filtro) return true;
+      return c.codigo.toLowerCase().includes(filtro) ||
+             c.nombre.toLowerCase().includes(filtro) ||
+             (c.especialidad && c.especialidad.toLowerCase().includes(filtro));
+    });
+
+    let opts = '<option value="">-- Seleccione un curso oficial (' + filtrados.length + ' encontrados) --</option>';
+    filtrados.forEach(c => {
+      opts += `<option value="${c.codigo}">${c.codigo} — ${c.nombre} (${c.horas} hrs)</option>`;
+    });
+    s2.innerHTML = opts;
+
+    if (filtrados.length === 1) {
+      s2.value = filtrados[0].codigo;
+      if (inCur) inCur.value = filtrados[0].codigo;
+    } else if (s2.options.length > 1 && filtro) {
+      s2.selectedIndex = 1;
+      if (inCur) inCur.value = s2.value;
+    }
+  };
+
+  // Sincronizar cuando el usuario escribe el código en el campo 7 (CURSO)
+  window.sincronizarCursoDesdeInput = function(valRaw) {
+    const val = (valRaw || '').trim().toUpperCase();
+    const s2 = document.getElementById('f2CursoCodigo');
+    const inFiltro = document.getElementById('f2CursoFiltroInput');
+    if (!val) return;
+    const match = CURSOS_OFICIALES.find(c => c.codigo.toUpperCase() === val || c.codigo.toUpperCase().startsWith(val));
+    if (match) {
+      if (s2) {
+        if (!Array.from(s2.options).some(o => o.value === match.codigo)) {
+          filtrarOpcionesCursosPaso2('');
+        }
+        s2.value = match.codigo;
+      }
+      if (inFiltro) inFiltro.value = `${match.codigo} — ${match.nombre}`;
+    }
+  };
 
   // 2. Render y Filtro del Catálogo Oficial (Bandeja 5)
   function renderBandejaCatalogoCursos(filtro = '') {
@@ -2199,7 +2259,8 @@ ${solicitante} (${empresa})`;
     const inCur = document.getElementById('f2InputCurso');
     const inFec = document.getElementById('f2InputFechaInicio');
 
-    if (inRuc) inRuc.value = ruc;
+    // Solo sugerir RUC inicial si el campo está vacío, permitiendo edición manual libre
+    if (inRuc && !inRuc.value) inRuc.value = ruc;
     if (inEmp) inEmp.value = emp;
     if (inCur) inCur.value = cursoCod;
     if (inFec && !inFec.value) inFec.value = fecha;
