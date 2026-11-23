@@ -1516,7 +1516,8 @@
     demanda_consolidada: [],
     tickets_reajuste: [],
     observados_dinamicos: {},
-    lotes_cortes: []
+    lotes_cortes: [],
+    eliminados_ids: []
   };
 
   // Cargar estado persistido si existe con sanitización anti-corrupción
@@ -1524,10 +1525,12 @@
     const guardado = localStorage.getItem('tecsur_capacitacion_state_v3_prod');
     if (guardado) {
       const st = JSON.parse(guardado);
+      if (Array.isArray(st.eliminados_ids)) STATE.eliminados_ids = st.eliminados_ids;
       if (Array.isArray(st.tickets_filtro)) STATE.tickets_filtro = st.tickets_filtro;
       if (Array.isArray(st.tickets_inscripciones)) {
+        const delSet = new Set(STATE.eliminados_ids || []);
         STATE.tickets_inscripciones = st.tickets_inscripciones
-          .filter(t => t && t.ticket_id && t.ticket_id !== 'INS-2026-TEST')
+          .filter(t => t && t.ticket_id && t.ticket_id !== 'INS-2026-TEST' && !delSet.has(t.ticket_id))
           .map(t => {
             if (!t.estado) t.estado = 'PENDIENTE DE PROGRAMAR';
             return t;
@@ -1664,16 +1667,27 @@
       }
 
       if (Array.isArray(data)) {
+        if (!Array.isArray(STATE.eliminados_ids)) STATE.eliminados_ids = [];
+        const eliminadosSet = new Set(STATE.eliminados_ids);
+
         const remoteInscripMap = new Map();
         const remoteAperturaMap = new Map();
         const remoteReajusteMap = new Map();
 
         data.forEach(row => {
-          if (row.estado === 'ELIMINADO') return;
+          // Si en la nube está marcado como ELIMINADO o en lista negra, registrarlo y descartarlo
+          if (row.estado === 'ELIMINADO' || eliminadosSet.has(row.id)) {
+            eliminadosSet.add(row.id);
+            return;
+          }
 
           if (row.actividad === 'INSCRIPCION') {
             try {
               const ticketObj = JSON.parse(row.descripcion);
+              if (ticketObj.estado === 'ELIMINADO') {
+                eliminadosSet.add(row.id);
+                return;
+              }
               ticketObj.estado = ticketObj.estado || row.estado || 'PENDIENTE DE PROGRAMAR';
               ticketObj.ticket_id = ticketObj.ticket_id || row.id;
               remoteInscripMap.set(row.id, ticketObj);
@@ -1681,11 +1695,19 @@
           } else if (row.actividad === 'APERTURA') {
             try {
               const solObj = JSON.parse(row.descripcion);
+              if (solObj.estado === 'ELIMINADO') {
+                eliminadosSet.add(row.id);
+                return;
+              }
               remoteAperturaMap.set(row.id, solObj);
             } catch(e) {}
           } else if (row.actividad === 'REAJUSTE') {
             try {
               const reajObj = JSON.parse(row.descripcion);
+              if (reajObj.estado === 'ELIMINADO') {
+                eliminadosSet.add(row.id);
+                return;
+              }
               remoteReajusteMap.set(row.id, reajObj);
             } catch(e) {}
           } else if (row.actividad === 'GLOBAL_STATE') {
@@ -1704,40 +1726,53 @@
           }
         });
 
-        // Fusionar inscripciones (Offline-First)
-        const inscripLocalMap = new Map();
-        (STATE.tickets_inscripciones || []).forEach(t => inscripLocalMap.set(t.ticket_id, t));
+        // Actualizar lista negra en STATE
+        STATE.eliminados_ids = Array.from(eliminadosSet);
 
-        // Subir tickets locales que no estén en la nube
-        for (const [tId, tObj] of inscripLocalMap.entries()) {
-          if (!remoteInscripMap.has(tId)) {
-            pushTicketInscripcionCloud(tObj);
+        // 1. Fusionar inscripciones (sin zombis ni tickets eliminados)
+        const inscripLocalMap = new Map();
+        (STATE.tickets_inscripciones || []).forEach(t => {
+          const tid = t.ticket_id || t.id;
+          if (tid && !eliminadosSet.has(tid) && t.estado !== 'ELIMINADO') {
+            inscripLocalMap.set(tid, t);
           }
-        }
+        });
+
+        // Incorporar remotos válidos
         for (const [tId, tObj] of remoteInscripMap.entries()) {
-          inscripLocalMap.set(tId, tObj);
+          if (!eliminadosSet.has(tId)) {
+            inscripLocalMap.set(tId, tObj);
+          }
         }
         STATE.tickets_inscripciones = Array.from(inscripLocalMap.values());
 
-        // Fusionar aperturas
+        // 2. Fusionar aperturas
         const aperturaLocalMap = new Map();
-        (STATE.solicitudes_apertura || []).forEach(s => aperturaLocalMap.set(s.ticket_id, s));
-        for (const [sId, sObj] of aperturaLocalMap.entries()) {
-          if (!remoteAperturaMap.has(sId)) pushAperturaCloud(sObj);
-        }
+        (STATE.solicitudes_apertura || []).forEach(s => {
+          const sid = s.ticket_id || s.id;
+          if (sid && !eliminadosSet.has(sid) && s.estado !== 'ELIMINADO') {
+            aperturaLocalMap.set(sid, s);
+          }
+        });
         for (const [sId, sObj] of remoteAperturaMap.entries()) {
-          aperturaLocalMap.set(sId, sObj);
+          if (!eliminadosSet.has(sId)) {
+            aperturaLocalMap.set(sId, sObj);
+          }
         }
         STATE.solicitudes_apertura = Array.from(aperturaLocalMap.values());
 
-        // Fusionar reajustes
+        // 3. Fusionar reajustes
         const reajusteLocalMap = new Map();
-        (STATE.tickets_reajuste || []).forEach(r => reajusteLocalMap.set(r.reajuste_id, r));
-        for (const [rId, rObj] of reajusteLocalMap.entries()) {
-          if (!remoteReajusteMap.has(rId)) pushReajusteCloud(rObj);
-        }
+        (STATE.tickets_reajuste || []).forEach(r => {
+          const rid = r.reajuste_id || r.id;
+          if (rid && !eliminadosSet.has(rid) && r.estado !== 'ELIMINADO') {
+            reajusteLocalMap.set(rid, r);
+          }
+        });
         for (const [rId, rObj] of remoteReajusteMap.entries()) {
-          reajusteLocalMap.set(rId, rObj);
+          if (!eliminadosSet.has(rId)) {
+            reajusteLocalMap.set(rId, rObj);
+          }
         }
         STATE.tickets_reajuste = Array.from(reajusteLocalMap.values());
 
@@ -1784,6 +1819,7 @@
 
   async function pushTicketInscripcionCloud(ticket) {
     if (!supabaseClient || !ticket) return;
+    if (STATE.eliminados_ids && STATE.eliminados_ids.includes(ticket.ticket_id)) return;
     try {
       const payload = {
         id: ticket.ticket_id,
@@ -4074,25 +4110,42 @@ ${solicitante} (${empresa})`;
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
   };
 
-  window.eliminarTicketInscripcionAdmin = function(ticketId) {
+  window.eliminarTicketInscripcionAdmin = async function(ticketId) {
     if (!confirm(`¿Eliminar el ticket de inscripción ${ticketId}?`)) return;
-    STATE.tickets_inscripciones = STATE.tickets_inscripciones.filter(x => x.ticket_id !== ticketId);
+    
+    // 1. Agregar a lista negra de eliminados
+    if (!Array.isArray(STATE.eliminados_ids)) STATE.eliminados_ids = [];
+    if (!STATE.eliminados_ids.includes(ticketId)) {
+      STATE.eliminados_ids.push(ticketId);
+    }
+    
+    // 2. Quitar del estado local inmediatamente
+    STATE.tickets_inscripciones = (STATE.tickets_inscripciones || []).filter(x => x.ticket_id !== ticketId && x.id !== ticketId);
     guardarEstadoLocal();
-    deleteTicketFromCloud(ticketId);
+    
+    // 3. Refrescar interfaz de inmediato
     renderBandejaInscripcionesAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+    
+    // 4. Marcar en Supabase
+    await deleteTicketFromCloud(ticketId);
   };
 
-  window.limpiarTodasInscripcionesAdmin = function() {
+  window.limpiarTodasInscripcionesAdmin = async function() {
     if (!confirm("¿Desea vaciar todos los tickets de inscripción y el historial de lotes?")) return;
+    if (!Array.isArray(STATE.eliminados_ids)) STATE.eliminados_ids = [];
+    (STATE.tickets_inscripciones || []).forEach(t => {
+      const tid = t.ticket_id || t.id;
+      if (tid && !STATE.eliminados_ids.includes(tid)) STATE.eliminados_ids.push(tid);
+    });
     STATE.tickets_inscripciones = [];
     STATE.lotes_cortes = [];
     guardarEstadoLocal();
-    limpiarInscripcionesFromCloud();
     renderBandejaInscripcionesAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+    await limpiarInscripcionesFromCloud();
   };
 
   window.eliminarSolicitudAperturaAdmin = function(ticketId) {
