@@ -3287,9 +3287,10 @@ ${solicitante} (${empresa})`;
     });
 
     // 2. Tickets de Inscripciones a Cursos (Paso 2)
-    STATE.tickets_inscripciones.filter(t => esAdmin || t.empresa === emp).forEach(t => {
-      const estaAtendido = t.lote_id || t.estado.includes('CONFIRMADO') || t.estado.includes('ATENDIDO');
-      let badge = estaAtendido ? 'hp-badge--verde' : (t.estado.includes('PENDIENTE') ? 'hp-badge--azul' : 'hp-badge--naranja');
+    (STATE.tickets_inscripciones || []).filter(t => t && (esAdmin || t.empresa === emp)).forEach(t => {
+      const estStr = String(t.estado || '');
+      const estaAtendido = t.lote_id || estStr.includes('CONFIRMADO') || estStr.includes('ATENDIDO');
+      let badge = estaAtendido ? 'hp-badge--verde' : (estStr.includes('PENDIENTE') ? 'hp-badge--azul' : 'hp-badge--naranja');
       const turnoTexto = t.turno_asignado ? `<strong>${t.turno_asignado}</strong>` : (t.turno || 'En cola de programación');
       const loteDetalle = t.lote_id ? `<br><small style="color:#15803d;font-weight:bold;">✓ Despachado en ${t.lote_id}</small>` : '';
 
@@ -3474,7 +3475,11 @@ ${solicitante} (${empresa})`;
     if (!tbody) return;
 
     // Solo mostramos los pendientes de asignación / corte
-    const pendientes = STATE.tickets_inscripciones.filter(t => !t.lote_id && (t.estado.includes('PENDIENTE') || !t.estado.includes('CONFIRMADO')));
+    const pendientes = (STATE.tickets_inscripciones || []).filter(t => {
+      if (!t) return false;
+      const estStr = String(t.estado || '');
+      return !t.lote_id && (estStr.includes('PENDIENTE') || !estStr.includes('CONFIRMADO'));
+    });
 
     if (pendientes.length === 0) {
       tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:28px;color:#166534;background:#f0fdf4;">
