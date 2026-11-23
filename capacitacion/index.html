@@ -1519,18 +1519,25 @@
     lotes_cortes: []
   };
 
-  // Cargar estado persistido si existe
+  // Cargar estado persistido si existe con sanitización anti-corrupción
   try {
     const guardado = localStorage.getItem('tecsur_capacitacion_state_v3_prod');
     if (guardado) {
       const st = JSON.parse(guardado);
-      if (st.tickets_filtro) STATE.tickets_filtro = st.tickets_filtro;
-      if (st.tickets_inscripciones) STATE.tickets_inscripciones = st.tickets_inscripciones;
-      if (st.solicitudes_apertura) STATE.solicitudes_apertura = st.solicitudes_apertura;
-      if (st.demanda_consolidada) STATE.demanda_consolidada = st.demanda_consolidada;
-      if (st.tickets_reajuste) STATE.tickets_reajuste = st.tickets_reajuste;
-      if (st.observados_dinamicos) STATE.observados_dinamicos = st.observados_dinamicos;
-      if (st.lotes_cortes) STATE.lotes_cortes = st.lotes_cortes;
+      if (Array.isArray(st.tickets_filtro)) STATE.tickets_filtro = st.tickets_filtro;
+      if (Array.isArray(st.tickets_inscripciones)) {
+        STATE.tickets_inscripciones = st.tickets_inscripciones
+          .filter(t => t && t.ticket_id && t.ticket_id !== 'INS-2026-TEST')
+          .map(t => {
+            if (!t.estado) t.estado = 'PENDIENTE DE PROGRAMAR';
+            return t;
+          });
+      }
+      if (Array.isArray(st.solicitudes_apertura)) STATE.solicitudes_apertura = st.solicitudes_apertura;
+      if (Array.isArray(st.demanda_consolidada)) STATE.demanda_consolidada = st.demanda_consolidada;
+      if (Array.isArray(st.tickets_reajuste)) STATE.tickets_reajuste = st.tickets_reajuste;
+      if (st.observados_dinamicos && typeof st.observados_dinamicos === 'object') STATE.observados_dinamicos = st.observados_dinamicos;
+      if (Array.isArray(st.lotes_cortes)) STATE.lotes_cortes = st.lotes_cortes;
     }
   } catch(e) {
     console.warn("No se pudo cargar localStorage:", e);
@@ -1544,11 +1551,11 @@
   }
 
   function actualizarContadorAdmin() {
-    const pendIns = STATE.tickets_inscripciones.filter(t => !t.lote_id && (t.estado.includes('PENDIENTE') || t.estado.includes('VALIDACIÓN'))).length;
-    const pendReaj = STATE.tickets_reajuste.filter(t => t.estado === 'PENDIENTE').length;
+    const pendIns = (STATE.tickets_inscripciones || []).filter(t => t && !t.lote_id && (String(t.estado || '').includes('PENDIENTE') || String(t.estado || '').includes('VALIDACIÓN'))).length;
+    const pendReaj = (STATE.tickets_reajuste || []).filter(t => t && String(t.estado || '') === 'PENDIENTE').length;
     const badge = document.getElementById('badgePendientesGov');
     if (badge) {
-      badge.innerText = String(pendIns + pendReaj + STATE.tickets_filtro.length);
+      badge.innerText = String(pendIns + pendReaj + (STATE.tickets_filtro || []).length);
     }
     const badgeSubPend = document.getElementById('badgeSubInscripcionesPendientes');
     if (badgeSubPend) {
@@ -1667,9 +1674,8 @@
           if (row.actividad === 'INSCRIPCION') {
             try {
               const ticketObj = JSON.parse(row.descripcion);
-              if (row.estado && row.estado !== 'PENDIENTE DE PROGRAMAR') {
-                ticketObj.estado = row.estado;
-              }
+              ticketObj.estado = ticketObj.estado || row.estado || 'PENDIENTE DE PROGRAMAR';
+              ticketObj.ticket_id = ticketObj.ticket_id || row.id;
               remoteInscripMap.set(row.id, ticketObj);
             } catch(e) {}
           } else if (row.actividad === 'APERTURA') {
@@ -1873,8 +1879,8 @@
   async function deleteTicketFromCloud(ticketId) {
     if (!supabaseClient || !ticketId) return;
     try {
-      await supabaseClient.from('tickets').delete().eq('id', ticketId);
-      console.log("☁️ [Supabase] Ticket eliminado de la nube:", ticketId);
+      await supabaseClient.from('tickets').update({ estado: 'ELIMINADO' }).eq('id', ticketId);
+      console.log("☁️ [Supabase] Ticket marcado ELIMINADO en la nube:", ticketId);
     } catch(e) {
       console.warn("Error al borrar ticket en Supabase:", e);
     }
@@ -1883,7 +1889,7 @@
   async function limpiarInscripcionesFromCloud() {
     if (!supabaseClient) return;
     try {
-      await supabaseClient.from('tickets').delete().eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'INSCRIPCION');
+      await supabaseClient.from('tickets').update({ estado: 'ELIMINADO' }).eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'INSCRIPCION');
       await pushGlobalStateCloud();
       console.log("☁️ [Supabase] Todas las inscripciones eliminadas de la nube.");
     } catch(e) {
@@ -2978,73 +2984,90 @@ ${solicitante} (${empresa})`;
   }
 
   window.confirmarMatriculaPreRegistro = function() {
-    if (PRE_REGISTRO_COLABORADORES.length === 0) {
-      alert("Agregue al menos un colaborador a la nómina antes de enviar el ticket.");
-      return;
+    try {
+      if (!Array.isArray(PRE_REGISTRO_COLABORADORES) || PRE_REGISTRO_COLABORADORES.length === 0) {
+        alert("Agregue al menos un colaborador a la nómina antes de enviar el ticket.");
+        return;
+      }
+
+      const cursoCod = document.getElementById('f2CursoCodigo')?.value || 'HSE';
+      const fecha = document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
+      const cursoObj = (typeof CURSOS_OFICIALES !== 'undefined' && Array.isArray(CURSOS_OFICIALES))
+        ? CURSOS_OFICIALES.find(c => c.codigo === cursoCod)
+        : null;
+      const nombreCurso = cursoObj ? cursoObj.nombre : cursoCod;
+
+      if (!Array.isArray(STATE.tickets_inscripciones)) STATE.tickets_inscripciones = [];
+
+      const maxNum = STATE.tickets_inscripciones.reduce((max, t) => {
+        if (!t || !t.ticket_id) return max;
+        const n = parseInt(String(t.ticket_id).split('-').pop(), 10);
+        return !isNaN(n) && n > max ? n : max;
+      }, 100);
+      const ticketId = `INS-2026-${maxNum + 1}`;
+      const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
+      const nuevoTicket = {
+        ticket_id: ticketId,
+        fecha: ahora,
+        empresa: SESION_ACTUAL ? SESION_ACTUAL.empresa : "Contratista",
+        solicitante: SESION_ACTUAL ? SESION_ACTUAL.nombre : "Coordinador",
+        correo: SESION_ACTUAL ? SESION_ACTUAL.correo : "",
+        curso_codigo: cursoCod,
+        curso_nombre: nombreCurso,
+        fecha_curso: fecha,
+        turno: "Por asignar en corte (Mañana/Tarde)",
+        colaboradores: [...PRE_REGISTRO_COLABORADORES],
+        dnis: PRE_REGISTRO_COLABORADORES.map(c => c.dni),
+        cantidad: PRE_REGISTRO_COLABORADORES.length,
+        aula_asignada: "Pendiente de Asignación por Capacitación",
+        estado: "PENDIENTE DE PROGRAMAR",
+        observacion_admin: "En cola para asignación de turno oficial (Mañana/Tarde) por el Área de Capacitación."
+      };
+
+      STATE.tickets_inscripciones.unshift(nuevoTicket);
+      guardarEstadoLocal();
+
+      if (typeof pushTicketInscripcionCloud === 'function') {
+        pushTicketInscripcionCloud(nuevoTicket).catch(err => console.warn("Sync cloud error:", err));
+      }
+
+      const cantAlumnos = PRE_REGISTRO_COLABORADORES.length;
+      const listaDnis = PRE_REGISTRO_COLABORADORES.map(c => c.dni).join(', ');
+      PRE_REGISTRO_COLABORADORES = [];
+      renderTablaPreRegistro();
+
+      // Confirmación visual
+      const f2Content = document.getElementById('f2TicketContent');
+      if (f2Content) {
+        f2Content.innerHTML = `
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-bottom:12px;">
+            <h4 style="color:#166534;margin:0 0 6px 0;font-size:1.05rem;">✓ Solicitud de Cuadrilla Enviada (Ticket Único)</h4>
+            <div style="font-size:0.85rem;color:#14532d;line-height:1.4;">
+              <strong>Ticket Consolidado:</strong> ${ticketId}<br>
+              <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
+              <strong>Fecha Solicitada:</strong> ${fecha}<br>
+              <strong>Total Colaboradores Agrupados:</strong> ${cantAlumnos} colaboradores (${listaDnis})<br>
+              <strong>Turno & Aula:</strong> <em>Asignados en corte oficial por Capacitación</em>
+            </div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--tz-texto-suave);background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--tz-borde);">
+            📌 <strong>Importante:</strong> Se generó 1 solo ticket para todos los colaboradores de esta cuadrilla. El Área de Capacitación asignará el turno (Mañana o Tarde) y aula en el corte oficial.
+          </div>
+          <button type="button" class="hp-btn hp-btn--outline hp-btn--sm hp-btn--full" style="margin-top:10px;" onclick="goStep(5)">
+            Ver mi ticket en "Mis Solicitudes" (Paso 5) &rarr;
+          </button>
+        `;
+      }
+
+      const badge = document.getElementById('badgeStep2');
+      if (badge) badge.innerText = `✓ ${ticketId}`;
+
+      alert(`✓ Solicitud enviada con éxito (Ticket Consolidado: ${ticketId}).\n\nSe registraron ${cantAlumnos} colaboradores en 1 solo ticket para el curso ${cursoCod}.`);
+    } catch(err) {
+      console.error("Error en confirmarMatriculaPreRegistro:", err);
+      alert("Error al procesar el ticket: " + err.message);
     }
-
-    const cursoCod = document.getElementById('f2CursoCodigo')?.value || 'HSE';
-    const fecha = document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
-    const cursoObj = CURSOS_OFICIALES.find(c => c.codigo === cursoCod);
-    const nombreCurso = cursoObj ? cursoObj.nombre : cursoCod;
-
-    const maxNum = STATE.tickets_inscripciones.reduce((max, t) => {
-      const n = parseInt(String(t.ticket_id || '').split('-').pop(), 10);
-      return !isNaN(n) && n > max ? n : max;
-    }, 100);
-    const ticketId = `INS-2026-${maxNum + 1}`;
-    const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-
-    const nuevoTicket = {
-      ticket_id: ticketId,
-      fecha: ahora,
-      empresa: SESION_ACTUAL ? SESION_ACTUAL.empresa : "Contratista",
-      solicitante: SESION_ACTUAL ? SESION_ACTUAL.nombre : "Coordinador",
-      correo: SESION_ACTUAL ? SESION_ACTUAL.correo : "",
-      curso_codigo: cursoCod,
-      curso_nombre: nombreCurso,
-      fecha_curso: fecha,
-      turno: "Por asignar en corte (Mañana/Tarde)",
-      colaboradores: [...PRE_REGISTRO_COLABORADORES],
-      dnis: PRE_REGISTRO_COLABORADORES.map(c => c.dni),
-      cantidad: PRE_REGISTRO_COLABORADORES.length,
-      aula_asignada: "Pendiente de Asignación por Capacitación",
-      estado: "PENDIENTE DE PROGRAMAR",
-      observacion_admin: "En cola para asignación de turno oficial (Mañana/Tarde) por el Área de Capacitación."
-    };
-
-    STATE.tickets_inscripciones.unshift(nuevoTicket);
-    guardarEstadoLocal();
-    pushTicketInscripcionCloud(nuevoTicket);
-
-    const cantAlumnos = PRE_REGISTRO_COLABORADORES.length;
-    const listaDnis = PRE_REGISTRO_COLABORADORES.map(c => c.dni).join(', ');
-    PRE_REGISTRO_COLABORADORES = [];
-    renderTablaPreRegistro();
-
-    // Confirmación visual
-    document.getElementById('f2TicketContent').innerHTML = `
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-bottom:12px;">
-        <h4 style="color:#166534;margin:0 0 6px 0;font-size:1.05rem;">✓ Solicitud de Cuadrilla Enviada (Ticket Único)</h4>
-        <div style="font-size:0.85rem;color:#14532d;line-height:1.4;">
-          <strong>Ticket Consolidado:</strong> ${ticketId}<br>
-          <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
-          <strong>Fecha Solicitada:</strong> ${fecha}<br>
-          <strong>Total Colaboradores Agrupados:</strong> ${cantAlumnos} colaboradores (${listaDnis})<br>
-          <strong>Turno & Aula:</strong> <em>Asignados en corte oficial por Capacitación</em>
-        </div>
-      </div>
-      <div style="font-size:0.82rem;color:var(--tz-texto-suave);background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--tz-borde);">
-        📌 <strong>Importante:</strong> Se generó 1 solo ticket para todos los colaboradores de esta cuadrilla. El Área de Capacitación asignará el turno (Mañana o Tarde) y aula en el corte oficial.
-      </div>
-      <button type="button" class="hp-btn hp-btn--outline hp-btn--sm hp-btn--full" style="margin-top:10px;" onclick="goStep(5)">
-        Ver mi ticket en "Mis Solicitudes" (Paso 5) &rarr;
-      </button>
-    `;
-
-    const badge = document.getElementById('badgeStep2');
-    if (badge) badge.innerText = `✓ ${ticketId}`;
-    alert(`✓ Solicitud enviada con éxito (Ticket Consolidado: ${ticketId}).\n\nSe registraron ${cantAlumnos} colaboradores en 1 solo ticket para el curso ${cursoCod}.`);
   };
 
   // Mantener alias compatible para botones existentes
@@ -4095,7 +4118,7 @@ ${solicitante} (${empresa})`;
     STATE.solicitudes_apertura = [];
     STATE.demanda_consolidada = [];
     guardarEstadoLocal();
-    if (supabaseClient) supabaseClient.from('tickets').delete().eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'APERTURA');
+    if (supabaseClient) supabaseClient.from('tickets').update({ estado: 'ELIMINADO' }).eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'APERTURA');
     renderBandejaDemandaRoberto();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -4115,7 +4138,7 @@ ${solicitante} (${empresa})`;
     if (!confirm("¿Desea eliminar todas las solicitudes de cambios y retiros registradas?")) return;
     STATE.tickets_reajuste = [];
     guardarEstadoLocal();
-    if (supabaseClient) supabaseClient.from('tickets').delete().eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'REAJUSTE');
+    if (supabaseClient) supabaseClient.from('tickets').update({ estado: 'ELIMINADO' }).eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'REAJUSTE');
     renderBandejaCambiosRetirosAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
