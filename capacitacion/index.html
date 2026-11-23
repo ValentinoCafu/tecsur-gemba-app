@@ -364,6 +364,7 @@
     document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');
   }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="tz">
 
@@ -420,6 +421,12 @@
         <button type="button" id="btnAdminSimularSub" class="hp-btn hp-btn--outline hp-btn--sm" onclick="cambiarVistaAdmin('contratista')">
           👁️ Ver como Subcontrata
         </button>
+      </div>
+
+      <!-- Indicador Cloud Sync Supabase -->
+      <div id="cloudSyncBadge" style="display:flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #bbf7d0;padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;color:#166534;" title="Conectado a la base de datos oficial Tecsur en tiempo real">
+        <span id="cloudSyncDot" style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+        <span id="cloudSyncText">🟢 Nube Activa</span>
       </div>
 
       <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;padding:4px 10px;border-radius:99px;border:1px solid var(--tz-borde);">
@@ -1553,6 +1560,337 @@
     }
   }
 
+  // ========================================================
+  // SINCRONIZACIÓN CENTRALIZADA EN TIEMPO REAL (SUPABASE)
+  // ========================================================
+  const SUPABASE_CONFIG = {
+    url: window.SUPABASE_DEFAULT_URL || "https://uchaxylxjrbpduwbncva.supabase.co",
+    anonKey: window.SUPABASE_DEFAULT_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjaGF4eWx4anJicGR1d2JuY3ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTAwMzAsImV4cCI6MjEwODY4NjAzMH0.8nnvn0vXySLM79llvwgIEyIok-xK73ayboAKbYblseA"
+  };
+
+  let supabaseClient = null;
+  let cloudSyncInitialized = false;
+
+  function updateCloudIndicator(status, text) {
+    const badge = document.getElementById('cloudSyncBadge');
+    const dot = document.getElementById('cloudSyncDot');
+    const txt = document.getElementById('cloudSyncText');
+    if (!badge || !dot || !txt) return;
+
+    if (status === 'online') {
+      badge.style.background = '#f0fdf4';
+      badge.style.borderColor = '#bbf7d0';
+      badge.style.color = '#166534';
+      dot.style.background = '#22c55e';
+      dot.className = '';
+      txt.innerText = text || '🟢 Nube Activa';
+    } else if (status === 'syncing') {
+      badge.style.background = '#eff6ff';
+      badge.style.borderColor = '#bfdbfe';
+      badge.style.color = '#1e40af';
+      dot.style.background = '#3b82f6';
+      dot.className = 'animate-pulse';
+      txt.innerText = text || '🔄 Sincronizando...';
+    } else if (status === 'offline') {
+      badge.style.background = '#fef2f2';
+      badge.style.borderColor = '#fecaca';
+      badge.style.color = '#991b1b';
+      dot.style.background = '#ef4444';
+      dot.className = '';
+      txt.innerText = text || '🔴 Modo Local';
+    }
+  }
+
+  function mostrarNotificacionNube(texto) {
+    let toast = document.getElementById('tecsurCloudToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'tecsurCloudToast';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1e293b;color:#ffffff;padding:12px 20px;border-radius:10px;font-size:0.88rem;font-weight:700;box-shadow:0 10px 25px rgba(0,0,0,0.25);z-index:999999;display:flex;align-items:center;gap:10px;border-left:4px solid #22c55e;transition:opacity 0.3s ease;';
+      document.body.appendChild(toast);
+    }
+    toast.innerText = texto;
+    toast.style.opacity = '1';
+    toast.style.display = 'flex';
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => { toast.style.display = 'none'; }, 300);
+    }, 4500);
+  }
+
+  async function initCloudSync() {
+    if (cloudSyncInitialized) return;
+    if (typeof window.supabase === 'undefined') {
+      console.warn("SDK Supabase en carga... esperando...");
+      setTimeout(initCloudSync, 800);
+      return;
+    }
+    cloudSyncInitialized = true;
+
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+      updateCloudIndicator('syncing', '🔄 Conectando Nube...');
+      await syncFromCloud(false);
+      subscribeToRealtime();
+      updateCloudIndicator('online', '🟢 Nube Activa');
+      console.log("✅ Supabase inicializado y sincronizado en tiempo real.");
+    } catch(e) {
+      console.warn("Modo Local: Supabase no disponible:", e);
+      updateCloudIndicator('offline', '🔴 Modo Local');
+    }
+  }
+
+  async function syncFromCloud(isBackground = false) {
+    if (!supabaseClient) return;
+    if (!isBackground) updateCloudIndicator('syncing', '🔄 Sincronizando...');
+
+    try {
+      const { data, error } = await supabaseClient
+        .from('tickets')
+        .select('*')
+        .eq('gerente_id', 'CAPACITACION_PORTAL');
+
+      if (error) {
+        console.warn("Error leyendo de Supabase:", error);
+        updateCloudIndicator('offline', '🔴 Modo Local');
+        return;
+      }
+
+      if (Array.isArray(data)) {
+        const remoteInscripMap = new Map();
+        const remoteAperturaMap = new Map();
+        const remoteReajusteMap = new Map();
+
+        data.forEach(row => {
+          if (row.estado === 'ELIMINADO') return;
+
+          if (row.actividad === 'INSCRIPCION') {
+            try {
+              const ticketObj = JSON.parse(row.descripcion);
+              if (row.estado && row.estado !== 'PENDIENTE DE PROGRAMAR') {
+                ticketObj.estado = row.estado;
+              }
+              remoteInscripMap.set(row.id, ticketObj);
+            } catch(e) {}
+          } else if (row.actividad === 'APERTURA') {
+            try {
+              const solObj = JSON.parse(row.descripcion);
+              remoteAperturaMap.set(row.id, solObj);
+            } catch(e) {}
+          } else if (row.actividad === 'REAJUSTE') {
+            try {
+              const reajObj = JSON.parse(row.descripcion);
+              remoteReajusteMap.set(row.id, reajObj);
+            } catch(e) {}
+          } else if (row.actividad === 'GLOBAL_STATE') {
+            try {
+              const globalObj = JSON.parse(row.descripcion);
+              if (globalObj.observados_dinamicos) {
+                STATE.observados_dinamicos = { ...STATE.observados_dinamicos, ...globalObj.observados_dinamicos };
+              }
+              if (globalObj.lotes_cortes && Array.isArray(globalObj.lotes_cortes)) {
+                const lotesMap = new Map();
+                (STATE.lotes_cortes || []).forEach(l => lotesMap.set(l.lote_id, l));
+                globalObj.lotes_cortes.forEach(l => lotesMap.set(l.lote_id, l));
+                STATE.lotes_cortes = Array.from(lotesMap.values());
+              }
+            } catch(e) {}
+          }
+        });
+
+        // Fusionar inscripciones (Offline-First)
+        const inscripLocalMap = new Map();
+        (STATE.tickets_inscripciones || []).forEach(t => inscripLocalMap.set(t.ticket_id, t));
+
+        // Subir tickets locales que no estén en la nube
+        for (const [tId, tObj] of inscripLocalMap.entries()) {
+          if (!remoteInscripMap.has(tId)) {
+            pushTicketInscripcionCloud(tObj);
+          }
+        }
+        for (const [tId, tObj] of remoteInscripMap.entries()) {
+          inscripLocalMap.set(tId, tObj);
+        }
+        STATE.tickets_inscripciones = Array.from(inscripLocalMap.values());
+
+        // Fusionar aperturas
+        const aperturaLocalMap = new Map();
+        (STATE.solicitudes_apertura || []).forEach(s => aperturaLocalMap.set(s.ticket_id, s));
+        for (const [sId, sObj] of aperturaLocalMap.entries()) {
+          if (!remoteAperturaMap.has(sId)) pushAperturaCloud(sObj);
+        }
+        for (const [sId, sObj] of remoteAperturaMap.entries()) {
+          aperturaLocalMap.set(sId, sObj);
+        }
+        STATE.solicitudes_apertura = Array.from(aperturaLocalMap.values());
+
+        // Fusionar reajustes
+        const reajusteLocalMap = new Map();
+        (STATE.tickets_reajuste || []).forEach(r => reajusteLocalMap.set(r.reajuste_id, r));
+        for (const [rId, rObj] of reajusteLocalMap.entries()) {
+          if (!remoteReajusteMap.has(rId)) pushReajusteCloud(rObj);
+        }
+        for (const [rId, rObj] of remoteReajusteMap.entries()) {
+          reajusteLocalMap.set(rId, rObj);
+        }
+        STATE.tickets_reajuste = Array.from(reajusteLocalMap.values());
+
+        // Persistir localmente
+        try {
+          localStorage.setItem('tecsur_capacitacion_state_v3_prod', JSON.stringify(STATE));
+        } catch(e) {}
+
+        actualizarContadorAdmin();
+        if (typeof renderBandejaInscripcionesAdmin === 'function') renderBandejaInscripcionesAdmin();
+        if (typeof renderBandejaDemandaRoberto === 'function') renderBandejaDemandaRoberto();
+        if (typeof renderBandejaCambiosRetirosAdmin === 'function') renderBandejaCambiosRetirosAdmin();
+        if (typeof renderBandejaObservadosAdmin === 'function') renderBandejaObservadosAdmin();
+        if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+      }
+
+      updateCloudIndicator('online', '🟢 Nube Activa');
+    } catch(e) {
+      console.warn("Excepción al sincronizar con la nube:", e);
+      updateCloudIndicator('offline', '🔴 Modo Local');
+    }
+  }
+
+  function subscribeToRealtime() {
+    if (!supabaseClient) return;
+    try {
+      supabaseClient
+        .channel('tecsur-capacitacion-channel')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, payload => {
+          const item = payload.new || payload.old;
+          if (item && item.gerente_id === 'CAPACITACION_PORTAL') {
+            console.log("⚡ [Supabase Realtime] Evento:", item.id, payload.eventType);
+            if (payload.eventType === 'INSERT' && payload.new.actividad === 'INSCRIPCION') {
+              mostrarNotificacionNube(`📥 Nueva Solicitud de Inscripción: ${payload.new.gerente_nombre} (${payload.new.id})`);
+            }
+            syncFromCloud(true);
+          }
+        })
+        .subscribe();
+    } catch(e) {
+      console.warn("Realtime no iniciado:", e);
+    }
+  }
+
+  async function pushTicketInscripcionCloud(ticket) {
+    if (!supabaseClient || !ticket) return;
+    try {
+      const payload = {
+        id: ticket.ticket_id,
+        fecha: ticket.fecha || new Date().toLocaleString('es-PE'),
+        gerente_id: 'CAPACITACION_PORTAL',
+        gerente_nombre: ticket.empresa || 'Contratista',
+        departamento: 'CAPACITACION',
+        actividad: 'INSCRIPCION',
+        cuadrilla: ticket.curso_codigo || 'CURSO',
+        descripcion: JSON.stringify(ticket),
+        area_responsable: ticket.curso_nombre || 'Capacitación',
+        severidad: ticket.estado || 'PENDIENTE DE PROGRAMAR',
+        estado: ticket.estado || 'PENDIENTE DE PROGRAMAR',
+        solucion_doc: ticket.correo || ''
+      };
+      await supabaseClient.from('tickets').upsert(payload);
+      console.log("☁️ [Supabase] Ticket inscripción guardado:", ticket.ticket_id);
+    } catch(e) {
+      console.warn("Error al enviar ticket a Supabase:", e);
+    }
+  }
+
+  async function pushAperturaCloud(solicitud) {
+    if (!supabaseClient || !solicitud) return;
+    try {
+      const payload = {
+        id: solicitud.ticket_id,
+        fecha: solicitud.fecha || new Date().toLocaleString('es-PE'),
+        gerente_id: 'CAPACITACION_PORTAL',
+        gerente_nombre: solicitud.empresa || 'Contratista',
+        departamento: 'CAPACITACION',
+        actividad: 'APERTURA',
+        cuadrilla: solicitud.curso_codigo || 'CURSO',
+        descripcion: JSON.stringify(solicitud),
+        area_responsable: solicitud.curso_nombre || 'Demanda',
+        severidad: solicitud.urgencia || 'NORMAL',
+        estado: solicitud.estado_quorum || 'PENDIENTE'
+      };
+      await supabaseClient.from('tickets').upsert(payload);
+      console.log("☁️ [Supabase] Solicitud apertura guardada:", solicitud.ticket_id);
+    } catch(e) {
+      console.warn("Error al enviar apertura a Supabase:", e);
+    }
+  }
+
+  async function pushReajusteCloud(reajuste) {
+    if (!supabaseClient || !reajuste) return;
+    try {
+      const payload = {
+        id: reajuste.reajuste_id,
+        fecha: reajuste.fecha || new Date().toLocaleString('es-PE'),
+        gerente_id: 'CAPACITACION_PORTAL',
+        gerente_nombre: reajuste.empresa || 'Contratista',
+        departamento: 'CAPACITACION',
+        actividad: 'REAJUSTE',
+        cuadrilla: reajuste.tipo || 'REAJUSTE',
+        descripcion: JSON.stringify(reajuste),
+        area_responsable: reajuste.ticket_origen || 'REAJUSTE',
+        severidad: 'MEDIA',
+        estado: reajuste.estado || 'PENDIENTE'
+      };
+      await supabaseClient.from('tickets').upsert(payload);
+      console.log("☁️ [Supabase] Reajuste guardado:", reajuste.reajuste_id);
+    } catch(e) {
+      console.warn("Error al enviar reajuste a Supabase:", e);
+    }
+  }
+
+  async function pushGlobalStateCloud() {
+    if (!supabaseClient) return;
+    try {
+      const payload = {
+        id: 'STATE-CAPACITACION-TECSUR',
+        fecha: new Date().toISOString(),
+        gerente_id: 'CAPACITACION_PORTAL',
+        gerente_nombre: 'ADMIN_TECSUR',
+        departamento: 'CAPACITACION',
+        actividad: 'GLOBAL_STATE',
+        cuadrilla: 'ESTADO',
+        descripcion: JSON.stringify({
+          observados_dinamicos: STATE.observados_dinamicos,
+          lotes_cortes: STATE.lotes_cortes
+        }),
+        estado: 'ACTIVO'
+      };
+      await supabaseClient.from('tickets').upsert(payload);
+      console.log("☁️ [Supabase] Estado global guardado.");
+    } catch(e) {
+      console.warn("Error al enviar estado global a Supabase:", e);
+    }
+  }
+
+  async function deleteTicketFromCloud(ticketId) {
+    if (!supabaseClient || !ticketId) return;
+    try {
+      await supabaseClient.from('tickets').delete().eq('id', ticketId);
+      console.log("☁️ [Supabase] Ticket eliminado de la nube:", ticketId);
+    } catch(e) {
+      console.warn("Error al borrar ticket en Supabase:", e);
+    }
+  }
+
+  async function limpiarInscripcionesFromCloud() {
+    if (!supabaseClient) return;
+    try {
+      await supabaseClient.from('tickets').delete().eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'INSCRIPCION');
+      await pushGlobalStateCloud();
+      console.log("☁️ [Supabase] Todas las inscripciones eliminadas de la nube.");
+    } catch(e) {
+      console.warn("Error al limpiar inscripciones en Supabase:", e);
+    }
+  }
+
   let SESION_ACTUAL = null;
 
   // Inicializar al cargar el DOM
@@ -1561,6 +1899,7 @@
     renderBandejaCatalogoCursos();
     actualizarContadorAdmin();
     if (typeof renderTablaPreRegistro === 'function') renderTablaPreRegistro();
+    initCloudSync();
 
     // Comprobar si hay sesión guardada
     try {
@@ -1779,6 +2118,7 @@
       precargarDatosContratista();
       goStep(1);
     }
+    syncFromCloud(true);
   }
 
   function precargarDatosContratista() {
@@ -1836,6 +2176,7 @@
       precargarDatosContratista();
       goStep(1);
     }
+    syncFromCloud(true);
   }
 
   // 4. Navegación de Pasos (Subcontratista: 5 Pasos)
@@ -2647,7 +2988,11 @@ ${solicitante} (${empresa})`;
     const cursoObj = CURSOS_OFICIALES.find(c => c.codigo === cursoCod);
     const nombreCurso = cursoObj ? cursoObj.nombre : cursoCod;
 
-    const ticketId = `INS-2026-${100 + STATE.tickets_inscripciones.length + 1}`;
+    const maxNum = STATE.tickets_inscripciones.reduce((max, t) => {
+      const n = parseInt(String(t.ticket_id || '').split('-').pop(), 10);
+      return !isNaN(n) && n > max ? n : max;
+    }, 100);
+    const ticketId = `INS-2026-${maxNum + 1}`;
     const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 
     const nuevoTicket = {
@@ -2670,6 +3015,7 @@ ${solicitante} (${empresa})`;
 
     STATE.tickets_inscripciones.unshift(nuevoTicket);
     guardarEstadoLocal();
+    pushTicketInscripcionCloud(nuevoTicket);
 
     const cantAlumnos = PRE_REGISTRO_COLABORADORES.length;
     const listaDnis = PRE_REGISTRO_COLABORADORES.map(c => c.dni).join(', ');
@@ -2755,6 +3101,7 @@ ${solicitante} (${empresa})`;
       });
     }
     guardarEstadoLocal();
+    pushAperturaCloud(STATE.solicitudes_apertura[0]);
 
     document.getElementById('f3OutContent').innerHTML = `
       <div style="background:#fffaf5;border:1px solid #fed7aa;border-radius:8px;padding:14px;">
@@ -2831,6 +3178,7 @@ ${solicitante} (${empresa})`;
       resolucion: "En evaluación por el Área de Capacitación según criterios y política de 48 horas."
     });
     guardarEstadoLocal();
+    pushReajusteCloud(STATE.tickets_reajuste[0]);
 
     document.getElementById('f4OutContent').innerHTML = `
       <div style="background:#fffaf5;border:1px solid #fed7aa;border-radius:8px;padding:14px;">
@@ -3255,6 +3603,8 @@ ${solicitante} (${empresa})`;
 
     STATE.lotes_cortes.unshift(nuevoLote);
     guardarEstadoLocal();
+    ticketsSeleccionados.forEach(t => pushTicketInscripcionCloud(t));
+    pushGlobalStateCloud();
 
     // 4. Refrescar vistas
     renderBandejaInscripcionesAdmin();
@@ -3705,6 +4055,7 @@ ${solicitante} (${empresa})`;
     if (!confirm(`¿Eliminar el ticket de inscripción ${ticketId}?`)) return;
     STATE.tickets_inscripciones = STATE.tickets_inscripciones.filter(x => x.ticket_id !== ticketId);
     guardarEstadoLocal();
+    deleteTicketFromCloud(ticketId);
     renderBandejaInscripcionesAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -3715,6 +4066,7 @@ ${solicitante} (${empresa})`;
     STATE.tickets_inscripciones = [];
     STATE.lotes_cortes = [];
     guardarEstadoLocal();
+    limpiarInscripcionesFromCloud();
     renderBandejaInscripcionesAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -3732,6 +4084,7 @@ ${solicitante} (${empresa})`;
     }
     STATE.solicitudes_apertura = STATE.solicitudes_apertura.filter(x => x.ticket_id !== ticketId);
     guardarEstadoLocal();
+    deleteTicketFromCloud(ticketId);
     renderBandejaDemandaRoberto();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -3742,6 +4095,7 @@ ${solicitante} (${empresa})`;
     STATE.solicitudes_apertura = [];
     STATE.demanda_consolidada = [];
     guardarEstadoLocal();
+    if (supabaseClient) supabaseClient.from('tickets').delete().eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'APERTURA');
     renderBandejaDemandaRoberto();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -3751,6 +4105,7 @@ ${solicitante} (${empresa})`;
     if (!confirm(`¿Eliminar el ticket de reajuste ${reajusteId}?`)) return;
     STATE.tickets_reajuste = STATE.tickets_reajuste.filter(x => x.reajuste_id !== reajusteId);
     guardarEstadoLocal();
+    deleteTicketFromCloud(reajusteId);
     renderBandejaCambiosRetirosAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -3760,6 +4115,7 @@ ${solicitante} (${empresa})`;
     if (!confirm("¿Desea eliminar todas las solicitudes de cambios y retiros registradas?")) return;
     STATE.tickets_reajuste = [];
     guardarEstadoLocal();
+    if (supabaseClient) supabaseClient.from('tickets').delete().eq('gerente_id', 'CAPACITACION_PORTAL').eq('actividad', 'REAJUSTE');
     renderBandejaCambiosRetirosAdmin();
     actualizarContadorAdmin();
     if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
@@ -3881,6 +4237,7 @@ ${solicitante} (${empresa})`;
     STATE.observados_dinamicos[dni] = { motivo, ref, nombre, fecha: new Date().toLocaleDateString('es-PE') };
 
     guardarEstadoLocal();
+    pushGlobalStateCloud();
     alert(`DNI ${dni} agregado exitosamente a la Lista de Observados.\nCualquier consulta de filtro bloqueará inmediatamente a este postulante con blindaje total.`);
 
     dniInput.value = '';
@@ -3895,6 +4252,7 @@ ${solicitante} (${empresa})`;
     if (STATE.observados_dinamicos && STATE.observados_dinamicos[dni]) {
       delete STATE.observados_dinamicos[dni];
       guardarEstadoLocal();
+      pushGlobalStateCloud();
       alert(`Observación levantada para el DNI ${dni}.`);
       renderBandejaObservadosAdmin();
     }
