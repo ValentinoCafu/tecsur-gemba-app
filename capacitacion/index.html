@@ -3014,7 +3014,7 @@ ${solicitante} (${empresa})`;
     actualizarConteoSeleccionados();
   };
 
-  window.actualizarConteoSeleccionados = function() {
+  function actualizarConteoSeleccionados() {
     const cbs = document.querySelectorAll('.chk-ticket-inscripcion:checked');
     let totalAlumnos = 0;
     cbs.forEach(cb => {
@@ -3029,7 +3029,8 @@ ${solicitante} (${empresa})`;
     if (chkAll && allCbs.length > 0) {
       chkAll.checked = (cbs.length === allCbs.length);
     }
-  };
+  }
+  window.actualizarConteoSeleccionados = actualizarConteoSeleccionados;
 
   function desglosarNombreCompleto(nombreCompleto) {
     if (!nombreCompleto || typeof nombreCompleto !== 'string' || nombreCompleto.trim() === '-' || nombreCompleto.trim() === '') {
