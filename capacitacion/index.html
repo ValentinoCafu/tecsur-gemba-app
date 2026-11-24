@@ -1817,9 +1817,55 @@
     }
   }
 
+  function ensureSupabaseClient() {
+    if (!supabaseClient && typeof window.supabase !== 'undefined') {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+      } catch(e) {
+        console.warn("No se pudo crear supabaseClient:", e);
+      }
+    }
+    return supabaseClient;
+  }
+
+  // Genera un ID correlativo global consultando la nube (incluye activos y eliminados) + estado local
+  async function obtenerSiguienteIdGlobal(prefix, defaultStart, localList) {
+    let maxNum = defaultStart;
+    const revisarId = (rawId) => {
+      if (!rawId) return;
+      const s = String(rawId);
+      if (!s.startsWith(prefix)) return;
+      const n = parseInt(s.slice(prefix.length), 10);
+      if (!isNaN(n) && n > maxNum) maxNum = n;
+    };
+
+    (localList || []).forEach(item => revisarId(item && (item.ticket_id || item.reajuste_id || item.id)));
+    (STATE.eliminados_ids || []).forEach(id => revisarId(id));
+
+    const client = ensureSupabaseClient();
+    if (client) {
+      try {
+        const queryPromise = client
+          .from('tickets')
+          .select('id')
+          .eq('gerente_id', 'CAPACITACION_PORTAL')
+          .like('id', `${prefix}%`);
+        const timeoutPromise = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000));
+        const res = await Promise.race([queryPromise, timeoutPromise]);
+        if (res && Array.isArray(res.data)) {
+          res.data.forEach(r => revisarId(r && r.id));
+        }
+      } catch(e) {
+        console.warn("Fallback correlativo local para", prefix, e);
+      }
+    }
+
+    return `${prefix}${maxNum + 1}`;
+  }
+
   async function pushTicketInscripcionCloud(ticket) {
-    if (!supabaseClient || !ticket) return;
-    if (STATE.eliminados_ids && STATE.eliminados_ids.includes(ticket.ticket_id)) return;
+    const client = ensureSupabaseClient();
+    if (!client || !ticket) return { ok: false, error: 'Cliente no disponible' };
     try {
       const payload = {
         id: ticket.ticket_id,
@@ -1835,15 +1881,22 @@
         estado: ticket.estado || 'PENDIENTE DE PROGRAMAR',
         solucion_doc: ticket.correo || ''
       };
-      await supabaseClient.from('tickets').upsert(payload);
+      const { error } = await client.from('tickets').upsert(payload);
+      if (error) {
+        console.error("❌ [Supabase] Error al guardar inscripción:", error);
+        return { ok: false, error };
+      }
       console.log("☁️ [Supabase] Ticket inscripción guardado:", ticket.ticket_id);
+      return { ok: true };
     } catch(e) {
       console.warn("Error al enviar ticket a Supabase:", e);
+      return { ok: false, error: e };
     }
   }
 
   async function pushAperturaCloud(solicitud) {
-    if (!supabaseClient || !solicitud) return;
+    const client = ensureSupabaseClient();
+    if (!client || !solicitud) return { ok: false };
     try {
       const payload = {
         id: solicitud.ticket_id,
@@ -1858,10 +1911,16 @@
         severidad: solicitud.urgencia || 'NORMAL',
         estado: solicitud.estado_quorum || 'PENDIENTE'
       };
-      await supabaseClient.from('tickets').upsert(payload);
+      const { error } = await client.from('tickets').upsert(payload);
+      if (error) {
+        console.error("❌ [Supabase] Error al guardar apertura:", error);
+        return { ok: false, error };
+      }
       console.log("☁️ [Supabase] Solicitud apertura guardada:", solicitud.ticket_id);
+      return { ok: true };
     } catch(e) {
       console.warn("Error al enviar apertura a Supabase:", e);
+      return { ok: false, error: e };
     }
   }
 
@@ -2739,7 +2798,16 @@ ${solicitante} (${empresa})`;
   function enlazarPaso1APaso2() {
     goStep(2);
     if (window._dnisAptosParaInscribir) {
-      document.getElementById('f2Dnis').value = window._dnisAptosParaInscribir;
+      const ta = document.getElementById('f2TextareaMasivo');
+      const box = document.getElementById('boxCargaMasivaPre');
+      if (ta) {
+        ta.value = window._dnisAptosParaInscribir;
+        if (typeof cargarColaboradoresMasivosPreRegistro === 'function') {
+          cargarColaboradoresMasivosPreRegistro();
+        } else if (box) {
+          box.classList.remove('hidden');
+        }
+      }
     }
   }
 
@@ -3019,11 +3087,18 @@ ${solicitante} (${empresa})`;
     `).join('');
   }
 
-  window.confirmarMatriculaPreRegistro = function() {
+  window.confirmarMatriculaPreRegistro = async function() {
+    const btn = document.getElementById('btnEnviarTicketUnico');
+    const origBtnText = btn ? btn.innerHTML : '';
     try {
       if (!Array.isArray(PRE_REGISTRO_COLABORADORES) || PRE_REGISTRO_COLABORADORES.length === 0) {
         alert("Agregue al menos un colaborador a la nómina antes de enviar el ticket.");
         return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Enviando solicitud a la nube...';
       }
 
       const cursoCod = document.getElementById('f2CursoCodigo')?.value || 'HSE';
@@ -3035,12 +3110,11 @@ ${solicitante} (${empresa})`;
 
       if (!Array.isArray(STATE.tickets_inscripciones)) STATE.tickets_inscripciones = [];
 
-      const maxNum = STATE.tickets_inscripciones.reduce((max, t) => {
-        if (!t || !t.ticket_id) return max;
-        const n = parseInt(String(t.ticket_id).split('-').pop(), 10);
-        return !isNaN(n) && n > max ? n : max;
-      }, 100);
-      const ticketId = `INS-2026-${maxNum + 1}`;
+      const ticketId = await obtenerSiguienteIdGlobal('INS-2026-', 100, STATE.tickets_inscripciones);
+      if (Array.isArray(STATE.eliminados_ids)) {
+        STATE.eliminados_ids = STATE.eliminados_ids.filter(id => id !== ticketId);
+      }
+
       const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 
       const nuevoTicket = {
@@ -3064,14 +3138,19 @@ ${solicitante} (${empresa})`;
       STATE.tickets_inscripciones.unshift(nuevoTicket);
       guardarEstadoLocal();
 
+      let cloudOk = false;
       if (typeof pushTicketInscripcionCloud === 'function') {
-        pushTicketInscripcionCloud(nuevoTicket).catch(err => console.warn("Sync cloud error:", err));
+        const res = await pushTicketInscripcionCloud(nuevoTicket);
+        cloudOk = !!(res && res.ok);
       }
 
       const cantAlumnos = PRE_REGISTRO_COLABORADORES.length;
       const listaDnis = PRE_REGISTRO_COLABORADORES.map(c => c.dni).join(', ');
       PRE_REGISTRO_COLABORADORES = [];
       renderTablaPreRegistro();
+      if (typeof renderBandejaInscripcionesAdmin === 'function') renderBandejaInscripcionesAdmin();
+      if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
+      actualizarContadorAdmin();
 
       // Confirmación visual
       const f2Content = document.getElementById('f2TicketContent');
@@ -3084,7 +3163,8 @@ ${solicitante} (${empresa})`;
               <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
               <strong>Fecha Solicitada:</strong> ${fecha}<br>
               <strong>Total Colaboradores Agrupados:</strong> ${cantAlumnos} colaboradores (${listaDnis})<br>
-              <strong>Turno & Aula:</strong> <em>Asignados en corte oficial por Capacitación</em>
+              <strong>Turno & Aula:</strong> <em>Asignados en corte oficial por Capacitación</em><br>
+              <strong>Estado Nube:</strong> ${cloudOk ? '🟢 Sincronizado en la nube' : '🟡 Guardado localmente (pendiente de red)'}
             </div>
           </div>
           <div style="font-size:0.82rem;color:var(--tz-texto-suave);background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--tz-borde);">
@@ -3103,6 +3183,11 @@ ${solicitante} (${empresa})`;
     } catch(err) {
       console.error("Error en confirmarMatriculaPreRegistro:", err);
       alert("Error al procesar el ticket: " + err.message);
+    } finally {
+      if (btn) {
+        btn.innerHTML = origBtnText || '🚀 Enviar Solicitud Consolidada (1 Solo Ticket) &rarr;';
+        btn.disabled = (PRE_REGISTRO_COLABORADORES.length === 0);
+      }
     }
   };
 
@@ -3112,7 +3197,7 @@ ${solicitante} (${empresa})`;
   }
 
   // 9. PASO 3: Registrar Solicitud de Apertura de Curso
-  function registrarAperturaPaso3() {
+  async function registrarAperturaPaso3() {
     const cursoCod = document.getElementById('f3CursoCodigo').value;
     const cantidad = parseInt(document.getElementById('f3Cantidad').value || '12');
     const f1 = document.getElementById('f3Fecha1').value;
@@ -3126,9 +3211,10 @@ ${solicitante} (${empresa})`;
 
     const cursoObj = CURSOS_OFICIALES.find(c => c.codigo === cursoCod);
     const nombreCurso = cursoObj ? cursoObj.nombre : cursoCod;
-    const reqId = `AP-2026-${STATE.solicitudes_apertura.length + 1}`;
+    const reqId = await obtenerSiguienteIdGlobal('AP-2026-', 0, STATE.solicitudes_apertura);
     const ahora = new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
     const empresa = SESION_ACTUAL ? SESION_ACTUAL.empresa : "Contratista";
+    const fechasProp = `${f1 || 'Por definir'} ${f2 ? 'o ' + f2 : ''}`.trim();
 
     // 1. Guardar desglose individual
     STATE.solicitudes_apertura.unshift({
@@ -3140,7 +3226,7 @@ ${solicitante} (${empresa})`;
       curso_codigo: cursoCod,
       curso_nombre: nombreCurso,
       cantidad: cantidad,
-      fechas_propuestas: `${f1} ${f2 ? 'o ' + f2 : ''}`,
+      fechas_propuestas: fechasProp,
       observaciones: obs
     });
 
@@ -3160,7 +3246,9 @@ ${solicitante} (${empresa})`;
       });
     }
     guardarEstadoLocal();
-    pushAperturaCloud(STATE.solicitudes_apertura[0]);
+    await pushAperturaCloud(STATE.solicitudes_apertura[0]);
+    if (typeof renderBandejaDemandaRoberto === 'function') renderBandejaDemandaRoberto();
+    if (typeof renderMisSolicitudes === 'function') renderMisSolicitudes();
 
     document.getElementById('f3OutContent').innerHTML = `
       <div style="background:#fffaf5;border:1px solid #fed7aa;border-radius:8px;padding:14px;">
@@ -3168,7 +3256,7 @@ ${solicitante} (${empresa})`;
         <p style="font-size:0.85rem;color:#7c2d12;margin:0 0 8px 0;">
           <strong>Curso:</strong> ${cursoCod} — ${nombreCurso}<br>
           <strong>Personas Solicitadas:</strong> ${cantidad}<br>
-          <strong>Urgencia:</strong> ${urgencia}
+          <strong>Fechas Propuestas:</strong> ${fechasProp}
         </p>
         <p style="font-size:0.8rem;color:var(--tz-texto-suave);margin:0;">
           Su solicitud ha sido agregada a la demanda acumulada. El Área de Capacitación consolidará las solicitudes para programar la apertura oficial.
@@ -3478,7 +3566,7 @@ ${solicitante} (${empresa})`;
     const pendientes = (STATE.tickets_inscripciones || []).filter(t => {
       if (!t) return false;
       const estStr = String(t.estado || '');
-      return !t.lote_id && (estStr.includes('PENDIENTE') || !estStr.includes('CONFIRMADO'));
+      return !t.lote_id && estStr !== 'ELIMINADO' && (estStr.includes('PENDIENTE') || (!estStr.includes('CONFIRMADO') && !estStr.includes('ATENDIDO')));
     });
 
     if (pendientes.length === 0) {
