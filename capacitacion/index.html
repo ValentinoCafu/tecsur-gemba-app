@@ -443,8 +443,8 @@
 <div id="viewContratista" class="hidden">
   <main class="tz-container" style="max-width:1400px;margin:0 auto;padding:16px 20px 56px 20px;">
 
-    <!-- Stepper de 5 Pasos -->
-    <nav class="hp-steps hp-steps--5">
+    <!-- Stepper de Pasos Activos (Apertura Paso 3 oculto por gerencia) -->
+    <nav class="hp-steps">
       <button type="button" id="stepTab1" class="hp-step is-active" onclick="goStep(1)">
         <span id="badgeStep1" class="hp-step__num">1️⃣ PASO 1</span>
         <span class="hp-step__title">Revisar DNI (Filtro)</span>
@@ -457,8 +457,8 @@
         <span class="hp-step__sub">Matricular en fecha programada</span>
       </button>
 
-      <button type="button" id="stepTab3" class="hp-step" onclick="goStep(3)">
-        <span id="badgeStep3" class="hp-step__num">3️⃣ PASO 3</span>
+      <button type="button" id="stepTab3" class="hp-step hidden" onclick="goStep(3)">
+        <span id="badgeStep3" class="hp-step__num">PASO 3</span>
         <span class="hp-step__title">Pedir Nuevo Grupo</span>
         <span class="hp-step__sub">Solo si no hay fecha (Quórum 12)</span>
       </button>
@@ -534,7 +534,7 @@
             <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true" target="_blank" rel="noopener" class="hp-btn hp-btn--outline hp-btn--sm">
               Abrir Cronograma en Pantalla Completa &nearr;
             </a>
-            <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm" onclick="enlazarPaso1APaso3()">
+            <button type="button" class="hp-btn hp-btn--naranja hp-btn--sm hidden" onclick="enlazarPaso1APaso3()">
               ¿No está el curso que busca? Pedir Apertura (Paso 3) &rarr;
             </button>
           </div>
@@ -735,7 +735,7 @@
         </div>
 
         <div style="display:flex;flex-direction:column;gap:18px;">
-          <div class="hp-card hp-card--naranja">
+          <div class="hp-card hp-card--naranja hidden">
             <h3 class="hp-card__title">¿No encontró fecha disponible?</h3>
             <p style="font-size:0.9rem;margin-bottom:14px;color:var(--tz-texto);">
               Si las fechas del cronograma están llenas o necesita una fecha especial para su cuadrilla, registre su requerimiento en el <strong>Paso 3</strong> para que el Área de Capacitación programe un nuevo grupo.
@@ -954,7 +954,7 @@
         <span class="hp-step__sub">Validar y Asignar Aulas</span>
       </button>
 
-      <button type="button" id="govTab3" class="hp-step" onclick="goGovTab(3)">
+      <button type="button" id="govTab3" class="hp-step hidden" onclick="goGovTab(3)">
         <span class="hp-step__num">BANDEJA 3</span>
         <span class="hp-step__title">Demanda Apertura</span>
         <span class="hp-step__sub">Quórum Mínimo (12 alumnos)</span>
@@ -1417,8 +1417,8 @@
         </div>
       </div>
 
-      <!-- Paso 3 -->
-      <div style="display:flex;gap:14px;align-items:flex-start;background:#f8fafc;padding:12px 14px;border-radius:8px;border-left:4px solid var(--tz-naranja);">
+      <!-- Paso 3 (oculto por gerencia) -->
+      <div class="hidden" style="display:flex;gap:14px;align-items:flex-start;background:#f8fafc;padding:12px 14px;border-radius:8px;border-left:4px solid var(--tz-naranja);">
         <div style="background:var(--tz-naranja);color:#fff;font-weight:700;font-size:0.85rem;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
         <div>
           <strong style="color:var(--tz-naranja);font-size:0.92rem;">Paso 3: Solicitar Apertura de Nuevos Cursos</strong>
