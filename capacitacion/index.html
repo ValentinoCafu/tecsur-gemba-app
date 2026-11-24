@@ -2748,11 +2748,11 @@
           <div style="font-size:0.72rem;color:var(--tz-texto-suave);margin-top:3px;">No procede para capacitación ni fotocheck.</div>
         `;
       } 
-      // CASO 2: Activo en Otra Contrata (Política Anti-Fuga de Talento - Cursos 100% Ocultos)
+      // CASO 2: Activo en Otra Contrata (Política Anti-Fuga de Talento - Naranja)
       else if (r.estado_filtro === 'BLOQUEADO_ACTIVO') {
-        badgeHtml = `<span class="hp-badge hp-badge--rojo">BLOQUEADO (ACTIVO EN OTRA CONTRATA)</span>`;
+        badgeHtml = `<span class="hp-badge hp-badge--naranja" style="background:#ffedd5;color:#9a3412;border:1px solid #fdba74;">BLOQUEADO (ACTIVO EN OTRA CONTRATA)</span>`;
         cursosDetalleHtml = `
-          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 10px;font-size:0.78rem;color:#991b1b;">
+          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:8px 10px;font-size:0.78rem;color:#9a3412;">
             <div style="font-weight:700;display:flex;align-items:center;gap:4px;margin-bottom:3px;">
               🔒 Récord Protegido (Política Anti-Fuga de Talento)
             </div>
@@ -2760,16 +2760,16 @@
           </div>
         `;
         accionHtml = `
-          <span style="font-size:0.75rem;color:#b91c1c;font-weight:600;">⚠️ Vínculo Laboral Activo</span>
+          <span style="font-size:0.75rem;color:#c2410c;font-weight:600;">⚠️ Vínculo Laboral Activo</span>
           <div style="font-size:0.72rem;color:var(--tz-texto-suave);margin-top:3px;">Requiere cese formal y cumplir 2 meses calendario (60 días) de carencia para postular.</div>
         `;
       } 
-      // CASO 3: Cesado pero dentro de los 2 meses calendario / 60 días (Cursos 100% Ocultos)
+      // CASO 3: Cesado pero dentro de los 2 meses calendario / 60 días (Naranja)
       else if (r.estado_filtro === 'BLOQUEADO_CESE_60D') {
         const ceseStr = r.fecha_cese || "registrada";
         const libStr = r.fecha_liberacion || "al cumplir 60 días";
         const faltStr = r.dias_faltantes_liberacion || r.dias_faltantes || "algunos";
-        badgeHtml = `<span class="hp-badge hp-badge--naranja" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">BLOQUEADO (CARENCIA &lt; 2 MESES)</span>`;
+        badgeHtml = `<span class="hp-badge hp-badge--naranja" style="background:#ffedd5;color:#9a3412;border:1px solid #fdba74;">BLOQUEADO (CARENCIA &lt; 2 MESES)</span>`;
         cursosDetalleHtml = `
           <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:0.78rem;color:#92400e;">
             <div style="font-weight:700;display:flex;align-items:center;gap:4px;margin-bottom:3px;">
@@ -3680,6 +3680,15 @@ ${solicitante} (${empresa})`;
     alert(`✓ Solicitud de cambio/retiro registrada con éxito (Ticket: ${rId}). El Área de Capacitación validará la solicitud.`);
   }
 
+  // Semáforo oficial de estados de filtro: Verde (Habilitado), Rojo (Observado), Naranja (Cese / Activo en otra contrata)
+  function obtenerBadgeEstadoFiltro(estado) {
+    const est = String(estado || '').toUpperCase();
+    if (est.includes('RECHAZADO') || est.includes('OBSERVADO')) return 'hp-badge--rojo';
+    if (est.includes('ACTIVO_MISMA_EMPRESA') || est.includes('HABILITADO') || est.includes('APTO')) return 'hp-badge--verde';
+    if (est.includes('BLOQUEADO') || est.includes('CESE') || est.includes('ACTIVO')) return 'hp-badge--naranja';
+    return 'hp-badge--naranja';
+  }
+
   // 11. PASO 5: Renderizar "Mis Solicitudes" (Historial Completo de la Subcontrata: Filtros, Inscripciones, Aperturas y Cambios)
   function renderMisSolicitudes() {
     const tbody = document.getElementById('tbodyMisSolicitudes');
@@ -3692,7 +3701,7 @@ ${solicitante} (${empresa})`;
     // 1. Tickets de Consulta Filtro DNI (Paso 1)
     STATE.tickets_filtro.filter(f => esAdmin || f.empresa === emp).forEach((f, idx) => {
       const tkt = f.ticket_id || `FIL-2026-${100 + idx}`;
-      let badge = (f.estado_filtro || '').includes('APTO') ? 'hp-badge--verde' : 'hp-badge--rojo';
+      let badge = obtenerBadgeEstadoFiltro(f.estado_filtro);
       filas.push(`
         <tr>
           <td><strong style="color:#166534;">${tkt}</strong></td>
@@ -3788,7 +3797,7 @@ ${solicitante} (${empresa})`;
 
     tbody.innerHTML = STATE.tickets_filtro.map((f, idx) => {
       const tkt = f.ticket_id || `FIL-2026-${100 + idx}`;
-      let badge = (f.estado_filtro || '').includes('APTO') ? 'hp-badge--verde' : 'hp-badge--rojo';
+      let badge = obtenerBadgeEstadoFiltro(f.estado_filtro);
       return `
         <tr>
           <td><strong style="color:#166534;">${tkt}</strong></td>
