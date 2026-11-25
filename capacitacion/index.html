@@ -559,17 +559,21 @@
             <label class="hp-label" for="f2CursoCodigo">1. Seleccione el Curso Oficial a Inscribir *</label>
             <div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;">
               <span style="font-size:0.75rem;color:var(--tz-texto-suave);align-self:center;font-weight:600;">⚡ Cursos frecuentes:</span>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('HSE')">🛡️ Inducción Integral (HSE)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('HSE_1')">🛡️ Inducción General (HSE_1)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('HSE_2')">🛡️ Inducción Específica (HSE_2)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('BRIEI')">🔥 Brigada Incendios (BRIEI)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('BRICSP')">☣️ Brigada Sust. Peligrosas (BRICSP)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('BRIPACI')">🚑 Brigada Primeros Aux. (BRIPACI)</button>
               <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EMB')">⚡ Maniobras BT (EMB)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EMB_R')">🔄 Reval. Maniobras BT (EMB_R)</button>
               <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EPRP')">🧗 Rescate BT/MT (EPRP)</button>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EPRP_S')">🧗 Rescate Sup. (EPRP_S)</button>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EASA')">⚡ Ayudante Redes (EASA)</button>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EORABT')">🔧 Operario Redes BT (EORABT)</button>
-              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EORAMT')">⚡ Operario Redes MT (EORAMT)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EASA')">⚡ Ayudante (EASA)</button>
+              <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('EORABT')">🔧 Operario BT (EORABT)</button>
               <button type="button" class="hp-btn hp-btn--outline hp-btn--sm" style="padding:3px 9px;font-size:0.75rem;" onclick="seleccionarCursoRapidoPaso2('ECON')">🚗 Conductor (ECON)</button>
             </div>
             <div style="position:relative;">
-              <input type="text" id="f2CursoFiltroInput" class="hp-input" placeholder="🔍 Busque por puesto o nombre en español (ej. Ayudante, Conductor, Inducción, Supervisor...)" oninput="filtrarOpcionesCursosPaso2(this.value)" style="margin-bottom:6px;background:#fff;border-color:var(--tz-azul);">
+              <input type="text" id="f2CursoFiltroInput" class="hp-input" placeholder="🔍 Escriba acrónimo (ej. BRIEI, HSE_1, IZ) o palabras (ej. incendios, maximetros, veredas)..." oninput="filtrarOpcionesCursosPaso2(this.value, true)" onfocus="filtrarOpcionesCursosPaso2(this.value, true)" onkeydown="manejarTeclaBuscadorCursosPaso2(event)" autocomplete="off" style="margin-bottom:6px;background:#fff;border-color:var(--tz-azul);">
+              <div id="f2CursoSugerencias" class="hidden" style="position:absolute;left:0;right:0;top:40px;z-index:60;background:#ffffff;border:2px solid var(--tz-azul);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:0 12px 24px rgba(15,23,42,0.18);"></div>
               <select id="f2CursoCodigo" class="hp-select">
                 <!-- Se puebla dinámicamente con los cursos oficiales -->
               </select>
@@ -644,9 +648,10 @@
                 <input type="text" id="f2InputEmpresa" class="hp-input" placeholder="CONTRATISTA" readonly style="background:#f1f5f9;color:#475569;">
               </div>
               <!-- 7. CURSO -->
-              <div>
+              <div style="position:relative;">
                 <label class="hp-label" style="font-size:0.75rem;margin-bottom:2px;">7. CURSO *</label>
-                <input type="text" id="f2InputCurso" class="hp-input" placeholder="Código (ej. HSE)" list="datalistCursosRapidos" oninput="sincronizarCursoDesdeInput(this.value)" style="background:#fff;color:var(--tz-azul);font-weight:bold;">
+                <input type="text" id="f2InputCurso" class="hp-input" placeholder="Acrónimo o nombre (ej. HSE_1, BRIEI, incendios)" list="datalistCursosRapidos" oninput="sincronizarCursoDesdeInput(this.value, true)" onfocus="sincronizarCursoDesdeInput(this.value, true)" onkeydown="manejarTeclaInputCursoPaso2(event)" autocomplete="off" style="background:#fff;color:var(--tz-azul);font-weight:bold;">
+                <div id="f2InputCursoSugerencias" class="hidden" style="position:absolute;left:0;right:0;top:58px;z-index:60;background:#ffffff;border:2px solid var(--tz-azul);border-radius:8px;max-height:220px;overflow-y:auto;box-shadow:0 12px 24px rgba(15,23,42,0.18);"></div>
                 <datalist id="datalistCursosRapidos"></datalist>
               </div>
               <!-- 8. CORREO PERSONAL DEL PARTICIPANTE -->
@@ -1559,7 +1564,7 @@
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjz_fXMjTz5XzPGCOMInCBlakWT2fv6bYQ5J9MkkRkVKYG2S01Kw3DEQQ2-VujmPMUM0C3E5f7xKaZ/pubhtml?gid=1286397320&single=true";
 
   // Catálogo Oficial de 59 Cursos Tecsur
-  const CURSOS_OFICIALES = [{"codigo": "HSE", "nombre": "Inducción Integral en HSE (General HSE_1 + Específica HSE_2)", "cargo": "Todos los cargos", "especialidad": "Seguridad y Salud (HSE)", "horas": 10, "vigencia": 2, "requisitos": "Obligatorio antes de ingresar a obra"}, {"codigo": "EMB", "nombre": "Ejecución de Maniobras en BT", "cargo": "Operario / Técnico", "especialidad": "Redes Eléctricas BT", "horas": 8, "vigencia": 1, "requisitos": ""}, {"codigo": "EPRP", "nombre": "Rescate de Personal - Escalamiento de Postes y Estructuras en BT - MT", "cargo": "Operario / Liniero", "especialidad": "Rescate y Seguridad en Altura", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EPRP_S", "nombre": "Rescate de Personal - Escalamiento de Postes y Estructuras en BT - MT - AT para Supervisión", "cargo": "Supervisor", "especialidad": "Rescate y Seguridad en Altura", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EASA", "nombre": "Entrenamiento en la tarea del Ayudantes en Redes Subterráneas/Aéreas BT/MT", "cargo": "Ayudante", "especialidad": "Redes Subterráneas / Aéreas BT/MT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EARA", "nombre": "Entrenamiento en la tarea del Auxiliar de Redes Aéreas", "cargo": "Auxiliar", "especialidad": "Redes Aéreas", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "EOAP", "nombre": "Entrenamiento en la tarea del Operario de Alumbrado Publico", "cargo": "Operario", "especialidad": "Alumbrado Publico", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "RPC", "nombre": "Entrenamiento en la tarea de Rehabilitación de postes", "cargo": "Operario", "especialidad": "Rehabilitación de postes", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EOCP", "nombre": "Entrenamiento en la tarea Control de Pérdidas de Energía", "cargo": "Operario", "especialidad": "Control de Pérdidas de Energía", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOFL", "nombre": "Entrenamiento en la tarea de Operario de Fonoluz", "cargo": "Operario", "especialidad": "Fonoluz", "horas": 18, "vigencia": 4, "requisitos": "Debe tener previo el curso de ECOBH"}, {"codigo": "EOLT", "nombre": "Entrenamiento en la tarea del Operario de Líneas Transmisión", "cargo": "Operario", "especialidad": "Líneas Transmisión", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EOMC", "nombre": "Entrenamiento en la tarea del Operario Mantenimiento de Conexiones", "cargo": "Operario", "especialidad": "Mantenimiento de Conexiones", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EOMI", "nombre": "Entrenamiento en la tarea Mediciones de Iluminación", "cargo": "Operario", "especialidad": "Mediciones de Iluminación", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOOC", "nombre": "Entrenamiento en la tarea del Operario Obras Civiles", "cargo": "Operario", "especialidad": "Obras Civiles", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOOCV", "nombre": "Entrenamiento en la tarea del Operario Obras Civiles -Veredas", "cargo": "Operario", "especialidad": "Obras Civiles -Veredas", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EOPD", "nombre": "Entrenamiento en la tarea del Operario Poda", "cargo": "Operario", "especialidad": "Poda", "horas": 24, "vigencia": 4, "requisitos": "Debe tener previo el curso de ECOBH"}, {"codigo": "EOLV", "nombre": "Entrenamiento en la tarea del Operario Lavado", "cargo": "Operario", "especialidad": "Lavado", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "EORBT", "nombre": "Entrenamiento en la tarea del Operario Reclamos BT", "cargo": "Operario", "especialidad": "Reclamos BT", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EORABT", "nombre": "Entrenamiento en la tarea del Operario Redes Aéreas BT", "cargo": "Operario", "especialidad": "Redes Aéreas BT", "horas": 34, "vigencia": 4, "requisitos": ""}, {"codigo": "EOTD", "nombre": "Entrenamiento en la tarea de tableros de distribución secundaria y AP- SP", "cargo": "Operario", "especialidad": "Tableros de distribución secundaria y AP- SP", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "EORAMT", "nombre": "Entrenamiento en la tarea del Operario Redes Aéreas MT", "cargo": "Operario", "especialidad": "Redes Aéreas MT", "horas": 26, "vigencia": 4, "requisitos": ""}, {"codigo": "EORS", "nombre": "Entrenamiento en la tarea del Operario Redes Subterráneas", "cargo": "Operario", "especialidad": "Redes Subterráneas", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "EOSD", "nombre": "Entrenamiento en la tarea del Operario de subestaciones distribución", "cargo": "Operario", "especialidad": "Subestaciones distribución", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOST", "nombre": "Entrenamiento en la tarea del Operario de subestaciones transmisión", "cargo": "Operario", "especialidad": "Subestaciones transmisión", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOREPC", "nombre": "Entrenamiento en la tarea reemplazo de elemento de protección en conexiones hasta 20 kW en BT", "cargo": "Operario", "especialidad": "Reemplazo de elemento de protección en conexiones hasta 20 kW en BT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EEBT", "nombre": "Entrenamiento en la tarea del Empalmador Redes BT", "cargo": "Empalmador", "especialidad": "Redes BT", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "EEMT", "nombre": "Entrenamiento en la tarea del Empalmador Redes MT", "cargo": "Empalmador", "especialidad": "Redes MT", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "EIS", "nombre": "Entrenamiento en la tarea del Inspector Suministros", "cargo": "Inspector", "especialidad": "Suministros", "horas": 4, "vigencia": 4, "requisitos": ""}, {"codigo": "EIPBT", "nombre": "Entrenamiento en la tarea del Inspector Postes BT", "cargo": "Inspector", "especialidad": "Postes BT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EIP", "nombre": "Entrenamiento en la tarea del Inspector Predio", "cargo": "Inspector", "especialidad": "Predio", "horas": 4, "vigencia": 4, "requisitos": ""}, {"codigo": "ETMC", "nombre": "Entrenamiento en la tarea del Técnico Instalación Medidores/Concentradores", "cargo": "Técnico", "especialidad": "Instalación de Medidores/Concentradores", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ETRMMI_MT", "nombre": "Entrenamiento en la tarea del Técnico Reemplazador Medidor Electrónico Multifunción con Medición Indirecta en MT (PMI/PMS)", "cargo": "Técnico", "especialidad": "Reemplazo Medidor Electrónico con Medición Indirecta MT (PMI/PMS)", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "ETRMMI_BT", "nombre": "Entrenamiento en la tarea del Técnico Reemplazador Medidor Electrónico con Medición Indirecta en BT", "cargo": "Técnico", "especialidad": "Reemplazo Medidor Electrónico Medición Indirecta  BT", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "ETMMIBT", "nombre": "Entrenamiento en la tarea para Instalador de equipos de medida con medición indirecta en BT", "cargo": "Técnico", "especialidad": "Instalación de equipos de medida con Medición Indirecta en BT", "horas": 9, "vigencia": 4, "requisitos": ""}, {"codigo": "ETIVMI_MT", "nombre": "Entrenamiento en la tarea para Instalador y verificador final  de equipos de medida con medición indirecta en MT", "cargo": "Técnico", "especialidad": "Instalación y Verificacion Final de Equipos de Medida con Medición Indirecta en MT", "horas": 14, "vigencia": 4, "requisitos": ""}, {"codigo": "ETRBAT_BT", "nombre": "Entrenamiento Instalación o Reemplazo de Batería en Medidor Electrónico Multifunción para Baja Tensión.", "cargo": "Técnico", "especialidad": "Instalación o Reemplazo de Batería en Medidor Electrónico de Medición Indirecta BT.", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCOC", "nombre": "Entrenamiento en la tarea de Encargado de Obras Civiles", "cargo": "Encargado", "especialidad": "Obras Civiles", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCOCV", "nombre": "Entrenamiento en la tarea de Encargado de Obras Civiles - veredas", "cargo": "Encargado", "especialidad": "Encargado Obras Civiles - veredas", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCORA", "nombre": "Entrenamiento en la tarea del Encargado de Obra Redes Aéreas", "cargo": "Encargado", "especialidad": "Obra Redes Aéreas", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCORS", "nombre": "Entrenamiento en la tarea del Encargado de Obra Redes Subterráneas", "cargo": "Encargado", "especialidad": "Obra Redes Subterráneas", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCOSD", "nombre": "Entrenamiento en la tarea del Encargado de Obra Subestaciones de Distribución", "cargo": "Encargado", "especialidad": "Obra Subestaciones de Distribución", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ECAL", "nombre": "Entrenamiento en la tarea del Capataz Alumbrado Público", "cargo": "Capataz", "especialidad": "Alumbrado Público", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECCPE", "nombre": "Entrenamiento en la tarea del Capataz Control de Pérdidas de Energía", "cargo": "Capataz", "especialidad": "Control de Pérdidas de Energía", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECEME", "nombre": "Entrenamiento en la tarea del Capataz Emergencia", "cargo": "Capataz", "especialidad": "Emergencia", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECLT", "nombre": "Entrenamiento en la tarea del Capataz Líneas de Transmisión", "cargo": "Capataz", "especialidad": "Líneas de Transmisión", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOC", "nombre": "Entrenamiento en la tarea del Capataz Obras Civiles", "cargo": "Capataz", "especialidad": "Obras Civiles", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECPMBT", "nombre": "Entrenamiento en la tarea del Capataz Proyectos y Mantenimiento BT", "cargo": "Capataz", "especialidad": "Proyectos y Mantenimiento BT", "horas": 42, "vigencia": 4, "requisitos": ""}, {"codigo": "ECPMMT", "nombre": "Entrenamiento en la tarea del Capataz Proyectos y Mantenimiento MT", "cargo": "Capataz", "especialidad": "Proyectos y Mantenimiento MT", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECST", "nombre": "Entrenamiento en la tarea del Capataz Subestaciones de Transmisión", "cargo": "Capataz", "especialidad": "Subestaciones de Transmisión", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOB", "nombre": "Entrenamiento en la tarea Coordinador de Obras", "cargo": "Coordinador", "especialidad": "Obras", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ECPR", "nombre": "Entrenamiento en la tarea del Coordinador de Prevención de Riesgos", "cargo": "Coordinador", "especialidad": "Prevención de Riesgos", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "GMP", "nombre": "Entrenamiento en la tarea del Coordinador de Materiales", "cargo": "Coordinador", "especialidad": "Materiales", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ECON", "nombre": "Entrenamiento en la tarea del Conductor", "cargo": "Conductor", "especialidad": "Conductor", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ECON_4X4", "nombre": "Entrenamiento en la tarea del Conductor 4x4", "cargo": "Conductor", "especialidad": "Conductor 4x4", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOBH", "nombre": "Entrenamiento en la tarea del Conductor Operador Brazo Hidráulico", "cargo": "Conductor", "especialidad": "Operador Brazo Hidráulico", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOGR", "nombre": "Entrenamiento en la tarea del Conductor Operador Grúas", "cargo": "Conductor", "especialidad": "Operador Grúas", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOMP_C", "nombre": "Entrenamiento en la tarea del Conductor de Maquinaria pesada a operar", "cargo": "Conductor", "especialidad": "Operador de otras Maquinarias pesadas", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "AOG", "nombre": "Entrenamiento en la tarea de Rigger (Apoyo de operador de grúa)", "cargo": "Rigger", "especialidad": "Rigger o Apoyo de operador de grúa", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "ELIQ", "nombre": "Entrenamiento en la tarea del Liquidador", "cargo": "Liquidador", "especialidad": "Liquidador", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EALM", "nombre": "Entrenamiento en la tarea del Almacenero", "cargo": "Almacenero", "especialidad": "Almacenero", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "SUP_C", "nombre": "Entrenamiento en la tarea del Supervisor C", "cargo": "Supervisor", "especialidad": "Supervisor C", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "SUP_B", "nombre": "Entrenamiento en la tarea del Supervisor B", "cargo": "Supervisor", "especialidad": "Supervisor B", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "SUP_A", "nombre": "Entrenamiento en la tarea del Supervisor A", "cargo": "Supervisor", "especialidad": "Supervisor A", "horas": 16, "vigencia": 4, "requisitos": ""}];
+  const CURSOS_OFICIALES = [{"codigo": "HSE_1", "nombre": "Inducción General en HSE (Seguridad y Salud en el Trabajo)", "cargo": "Todos los cargos", "especialidad": "Seguridad y Salud (HSE)", "horas": 6, "vigencia": 2, "requisitos": "Obligatorio antes de ingresar a obra"}, {"codigo": "HSE_2", "nombre": "Inducción Específica en HSE (Riesgos Eléctricos y Operativos)", "cargo": "Todos los cargos", "especialidad": "Seguridad y Salud (HSE)", "horas": 4, "vigencia": 2, "requisitos": "Contar con Inducción General HSE_1"}, {"codigo": "EMB", "nombre": "Ejecución de Maniobras en BT", "cargo": "Operario / Técnico", "especialidad": "Redes Eléctricas BT", "horas": 8, "vigencia": 1, "requisitos": ""}, {"codigo": "EPRP", "nombre": "Rescate de Personal - Escalamiento de Postes y Estructuras en BT - MT", "cargo": "Operario / Liniero", "especialidad": "Rescate y Seguridad en Altura", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EPRP_S", "nombre": "Rescate de Personal - Escalamiento de Postes y Estructuras en BT - MT - AT para Supervisión", "cargo": "Supervisor", "especialidad": "Rescate y Seguridad en Altura", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EASA", "nombre": "Entrenamiento en la tarea del Ayudantes en Redes Subterráneas/Aéreas BT/MT", "cargo": "Ayudante", "especialidad": "Redes Subterráneas / Aéreas BT/MT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EARA", "nombre": "Entrenamiento en la tarea del Auxiliar de Redes Aéreas", "cargo": "Auxiliar", "especialidad": "Redes Aéreas", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "EOAP", "nombre": "Entrenamiento en la tarea del Operario de Alumbrado Publico", "cargo": "Operario", "especialidad": "Alumbrado Publico", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "RPC", "nombre": "Entrenamiento en la tarea de Rehabilitación de postes", "cargo": "Operario", "especialidad": "Rehabilitación de postes", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EOCP", "nombre": "Entrenamiento en la tarea Control de Pérdidas de Energía", "cargo": "Operario", "especialidad": "Control de Pérdidas de Energía", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOFL", "nombre": "Entrenamiento en la tarea de Operario de Fonoluz", "cargo": "Operario", "especialidad": "Fonoluz", "horas": 18, "vigencia": 4, "requisitos": "Debe tener previo el curso de ECOBH"}, {"codigo": "EOLT", "nombre": "Entrenamiento en la tarea del Operario de Líneas Transmisión", "cargo": "Operario", "especialidad": "Líneas Transmisión", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EOMC", "nombre": "Entrenamiento en la tarea del Operario Mantenimiento de Conexiones", "cargo": "Operario", "especialidad": "Mantenimiento de Conexiones", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EOMI", "nombre": "Entrenamiento en la tarea Mediciones de Iluminación", "cargo": "Operario", "especialidad": "Mediciones de Iluminación", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOOC", "nombre": "Entrenamiento en la tarea del Operario Obras Civiles", "cargo": "Operario", "especialidad": "Obras Civiles", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOOCV", "nombre": "Entrenamiento en la tarea del Operario Obras Civiles -Veredas", "cargo": "Operario", "especialidad": "Obras Civiles -Veredas", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EOPD", "nombre": "Entrenamiento en la tarea del Operario Poda", "cargo": "Operario", "especialidad": "Poda", "horas": 24, "vigencia": 4, "requisitos": "Debe tener previo el curso de ECOBH"}, {"codigo": "EOLV", "nombre": "Entrenamiento en la tarea del Operario Lavado", "cargo": "Operario", "especialidad": "Lavado", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "EORBT", "nombre": "Entrenamiento en la tarea del Operario Reclamos BT", "cargo": "Operario", "especialidad": "Reclamos BT", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EORABT", "nombre": "Entrenamiento en la tarea del Operario Redes Aéreas BT", "cargo": "Operario", "especialidad": "Redes Aéreas BT", "horas": 34, "vigencia": 4, "requisitos": ""}, {"codigo": "EOTD", "nombre": "Entrenamiento en la tarea de tableros de distribución secundaria y AP- SP", "cargo": "Operario", "especialidad": "Tableros de distribución secundaria y AP- SP", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "EORAMT", "nombre": "Entrenamiento en la tarea del Operario Redes Aéreas MT", "cargo": "Operario", "especialidad": "Redes Aéreas MT", "horas": 26, "vigencia": 4, "requisitos": ""}, {"codigo": "EORS", "nombre": "Entrenamiento en la tarea del Operario Redes Subterráneas", "cargo": "Operario", "especialidad": "Redes Subterráneas", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "EOSD", "nombre": "Entrenamiento en la tarea del Operario de subestaciones distribución", "cargo": "Operario", "especialidad": "Subestaciones distribución", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOST", "nombre": "Entrenamiento en la tarea del Operario de subestaciones transmisión", "cargo": "Operario", "especialidad": "Subestaciones transmisión", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EOREPC", "nombre": "Entrenamiento en la tarea reemplazo de elemento de protección en conexiones hasta 20 kW en BT", "cargo": "Operario", "especialidad": "Reemplazo de elemento de protección en conexiones hasta 20 kW en BT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EEBT", "nombre": "Entrenamiento en la tarea del Empalmador Redes BT", "cargo": "Empalmador", "especialidad": "Redes BT", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "EEMT", "nombre": "Entrenamiento en la tarea del Empalmador Redes MT", "cargo": "Empalmador", "especialidad": "Redes MT", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "EIS", "nombre": "Entrenamiento en la tarea del Inspector Suministros", "cargo": "Inspector", "especialidad": "Suministros", "horas": 4, "vigencia": 4, "requisitos": ""}, {"codigo": "EIPBT", "nombre": "Entrenamiento en la tarea del Inspector Postes BT", "cargo": "Inspector", "especialidad": "Postes BT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EIP", "nombre": "Entrenamiento en la tarea del Inspector Predio", "cargo": "Inspector", "especialidad": "Predio", "horas": 4, "vigencia": 4, "requisitos": ""}, {"codigo": "ETMC", "nombre": "Entrenamiento en la tarea del Técnico Instalación Medidores/Concentradores", "cargo": "Técnico", "especialidad": "Instalación de Medidores/Concentradores", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ETRMMI_MT", "nombre": "Entrenamiento en la tarea del Técnico Reemplazador Medidor Electrónico Multifunción con Medición Indirecta en MT (PMI/PMS)", "cargo": "Técnico", "especialidad": "Reemplazo Medidor Electrónico con Medición Indirecta MT (PMI/PMS)", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "ETRMMI_BT", "nombre": "Entrenamiento en la tarea del Técnico Reemplazador Medidor Electrónico con Medición Indirecta en BT", "cargo": "Técnico", "especialidad": "Reemplazo Medidor Electrónico Medición Indirecta  BT", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "ETMMIBT", "nombre": "Entrenamiento en la tarea para Instalador de equipos de medida con medición indirecta en BT", "cargo": "Técnico", "especialidad": "Instalación de equipos de medida con Medición Indirecta en BT", "horas": 9, "vigencia": 4, "requisitos": ""}, {"codigo": "ETIVMI_MT", "nombre": "Entrenamiento en la tarea para Instalador y verificador final  de equipos de medida con medición indirecta en MT", "cargo": "Técnico", "especialidad": "Instalación y Verificacion Final de Equipos de Medida con Medición Indirecta en MT", "horas": 14, "vigencia": 4, "requisitos": ""}, {"codigo": "ETRBAT_BT", "nombre": "Entrenamiento Instalación o Reemplazo de Batería en Medidor Electrónico Multifunción para Baja Tensión.", "cargo": "Técnico", "especialidad": "Instalación o Reemplazo de Batería en Medidor Electrónico de Medición Indirecta BT.", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCOC", "nombre": "Entrenamiento en la tarea de Encargado de Obras Civiles", "cargo": "Encargado", "especialidad": "Obras Civiles", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCOCV", "nombre": "Entrenamiento en la tarea de Encargado de Obras Civiles - veredas", "cargo": "Encargado", "especialidad": "Encargado Obras Civiles - veredas", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCORA", "nombre": "Entrenamiento en la tarea del Encargado de Obra Redes Aéreas", "cargo": "Encargado", "especialidad": "Obra Redes Aéreas", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCORS", "nombre": "Entrenamiento en la tarea del Encargado de Obra Redes Subterráneas", "cargo": "Encargado", "especialidad": "Obra Redes Subterráneas", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ENCOSD", "nombre": "Entrenamiento en la tarea del Encargado de Obra Subestaciones de Distribución", "cargo": "Encargado", "especialidad": "Obra Subestaciones de Distribución", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ECAL", "nombre": "Entrenamiento en la tarea del Capataz Alumbrado Público", "cargo": "Capataz", "especialidad": "Alumbrado Público", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECCPE", "nombre": "Entrenamiento en la tarea del Capataz Control de Pérdidas de Energía", "cargo": "Capataz", "especialidad": "Control de Pérdidas de Energía", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECEME", "nombre": "Entrenamiento en la tarea del Capataz Emergencia", "cargo": "Capataz", "especialidad": "Emergencia", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECLT", "nombre": "Entrenamiento en la tarea del Capataz Líneas de Transmisión", "cargo": "Capataz", "especialidad": "Líneas de Transmisión", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOC", "nombre": "Entrenamiento en la tarea del Capataz Obras Civiles", "cargo": "Capataz", "especialidad": "Obras Civiles", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECPMBT", "nombre": "Entrenamiento en la tarea del Capataz Proyectos y Mantenimiento BT", "cargo": "Capataz", "especialidad": "Proyectos y Mantenimiento BT", "horas": 42, "vigencia": 4, "requisitos": ""}, {"codigo": "ECPMMT", "nombre": "Entrenamiento en la tarea del Capataz Proyectos y Mantenimiento MT", "cargo": "Capataz", "especialidad": "Proyectos y Mantenimiento MT", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECST", "nombre": "Entrenamiento en la tarea del Capataz Subestaciones de Transmisión", "cargo": "Capataz", "especialidad": "Subestaciones de Transmisión", "horas": 32, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOB", "nombre": "Entrenamiento en la tarea Coordinador de Obras", "cargo": "Coordinador", "especialidad": "Obras", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "ECPR", "nombre": "Entrenamiento en la tarea del Coordinador de Prevención de Riesgos", "cargo": "Coordinador", "especialidad": "Prevención de Riesgos", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "GMP", "nombre": "Entrenamiento en la tarea del Coordinador de Materiales", "cargo": "Coordinador", "especialidad": "Materiales", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ECON", "nombre": "Entrenamiento en la tarea del Conductor", "cargo": "Conductor", "especialidad": "Conductor", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "ECON_4X4", "nombre": "Entrenamiento en la tarea del Conductor 4x4", "cargo": "Conductor", "especialidad": "Conductor 4x4", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOBH", "nombre": "Entrenamiento en la tarea del Conductor Operador Brazo Hidráulico", "cargo": "Conductor", "especialidad": "Operador Brazo Hidráulico", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOGR", "nombre": "Entrenamiento en la tarea del Conductor Operador Grúas", "cargo": "Conductor", "especialidad": "Operador Grúas", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "ECOMP_C", "nombre": "Entrenamiento en la tarea del Conductor de Maquinaria pesada a operar", "cargo": "Conductor", "especialidad": "Operador de otras Maquinarias pesadas", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "AOG", "nombre": "Entrenamiento en la tarea de Rigger (Apoyo de operador de grúa)", "cargo": "Rigger", "especialidad": "Rigger o Apoyo de operador de grúa", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "ELIQ", "nombre": "Entrenamiento en la tarea del Liquidador", "cargo": "Liquidador", "especialidad": "Liquidador", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "EALM", "nombre": "Entrenamiento en la tarea del Almacenero", "cargo": "Almacenero", "especialidad": "Almacenero", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "SUP_C", "nombre": "Entrenamiento en la tarea del Supervisor C", "cargo": "Supervisor", "especialidad": "Supervisor C", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "SUP_B", "nombre": "Entrenamiento en la tarea del Supervisor B", "cargo": "Supervisor", "especialidad": "Supervisor B", "horas": 24, "vigencia": 4, "requisitos": ""}, {"codigo": "SUP_A", "nombre": "Entrenamiento en la tarea del Supervisor A", "cargo": "Supervisor", "especialidad": "Supervisor A", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "BRIEI", "nombre": "Brigada de Respuesta Inicial de Extincion de Incendios", "cargo": "Brigadista / Todos", "especialidad": "Brigadas y Emergencias", "horas": 2, "vigencia": 1, "requisitos": ""}, {"codigo": "BRIPACI", "nombre": "Brigada de Respuesta Inicial de Primeros Auxilios y Comandante de Incidente", "cargo": "Brigadista / Todos", "especialidad": "Brigadas y Emergencias", "horas": 3, "vigencia": 1, "requisitos": ""}, {"codigo": "BRICSP", "nombre": "Brigada de Respuesta Inicial de Contencion de Sustancias peligrosas", "cargo": "Brigadista / Todos", "especialidad": "Brigadas y Emergencias", "horas": 1, "vigencia": 1, "requisitos": ""}, {"codigo": "EMB_R", "nombre": "Ejecución de Maniobras en BT - Revalidación", "cargo": "Operario / Técnico", "especialidad": "Maniobras y Redes BT", "horas": 4, "vigencia": 1, "requisitos": ""}, {"codigo": "PDC", "nombre": "Plan de contingencias - Revalidación", "cargo": "Todos los cargos", "especialidad": "Seguridad y Contingencias", "horas": 1, "vigencia": 1, "requisitos": ""}, {"codigo": "IZ", "nombre": "Izamiento de postes con cabria", "cargo": "Operario / Liniero", "especialidad": "Redes Aéreas e Izamiento", "horas": 7, "vigencia": 4, "requisitos": ""}, {"codigo": "CD", "nombre": "Caminos de Difícil Acceso", "cargo": "Todos los cargos", "especialidad": "Seguridad en Campo", "horas": 6, "vigencia": 4, "requisitos": ""}, {"codigo": "LECMAX", "nombre": "Lectura de Maximetros", "cargo": "Técnico / Lector", "especialidad": "Medición y Facturación", "horas": 8, "vigencia": 2, "requisitos": ""}, {"codigo": "APR_CE", "nombre": "Actividades Preventivas Capataces - Encargados", "cargo": "Capataz / Encargado", "especialidad": "Seguridad y Prevención", "horas": 8, "vigencia": 2, "requisitos": ""}, {"codigo": "APR", "nombre": "Actividades Preventivas (IP, OP, II e IPER, COMANDANTE DE INCIDENTE)", "cargo": "Jefe / Supervisor / Técnico", "especialidad": "Seguridad y Prevención", "horas": 16, "vigencia": 4, "requisitos": ""}, {"codigo": "APR_S", "nombre": "Actividades Preventivas (IP, OP, IA e IPER) - Supervisión", "cargo": "Supervisor", "especialidad": "Seguridad y Prevención", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "RISSMA25", "nombre": "Reglamento interno de Salud, Seguridad y Medio Ambiente Luz del Sur 2025", "cargo": "Todos los cargos", "especialidad": "Normativa SST Luz del Sur", "horas": 4, "vigencia": 1, "requisitos": ""}, {"codigo": "ICSF", "nombre": "Identificación de Cables de Media y Baja Tensión - Secuencia de Fases", "cargo": "Operario / Empalmador", "especialidad": "Redes BT/MT y Fases", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "CADSUB", "nombre": "Curso de Ascenso y Descenso a Subestaciones Subterráneas", "cargo": "Operario / Subestaciones", "especialidad": "Subestaciones Subterráneas", "horas": 10, "vigencia": 1, "requisitos": ""}, {"codigo": "EPET", "nombre": "Escalamiento de Postes y Estructuras usando Escaleras Telescópicas", "cargo": "Operario / Liniero", "especialidad": "Escalamiento y Altura", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "EA", "nombre": "Empalmes en Redes Aéreas de BT y MT", "cargo": "Operario / Liniero", "especialidad": "Redes Aéreas BT/MT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "RA", "nombre": "Redes Aéreas en BT y MT", "cargo": "Operario / Liniero", "especialidad": "Redes Aéreas BT/MT", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "RPCMT", "nombre": "Reforzamiento de Postes Corroídos en MT", "cargo": "Operario / Liniero", "especialidad": "Rehabilitación Postes MT", "horas": 9, "vigencia": 4, "requisitos": ""}, {"codigo": "PNC", "nombre": "Procedimientos y Normas de Instalación de Cables de Comunicación en postes de AP y/o SP", "cargo": "Operario / Telecom", "especialidad": "Redes y Cables de Comunicación", "horas": 10, "vigencia": 3, "requisitos": ""}, {"codigo": "ST", "nombre": "Sistemas de Puesta a Tierra", "cargo": "Operario / Técnico", "especialidad": "Sistemas de Puesta a Tierra", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "CMEMS", "nombre": "Conceptos del manual de procedimientos para la ejecución de maniobras en el sistema eléctrico de LDS", "cargo": "Operario / Maniobras", "especialidad": "Maniobras Sistema Eléctrico LDS", "horas": 8, "vigencia": 1, "requisitos": ""}, {"codigo": "RNCD", "nombre": "Reglas y normas generales, sistemas de candados de seguridad LDS", "cargo": "Operario / Maniobras", "especialidad": "Candados y Seguridad Eléctrica LDS", "horas": 8, "vigencia": 1, "requisitos": ""}, {"codigo": "ERBLS", "nombre": "Elaboración y recepción de boleta de liberación y puesta en servicio de circuitos LDS", "cargo": "Operario / Maniobras", "especialidad": "Boletas de Liberación LDS", "horas": 8, "vigencia": 1, "requisitos": ""}, {"codigo": "EUNI", "nombre": "Esquemas Unifilares LDS, Distancias de Seguridad, Normas de Rotulación LDS y trabajos con apoyo del DRE", "cargo": "Operario / Supervisor", "especialidad": "Esquemas Unifilares y Rotulación LDS", "horas": 4, "vigencia": 100, "requisitos": ""}, {"codigo": "EPM", "nombre": "Elaboración de pedido de maniobra", "cargo": "Operario / Técnico", "especialidad": "Pedidos de Maniobra", "horas": 8, "vigencia": 2, "requisitos": ""}, {"codigo": "DRE", "nombre": "Izado de Postes en Redes Energizadas", "cargo": "Operario / Grúa", "especialidad": "Izado en Redes Energizadas", "horas": 8, "vigencia": 2, "requisitos": ""}, {"codigo": "TEB", "nombre": "Taller Electricidad Básica", "cargo": "Todos los cargos Técnicos", "especialidad": "Electricidad Básica", "horas": 12, "vigencia": 100, "requisitos": ""}, {"codigo": "CALBTF", "nombre": "Catastro de llaves de BT con Medición de Variables de fugas a tierra", "cargo": "Técnico / Inspector", "especialidad": "Medición y Redes BT", "horas": 16, "vigencia": 2, "requisitos": ""}, {"codigo": "RASMT", "nombre": "Redes aéreas MT y Redes subterráneas MT", "cargo": "Operario / Liniero", "especialidad": "Redes Aéreas y Subterráneas MT", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "RS", "nombre": "Redes Subterráneas en BT y MT", "cargo": "Operario / Empalmador", "especialidad": "Redes Subterráneas BT/MT", "horas": 5, "vigencia": 3, "requisitos": ""}, {"codigo": "RDT", "nombre": "Redes de Telecomunicaciones", "cargo": "Operario / Técnico", "especialidad": "Redes de Telecomunicaciones", "horas": 4, "vigencia": 100, "requisitos": ""}, {"codigo": "RCD", "nombre": "Remediaciones Control de Derrames", "cargo": "Operario / Brigada", "especialidad": "Control de Derrames", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "CX", "nombre": "Conexiones de Redes de BT", "cargo": "Operario", "especialidad": "Conexiones de Redes BT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "OSM", "nombre": "Operación Segura de Montacargas", "cargo": "Operador", "especialidad": "Montacargas", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "VRBT", "nombre": "Verificación de Redes BT", "cargo": "Técnico / Verificador", "especialidad": "Verificación Redes BT", "horas": 9, "vigencia": 2, "requisitos": ""}, {"codigo": "VRMT", "nombre": "Verificación de Redes MT", "cargo": "Técnico / Verificador", "especialidad": "Verificación Redes MT", "horas": 8, "vigencia": 2, "requisitos": ""}, {"codigo": "RPBH", "nombre": "Rescate de Personal en Brazo Hidráulico", "cargo": "Conductor / Operario BH", "especialidad": "Rescate Brazo Hidráulico", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "RPBHDRE", "nombre": "Rescate de Personal en Brazo Hidráulico para trabajos en el DRE", "cargo": "Conductor / Operario DRE", "especialidad": "Rescate Brazo Hidráulico DRE", "horas": 8, "vigencia": 2, "requisitos": ""}, {"codigo": "EPMMT", "nombre": "Elaboración de Pedido de Maniobra MT", "cargo": "Operario / Técnico", "especialidad": "Pedido de Maniobra MT", "horas": 4, "vigencia": 2, "requisitos": ""}, {"codigo": "SD", "nombre": "Sub-Estaciones de Distribución (AHORA SD.)", "cargo": "Operario / Técnico", "especialidad": "Subestaciones de Distribución", "horas": 14, "vigencia": 4, "requisitos": ""}, {"codigo": "IER", "nombre": "Instalación de Equipos Registradores", "cargo": "Técnico", "especialidad": "Equipos Registradores", "horas": 12, "vigencia": 4, "requisitos": ""}, {"codigo": "MEB", "nombre": "Mediciones Eléctricas Básicas", "cargo": "Técnico / Operario", "especialidad": "Mediciones Eléctricas Básicas", "horas": 10, "vigencia": 4, "requisitos": ""}, {"codigo": "LPERMT", "nombre": "Lectura de Planos, Elaboración de Planos Replanteados y Rotulación en MT", "cargo": "Operario / Supervisor", "especialidad": "Lectura de Planos MT", "horas": 8, "vigencia": 4, "requisitos": ""}, {"codigo": "EP", "nombre": "Escalamiento en postes con arnés", "cargo": "Operario / Liniero", "especialidad": "Escalamiento con Arnés", "horas": 7, "vigencia": 3, "requisitos": ""}, {"codigo": "EVEL", "nombre": "Evaluación de Experiencia Laboral", "cargo": "Técnico / Operario", "especialidad": "Evaluación de Experiencia", "horas": 4, "vigencia": 4, "requisitos": ""}, {"codigo": "EPE", "nombre": "Evaluación por experiencia", "cargo": "Técnico / Operario", "especialidad": "Evaluación por Experiencia", "horas": 4, "vigencia": 4, "requisitos": ""}, {"codigo": "EVSSOMA_C", "nombre": "Evaluacion en la experiencia para coordinador de prevencion de riesgos (SSOMA)", "cargo": "Coordinador SSOMA", "especialidad": "Seguridad y Salud (SSOMA)", "horas": 4, "vigencia": 100, "requisitos": ""}];
 
   // Base de Datos Oficial de Usuarios (Admins Tecsur y Coordinadores de Subcontratas)
   let USERS_DB = [{"id": "ADM-01", "rol": "admin", "empresa": "TECSUR — ÁREA DE CAPACITACIÓN", "ruc": "20206018411", "nombre": "Valentino Llamocca (Administrador)", "correo": "vllamocca@tecsur.com.pe", "password": "admin2026", "activo": true, "usuario": "vllamocca", "rucs_autorizados": ["20206018411", "3106", "4441", "4813", "4904", "4905"]}, {"id": "SUB-01", "rol": "contratista", "empresa": "CAMPOS LATAM", "ruc": "20614332701", "nombre": "Brigit Marilyn Quispe Huamani", "correo": "rrhh@camposlatam.com", "telefono": "923485681", "password": "Campos2026!", "activo": true, "rucs_autorizados": ["20614332701", "20602912796"]}, {"id": "SUB-02", "rol": "contratista", "empresa": "KIMSA", "ruc": "20610310622", "nombre": "FIORELA ESTHER NAPAN LOPEZ", "correo": "gestiondeltalento@kimsa.com.pe", "telefono": "951619868", "password": "Kimsa2026!", "activo": true, "rucs_autorizados": ["20610310622"]}, {"id": "SUB-03", "rol": "contratista", "empresa": "GRUCOIN S.A.C.", "ruc": "20546349781", "nombre": "LEANDRO ANDRE MORENO NAMOC", "correo": "lmoreno@gci.net.pe", "telefono": "919510915", "password": "Grucoin2026!", "activo": true, "rucs_autorizados": ["20546349781"]}, {"id": "SUB-04", "rol": "contratista", "empresa": "NATURAL GAS COMPANY", "ruc": "20509783625", "nombre": "EDITH CARDENAS BECERRA", "correo": "edith.cardenas@nagasco.com.pe", "telefono": "919477080", "password": "Nagasco2026!", "activo": true, "rucs_autorizados": ["20509783625"]}, {"id": "SUB-05", "rol": "contratista", "empresa": "ALVIMAR", "ruc": "20268244515", "nombre": "Emperatriz Lucero Chumpitaz Cárdenas", "correo": "emperatrizchumpitaz49@gmail.com", "telefono": "932318226", "password": "Alvimar2026!", "activo": true, "rucs_autorizados": ["20268244515"]}, {"id": "SUB-06", "rol": "contratista", "empresa": "EOS", "ruc": "20281244222", "nombre": "Adrian Rojas Lupú", "correo": "capacitaciones.lima@eos.pe", "telefono": "958103455", "password": "EosLima2026!", "activo": true, "rucs_autorizados": ["20281244222"]}, {"id": "SUB-07", "rol": "contratista", "empresa": "ENCOSSA SAC", "ruc": "20604989931", "nombre": "Laura Astocóndor Vadillo", "correo": "rrhh.peru@encossa.com", "telefono": "946 571 383", "password": "Encossa2026!", "activo": true, "rucs_autorizados": ["20604989931"]}, {"id": "SUB-08", "rol": "contratista", "empresa": "PRODUCSA", "ruc": "20504874401", "nombre": "AMPARO MARIBEL ZAVALA VICENTE", "correo": "azavalav@procesosproductivos.com", "telefono": "998235608", "password": "Producsa2026!", "activo": true, "rucs_autorizados": ["20504874401"]}, {"id": "SUB-09", "rol": "contratista", "empresa": "GRUPO ACUARIUS", "ruc": "20451633342", "nombre": "Jose Pedro Tantalean Rivas", "correo": "administracion001@grupoacuarius.pe", "telefono": "933114223", "password": "Acuarius2026!", "activo": true, "rucs_autorizados": ["20451633342"]}, {"id": "SUB-10", "rol": "contratista", "empresa": "JG3 CONSTRUCCIONES SAC", "ruc": "20505212739", "nombre": "ROSARIO ELSA SOTOMAYOR MALPICA", "correo": "rmalpica@jg3construcciones.com", "telefono": "980099344", "password": "Jg3Const2026!", "activo": true, "rucs_autorizados": ["20505212739"]}, {"id": "SUB-11", "rol": "contratista", "empresa": "LOS ANDES", "ruc": "20424295036", "nombre": "Tania Rojas Fernández", "correo": "seleccion01@andes.com.pe", "telefono": "916868763", "password": "Andes2026!", "activo": true, "rucs_autorizados": ["20424295036"]}, {"id": "SUB-12", "rol": "contratista", "empresa": "CARTER RENSA", "ruc": "20616089898", "nombre": "Fabiola Elizabeth Siesquen Santisteban", "correo": "fsiesquen@carter-rensa.com.pe", "telefono": "976 287 956", "password": "Carter2026!", "activo": true, "rucs_autorizados": ["20616089898"]}, {"id": "SUB-13", "rol": "contratista", "empresa": "LOS ANDES", "ruc": "20424295036", "nombre": "ILIANA MARIBEL BRAVO LEÓN", "correo": "ibravo@andes.com.pe", "telefono": "916 868 763", "password": "AndesBravo2026!", "activo": true, "rucs_autorizados": ["20424295036"]}, {"id": "SUB-14", "rol": "contratista", "empresa": "TECSUR (OPERACIONES)", "usuario": "cbacilio", "ruc": "20206018411", "nombre": "Christian Bacilio", "correo": "cbacilio@tecsur.com.pe", "telefono": "-", "password": "Bacilio2026!", "activo": true, "rucs_autorizados": ["20206018411", "3106", "4441", "4813", "4904", "4905"]}, {"id": "SUB-15", "rol": "contratista", "empresa": "ALIHCOM BUILD SAC", "ruc": "20565808592", "nombre": "Cecilia Inca Zurita", "correo": "rr.hh@build-cc.com", "telefono": "992543188", "password": "Alihcom2026!", "activo": true, "rucs_autorizados": ["20565808592"]}];
@@ -2356,9 +2361,110 @@
     }
   }
 
+  function normalizarTextoBusqueda(str) {
+    return String(str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function buscarCursosInteligente(queryRaw) {
+    const normQ = normalizarTextoBusqueda(queryRaw);
+    if (!normQ) return [...CURSOS_OFICIALES];
+    const tokens = normQ.split(/\s+/).filter(Boolean);
+
+    const scored = [];
+    for (const c of CURSOS_OFICIALES) {
+      const codNorm = normalizarTextoBusqueda(c.codigo);
+      const nomNorm = normalizarTextoBusqueda(c.nombre);
+      const cargoNorm = normalizarTextoBusqueda(c.cargo || '');
+      const espNorm = normalizarTextoBusqueda(c.especialidad || '');
+      const fullNorm = `${codNorm} ${nomNorm} ${cargoNorm} ${espNorm}`;
+
+      if (!tokens.every(t => fullNorm.includes(t))) continue;
+
+      let rank = 4;
+      if (codNorm === normQ) rank = 0;
+      else if (codNorm.startsWith(normQ)) rank = 1;
+      else if (codNorm.includes(normQ)) rank = 2;
+      else if (nomNorm.startsWith(normQ)) rank = 3;
+
+      scored.push({ rank, c });
+    }
+    scored.sort((a, b) => a.rank - b.rank || a.c.codigo.localeCompare(b.c.codigo));
+    return scored.map(x => x.c);
+  }
+
+  function cerrarSugerenciasCursosPaso2() {
+    document.getElementById('f2CursoSugerencias')?.classList.add('hidden');
+    document.getElementById('f2InputCursoSugerencias')?.classList.add('hidden');
+  }
+
+  function renderSugerenciasCursosEnContenedor(contId, lista, queryRaw) {
+    const cont = document.getElementById(contId);
+    if (!cont) return;
+    if (!String(queryRaw || '').trim()) {
+      cont.classList.add('hidden');
+      cont.innerHTML = '';
+      return;
+    }
+    if (lista.length === 0) {
+      cont.innerHTML = `<div style="padding:10px 12px;font-size:0.8rem;color:#64748b;">No se encontró ningún curso para "${String(queryRaw).replace(/</g, '&lt;')}".</div>`;
+      cont.classList.remove('hidden');
+      return;
+    }
+    cont.innerHTML = lista.slice(0, 25).map(c => `
+      <div onmousedown="seleccionarSugerenciaCursoPaso2('${c.codigo}')" style="padding:8px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:background 0.12s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#ffffff'">
+        <div style="font-size:0.8rem;line-height:1.3;">
+          <span style="display:inline-block;background:#dbeafe;color:#1e40af;font-weight:700;padding:1px 6px;border-radius:4px;font-size:0.74rem;margin-right:6px;">${c.codigo}</span>
+          <strong style="color:#0f172a;">${c.nombre}</strong>
+        </div>
+        <span style="font-size:0.72rem;color:#475569;white-space:nowrap;">${c.cargo || 'Todos'} • ${c.horas}h</span>
+      </div>
+    `).join('');
+    cont.classList.remove('hidden');
+  }
+
+  window.seleccionarSugerenciaCursoPaso2 = function(cod) {
+    window.seleccionarCursoRapidoPaso2(cod);
+    cerrarSugerenciasCursosPaso2();
+  };
+
+  window.manejarTeclaBuscadorCursosPaso2 = function(ev) {
+    if (ev.key === 'Escape') { cerrarSugerenciasCursosPaso2(); return; }
+    if (ev.key === 'Enter') {
+      const val = document.getElementById('f2CursoFiltroInput')?.value || '';
+      const hits = buscarCursosInteligente(val);
+      if (hits.length > 0) {
+        ev.preventDefault();
+        window.seleccionarSugerenciaCursoPaso2(hits[0].codigo);
+      }
+    }
+  };
+
+  window.manejarTeclaInputCursoPaso2 = function(ev) {
+    if (ev.key === 'Escape') { cerrarSugerenciasCursosPaso2(); return; }
+    if (ev.key === 'Enter') {
+      const val = document.getElementById('f2InputCurso')?.value || '';
+      const hits = buscarCursosInteligente(val);
+      if (hits.length > 0) {
+        ev.preventDefault();
+        window.seleccionarSugerenciaCursoPaso2(hits[0].codigo);
+      }
+    }
+  };
+
+  document.addEventListener('click', (ev) => {
+    const id = ev.target && ev.target.id;
+    if (id !== 'f2CursoFiltroInput' && id !== 'f2InputCurso') {
+      cerrarSugerenciasCursosPaso2();
+    }
+  });
+
   // Selección de 1 clic para botones de Cursos Frecuentes en Paso 2
   window.seleccionarCursoRapidoPaso2 = function(cod) {
-    filtrarOpcionesCursosPaso2('');
+    filtrarOpcionesCursosPaso2('', false);
     const s2 = document.getElementById('f2CursoCodigo');
     const inCur = document.getElementById('f2InputCurso');
     const inFiltro = document.getElementById('f2CursoFiltroInput');
@@ -2366,23 +2472,17 @@
     if (s2) s2.value = cod;
     if (inCur) inCur.value = cod;
     if (inFiltro && cObj) inFiltro.value = `${cObj.nombre} (${cObj.codigo})`;
+    cerrarSugerenciasCursosPaso2();
   };
 
-  // Buscador y Filtro Predictivo para el Selector de Cursos (Paso 2)
-  window.filtrarOpcionesCursosPaso2 = function(filtroRaw) {
+  // Buscador y Filtro Predictivo Inteligente (acrónimos o palabras sin acrónimo, sin tildes)
+  window.filtrarOpcionesCursosPaso2 = function(filtroRaw, mostrarSugerencias = false) {
     const s2 = document.getElementById('f2CursoCodigo');
     const inCur = document.getElementById('f2InputCurso');
     if (!s2) return;
 
     const valorPrevio = s2.value || (inCur ? inCur.value : '');
-    const filtro = (filtroRaw || '').trim().toLowerCase();
-    const filtrados = CURSOS_OFICIALES.filter(c => {
-      if (!filtro) return true;
-      return c.codigo.toLowerCase().includes(filtro) ||
-             c.nombre.toLowerCase().includes(filtro) ||
-             (c.cargo && c.cargo.toLowerCase().includes(filtro)) ||
-             (c.especialidad && c.especialidad.toLowerCase().includes(filtro));
-    });
+    const filtrados = buscarCursosInteligente(filtroRaw);
 
     let opts = '<option value="">-- Seleccione un curso oficial (' + filtrados.length + ' encontrados) --</option>';
     filtrados.forEach(c => {
@@ -2390,34 +2490,48 @@
     });
     s2.innerHTML = opts;
 
-    // Preservar la selección previa del usuario si coincide con los cursos filtrados
+    const normFiltro = normalizarTextoBusqueda(filtroRaw);
     if (valorPrevio && filtrados.some(c => c.codigo === valorPrevio)) {
       s2.value = valorPrevio;
-    } else if (filtro && filtrados.some(c => c.codigo.toLowerCase() === filtro)) {
-      const matchExacto = filtrados.find(c => c.codigo.toLowerCase() === filtro);
+    } else if (normFiltro && filtrados.some(c => normalizarTextoBusqueda(c.codigo) === normFiltro)) {
+      const matchExacto = filtrados.find(c => normalizarTextoBusqueda(c.codigo) === normFiltro);
       s2.value = matchExacto.codigo;
       if (inCur) inCur.value = matchExacto.codigo;
-    } else if (filtrados.length === 1 && filtro.length >= 3) {
+    } else if (filtrados.length === 1 && normFiltro.length >= 3) {
       s2.value = filtrados[0].codigo;
       if (inCur) inCur.value = filtrados[0].codigo;
     }
+
+    if (mostrarSugerencias) {
+      renderSugerenciasCursosEnContenedor('f2CursoSugerencias', filtrados, filtroRaw);
+    } else {
+      document.getElementById('f2CursoSugerencias')?.classList.add('hidden');
+    }
   };
 
-  // Sincronizar cuando el usuario escribe el código en el campo 7 (CURSO)
-  window.sincronizarCursoDesdeInput = function(valRaw) {
-    const val = (valRaw || '').trim().toUpperCase();
+  // Sincronizar cuando el usuario escribe acrónimo o texto libre en el campo 7 (CURSO)
+  window.sincronizarCursoDesdeInput = function(valRaw, mostrarSugerencias = false) {
+    const hits = buscarCursosInteligente(valRaw);
+    const normVal = normalizarTextoBusqueda(valRaw);
     const s2 = document.getElementById('f2CursoCodigo');
     const inFiltro = document.getElementById('f2CursoFiltroInput');
-    if (!val) return;
-    const match = CURSOS_OFICIALES.find(c => c.codigo.toUpperCase() === val || c.codigo.toUpperCase().startsWith(val));
-    if (match) {
+
+    if (mostrarSugerencias) {
+      renderSugerenciasCursosEnContenedor('f2InputCursoSugerencias', hits, valRaw);
+    }
+    if (!normVal) return;
+
+    const matchExacto = hits.find(c => normalizarTextoBusqueda(c.codigo) === normVal);
+    const matchUnico = hits.length === 1 ? hits[0] : null;
+    const picked = matchExacto || matchUnico;
+    if (picked) {
       if (s2) {
-        if (!Array.from(s2.options).some(o => o.value === match.codigo)) {
-          filtrarOpcionesCursosPaso2('');
+        if (!Array.from(s2.options).some(o => o.value === picked.codigo)) {
+          filtrarOpcionesCursosPaso2('', false);
         }
-        s2.value = match.codigo;
+        s2.value = picked.codigo;
       }
-      if (inFiltro) inFiltro.value = `${match.codigo} — ${match.nombre}`;
+      if (inFiltro) inFiltro.value = `${picked.codigo} — ${picked.nombre}`;
     }
   };
 
@@ -2952,7 +3066,7 @@
           const falta = (!h1 || !h1.vigente) ? 'HSE-1' : 'HSE-2';
           hseDiagnosticoHtml = `
             <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 8px;margin-bottom:6px;font-size:0.75rem;color:#92400e;">
-              <strong>⚠️ Inducción Base Parcial:</strong> Requiere completar <strong>${falta}</strong> (en Paso 2 inscriba el curso unificado <strong>HSE</strong>).
+              <strong>⚠️ Inducción Base Parcial:</strong> Requiere completar <strong>${falta}</strong> en Paso 2.
             </div>
           `;
         }
@@ -3032,13 +3146,13 @@
           const falta = (!h1 || !h1.vigente) ? 'HSE-1 (General)' : 'HSE-2 (Específica)';
           hseDiagnosticoHtml = `
             <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 8px;margin-bottom:6px;font-size:0.75rem;color:#92400e;">
-              <strong>⚠️ Inducción Base Parcial:</strong> Requiere completar <strong>${falta}</strong> (en Paso 2 inscriba el curso unificado <strong>HSE</strong>).
+              <strong>⚠️ Inducción Base Parcial:</strong> Requiere completar <strong>${falta}</strong> en Paso 2.
             </div>
           `;
         } else {
           hseDiagnosticoHtml = `
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 8px;margin-bottom:6px;font-size:0.75rem;color:#475569;">
-              <strong>ℹ️ Sin Inducción Base:</strong> Requiere inscribir el curso unificado <strong>HSE</strong> (Inducción General + Específica) antes de ingresar a obra.
+              <strong>ℹ️ Sin Inducción Base:</strong> Requiere programar <strong>HSE_1</strong> (General) y <strong>HSE_2</strong> (Específica) antes de ingresar a obra.
             </div>
           `;
         }
@@ -3383,7 +3497,19 @@ ${solicitante} (${empresa})`;
     const inFec = document.getElementById('f2InputFechaInicio');
     const inComp = document.getElementById('f2InputApellidosCompletos');
 
-    const cursoSel = (document.getElementById('f2CursoCodigo')?.value || inCur?.value || '').trim().toUpperCase();
+    const inCurVal = (inCur?.value || '').trim().toUpperCase();
+    const s2Val = (document.getElementById('f2CursoCodigo')?.value || '').trim().toUpperCase();
+    let cursoSel = s2Val;
+    if (inCurVal && inCurVal !== s2Val) {
+      const smartHits = buscarCursosInteligente(inCurVal);
+      if (smartHits.length > 0 && (smartHits.length === 1 || normalizarTextoBusqueda(smartHits[0].codigo) === normalizarTextoBusqueda(inCurVal))) {
+        cursoSel = smartHits[0].codigo.toUpperCase();
+        window.seleccionarCursoRapidoPaso2(smartHits[0].codigo);
+      } else if (!cursoSel && smartHits.length > 0) {
+        cursoSel = smartHits[0].codigo.toUpperCase();
+        window.seleccionarCursoRapidoPaso2(smartHits[0].codigo);
+      }
+    }
     if (!cursoSel) {
       alert("⚠️ Paso 1 requerido: Seleccione primero el Curso Oficial a inscribir arriba (o haga clic en uno de los botones de cursos frecuentes).");
       document.getElementById('f2CursoCodigo')?.focus();
@@ -3655,7 +3781,7 @@ ${solicitante} (${empresa})`;
         btn.innerHTML = '⏳ Enviando solicitud a la nube...';
       }
 
-      const cursoCod = (document.getElementById('f2CursoCodigo')?.value || PRE_REGISTRO_COLABORADORES[0]?.curso || 'HSE').trim();
+      const cursoCod = (document.getElementById('f2CursoCodigo')?.value || PRE_REGISTRO_COLABORADORES[0]?.curso || 'HSE_1').trim();
       const fecha = document.getElementById('f2FechaVista')?.value || new Date().toISOString().slice(0, 10);
       const cursoObj = (typeof CURSOS_OFICIALES !== 'undefined' && Array.isArray(CURSOS_OFICIALES))
         ? CURSOS_OFICIALES.find(c => c.codigo === cursoCod)
